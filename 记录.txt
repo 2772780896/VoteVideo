@@ -1,0 +1,3 @@
+1.选定主页和播放页所用layout模板
+2.定制menu组件，实现头部导航栏
+3.在layout的header中直接调用menu组件
