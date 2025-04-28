@@ -1,5 +1,5 @@
-import MenuApp from "@/components/common/Menu";
+import TopMenuApp from "@/components/common/TopMenu";
 function Main() {
-    return <MenuApp />
+    return <TopMenuApp />
 }
 export default Main
