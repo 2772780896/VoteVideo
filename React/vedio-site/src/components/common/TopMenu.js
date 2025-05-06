@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu } from 'antd';
+import SearchInputApp from '@/components/common/SearchInput'
 
 const section = [
   {
@@ -36,7 +37,13 @@ const items = [
     key: 'icon',
   },
   {
-    label: '首页',
+    label: (
+      <div>
+        <a href="main">
+          首页
+        </a>
+      </div>
+    ),
     key: 'main',
     children:  section
   },
@@ -72,9 +79,11 @@ const items = [
   },
   {
     label: (
-      <div style={{width:'200px'}}>Search</div>
+      <div style={{margin:'0px 200px 0px 200px'}}>
+        <SearchInputApp /> 
+      </div>
     ),
-    key: 'living'
+    key: 'search'
   },
   {
     label: (

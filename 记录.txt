@@ -1,5 +1,12 @@
-1.选定主页和播放页所用layout模板
-2.定制menu组件，实现头部导航栏
-3.在layout的header中直接调用menu组件
-4.创建侧边栏中的每个视频对应的card
-5.将侧边视频卡片集合成垂直排列的flex
+1.定制Menu组件，实现头部导航栏TopMenu
+2.定制搜索框组件SearchInput，被TopMenu调用
+3.使用Grid对主页main和视频页video进行布局
+4.在Row的顶端用span为24的Col调用TopMenu
+5.main中创建span为20的主Col
+6.定制幻灯片Carousel组件，被主col调用
+7.定制main所用的视频卡片MainVideoCard，用Flex排列成MainVideoFlex，被主col调用
+8.video中创建span为16的主col，span为5的副col
+9.定制video所用的视频卡片SideVideoCard，用Flex排列成SideVideoFlex，被副col调用
+10.定制视频播放器VideoPlayer，被主col调用
+11.定制评论卡片CommentCard，其下可调用子评论卡片SubCommentCard
+12.定制评论区Comment，可判断是否在CommentCard中调用SubCommentCard，被主col调用

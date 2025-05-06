@@ -1,15 +1,15 @@
 import { createBrowserRouter } from 'react-router-dom'
-import Main from '../pages/Main'
-import App from '@/pages/Vedio'
+import MainApp from '../pages/Main'
+import VedioApp from '@/pages/Vedio'
 
 const router = createBrowserRouter([
     {
         path: '/main',
-        element: <Main />
+        element: <MainApp />
     },
     {
         path: '/vedio',
-        element: <App />
+        element: <VedioApp />
     }
 ])
 export default router
