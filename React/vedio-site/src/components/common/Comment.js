@@ -3,7 +3,7 @@ import CommentCardApp from '@/components/common/CommentCard'
 
 const App = () => {
     return (
-        <CommentCardApp haveSub={1}/>
+        <CommentCardApp />
     )
 }
 export default App

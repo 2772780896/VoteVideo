@@ -1,12 +1,54 @@
 1.定制Menu组件，实现头部导航栏TopMenu
+遇到问题：
+    menu中元素的响应式布局无法实现
+        通过<div style={{ display: 'flex', alignItems: 'center' }}>包裹Menu实现响应式布局
+
 2.定制搜索框组件SearchInput，被TopMenu调用
+
 3.使用Grid对主页main和视频页video进行布局
+遇到问题：
+    一开始想通过Layout进行布局，发现灵活性不够
+        干脆直接全部用Row进行布局
+
 4.在Row的顶端用span为24的Col调用TopMenu
+
 5.main中创建span为20的主Col
+
 6.定制幻灯片Carousel组件，被主col调用
+
 7.定制main所用的视频卡片MainVideoCard，用Flex排列成MainVideoFlex，被主col调用
+遇到问题：
+    Card中的默认布局不好调整布局
+        干脆全部用Flex完成布局
+    不知道怎么在图片的右下角显示播放量等数据
+        通过设置图片的父标签的style的position为relative，设置与图片平级的数据标签的position为absolute实现浮在图片右下角
+
 8.video中创建span为16的主col，span为5的副col
+
 9.定制video所用的视频卡片SideVideoCard，用Flex排列成SideVideoFlex，被副col调用
-10.定制视频播放器VideoPlayer，被主col调用
-11.定制评论卡片CommentCard，其下可调用子评论卡片SubCommentCard
-12.定制评论区Comment，可判断是否在CommentCard中调用SubCommentCard，被主col调用
+
+10.定制上传者卡片UploaderCard，被副col调用
+
+11.定制视频播放器VideoPlayer，被主col调用
+遇到问题：
+    不知道怎么保持视频的长宽比，使得在响应式布局时长宽比不变
+        给vidio标签设置style={{aspectRatio: '16/9'}}
+
+12.定制评论卡片CommentCard，其下可调用子评论卡片SubCommentCard
+
+13.定制评论区Comment，被主col调用
+遇到问题：
+    由谁来判断是否调用SubCommentCard
+        由CommentCard自己判断，是否有SubCommentCard的信息与CommentCard自己关联，在请求自己的信息时就可拿到
+
+14.定制登录对话框LoginModal，当点击时弹出对话框
+遇到问题：
+    我以为表单提交时只能在当前url提交，如果为了使后端能接收到统一url提交出的数据，这显然无法实现
+        考虑通过二级路由在表单处通过统一的二级路由发出请求，但发现二级路由是拼接在一级路由之后的，这还是无法实现统一url
+        后来才知道统一的url与发送方没有任何关系，只要接收方是统一的url就可以了
+
+15.定制登录表单LoginForm，注册表单RegisterForm，被LoginModal调用，通过LoginModal中Segmented修改State判断显示哪个表单
+遇到问题：
+    无限渲染报错
+        我看见useState的setValue都要在jsx外的函数中被封装好，jsx中的click再调用封装函数，为什么不直接在click中用setValue
+        原来是因为这样做会导致无限循环

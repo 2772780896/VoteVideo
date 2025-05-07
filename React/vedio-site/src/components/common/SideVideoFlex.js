@@ -7,6 +7,7 @@ const App = () => {
   const [value, setValue] = React.useState('horizontal');
   return (
     <Flex gap="small" vertical>
+      <h2>视频推荐</h2>
       <SideVideoCardApp />
       <SideVideoCardApp />
       <SideVideoCardApp />

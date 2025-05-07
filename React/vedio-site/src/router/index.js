@@ -5,7 +5,7 @@ import VedioApp from '@/pages/Vedio'
 const router = createBrowserRouter([
     {
         path: '/main',
-        element: <MainApp />
+        element: <MainApp />,
     },
     {
         path: '/vedio',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Menu } from 'antd';
 import SearchInputApp from '@/components/common/SearchInput'
+import LoginModalApp from '@/components/common/LoginModal'
 
 const section = [
   {
@@ -84,6 +85,14 @@ const items = [
       </div>
     ),
     key: 'search'
+  },
+  {
+    label: (
+      <div>
+        <LoginModalApp />
+      </div>
+    ),
+    key: 'login'
   },
   {
     label: (

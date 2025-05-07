@@ -4,7 +4,6 @@ import { Flex, Radio } from 'antd';
 import MainVideoCardApp from '@/components/common/MainVideoCard'
 
 const App = () => {
-  const [value, setValue] = React.useState('horizontal');
   return (
     <Flex wrap gap="middle">
       <MainVideoCardApp />

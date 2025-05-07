@@ -3,7 +3,8 @@ import { Flex, Row, Col, Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import SubCommentCard from '@/components/common/SubCommentCard'
 
-const App = (props) => {
+const App = () => {
+    const haveSub = 1
     return(
         <Row>
             <Col span={1}>
@@ -18,7 +19,7 @@ const App = (props) => {
                     <span>点踩</span>
                     <span>回复</span>
                 </Flex>
-                {props.haveSub && (
+                {haveSub && (
                     <SubCommentCard />
                 )}
             </Col>

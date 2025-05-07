@@ -5,6 +5,7 @@ import SideVideoFlexApp from '@/components/common/SideVideoFlex'
 import VideoPlayerApp from '@/components/common/VideoPlayer'
 import { Col, Row } from "antd";
 import CommentApp from '@/components/common/Comment'
+import UploadCardApp from '@/components/common/UploaderCard'
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
         <CommentApp />
       </Col>
       <Col span={5} offset={1}>
+        <UploadCardApp />
         <SideVideoFlexApp />
       </Col>
     </Row>
