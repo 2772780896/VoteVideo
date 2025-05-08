@@ -147,7 +147,7 @@ const items = [
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
+        <a href="user">
           上传
         </a>
       </div>

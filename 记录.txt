@@ -47,8 +47,26 @@
         考虑通过二级路由在表单处通过统一的二级路由发出请求，但发现二级路由是拼接在一级路由之后的，这还是无法实现统一url
         后来才知道统一的url与发送方没有任何关系，只要接收方是统一的url就可以了
 
-15.定制登录表单LoginForm，注册表单RegisterForm，被LoginModal调用，通过LoginModal中Segmented修改State判断显示哪个表单
+15.定制登录表单LoginForm，注册表单RegisterForm，被LoginModal调用，通过LoginModal中Tabs选择显示哪个表单
 遇到问题：
     无限渲染报错
         我看见useState的setValue都要在jsx外的函数中被封装好，jsx中的click再调用封装函数，为什么不直接在click中用setValue
         原来是因为这样做会导致无限循环
+    在实现子组件切换功能时，选择Tabs还是Segmented
+        一开始通过Segmented绑定State，然后判断State的值选择对应组件进行渲染
+        后来发现要自己多写一个判断State的函数，并且竖着的Segment和他右边的组件还要再进行一次布局
+        干脆直接使用Tabs完成切换显示和布局
+
+16.定制个人页user，通过Tabs调用子组件
+
+17.定制消息组件UserMessage，通过Tabs调用子组件
+
+18.定制消息中的对话组件UserMessageChat，通过Tabs实现选择不同的对话
+
+19.定制对话组件Chat，实现对话功能，可被UserMessageChat调用
+遇到问题：
+    怎么实现对话系统
+        通过State存放对话记录
+        设置List的dataSource为State，通过List的renderItem逐条得到State中每一条对话，并渲染为jsx
+        通过对话的sender属性判断对话该渲染在左边还是右边
+        给输入框绑定useRef，点击发送按钮时获取Ref的value并将数据添加进State引发List的再次渲染

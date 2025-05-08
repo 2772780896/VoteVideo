@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import React from 'react';
-import { Flex, Radio } from 'antd';
+import { Flex } from 'antd';
 import MainVideoCardApp from '@/components/common/MainVideoCard'
 
 const App = () => {
