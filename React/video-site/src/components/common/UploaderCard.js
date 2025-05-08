@@ -14,7 +14,6 @@ const App = (props) => {
                     <a>发消息</a>
                 </Flex>
                 <Button type="primary">+关注 粉丝数</Button>
-                )}
             </Col>
         </Row>
     )
