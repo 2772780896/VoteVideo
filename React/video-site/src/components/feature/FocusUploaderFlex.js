@@ -9,6 +9,7 @@ const App = () => {
       <FocusUploaderCardApp />
       <FocusUploaderCardApp />
       <FocusUploaderCardApp />
+      <FocusUploaderCardApp type='text' />
     </Flex>
   );
 };

@@ -80,8 +80,10 @@ const items = [
   },
   {
     label: (
-      <div style={{margin:'0px 200px 0px 200px'}}>
-        <SearchInputApp /> 
+      <div style={{width:'300px', margin:'0px 200px 0px 200px'}}>
+        <a href='search'>
+          <SearchInputApp /> 
+        </a>
       </div>
     ),
     key: 'search'

@@ -3,6 +3,7 @@ import MainApp from '../pages/Main'
 import VedioApp from '@/pages/Vedio'
 import UserApp from '@/pages/User'
 import FocusApp from '@/pages/Focus'
+import SearchApp from '@/pages/Search'
 
 const router = createBrowserRouter([
     {
@@ -16,11 +17,14 @@ const router = createBrowserRouter([
     {
         path: '/user',
         element: <UserApp />
-    }
-    ,
+    },
     {
         path: '/focus',
         element: <FocusApp />
+    },
+    {
+        path: '/search',
+        element: <SearchApp />
     }
 ])
 export default router

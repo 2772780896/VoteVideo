@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Flex } from 'antd';
 
-const App = () => (
+const App = ({width=250}) => (
   <Card>
     <Flex vertical justify="space-between">
       <div style={{position:'relative'}}>
@@ -9,11 +9,11 @@ const App = () => (
             <img 
                 alt="example"
                 src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-                style={{ width:'250px', height:'150px'}}>
+                style={{ width:`${width}px`, aspectRatio:'16/9'}}>
             </img>
         </a>
         <Flex  justify="space-between" style={{
-            width:'250px',
+            width:`${width}px`,
             position:'absolute',
             bottom:'0px'
             // position实现图片上显示文字

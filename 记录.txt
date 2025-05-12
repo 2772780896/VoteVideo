@@ -109,3 +109,25 @@
         当通过给visible传入State来控制其状态时，Image会成为受控组件，此时preview中的所有属性都会被覆盖
         此时preview中原本的点击蒙层实现关闭预览的功能也会被覆盖，需要设置onVisibleChange以实现该功能
         React中实现控制html标签的方式，不是通过DOM，而是通过useState控制标签的display来实现
+
+4.定制切换不同用户动态的FocusTabs
+
+5.定制展示动态的卡片FocusUploaderCard，可判断动态是文本类型FocusUploaderText、还是视频类型FocusUploaderVideo来切换展示
+
+6.定制动态展示栏FocusUploaderFlex，调用FocusUploaderCard，被FocusTabs调用
+
+
+搜索页Search
+1.调用SearchInput
+
+2.定制切换不同搜索类型的SearchTypeTabs
+
+3.定制切换排序类型的SearchSortDropdown，被SearchTypeTabs调用
+
+4.定制搜索视频展示栏SearchVideoFlex，调用MainVideoCard，被SearchTypeTabs调用
+遇到问题：
+    让SearchVideoFlex得到排序信息，以根据排序信息对MainVideoCard进行不同的排序
+        在SearchTypeTabs中给SearchSortDropdown传入一个setState，以得到排序类型sort
+        在SearchTypeTabs中给SearchVideoFlex传入sort，使其得到排序类型
+        也可以通过ValueContext.Provider实现复杂的跨组件通信
+        也可以通过Redux进行跨组件的状态管理
