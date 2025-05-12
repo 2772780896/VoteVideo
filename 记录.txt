@@ -1,3 +1,4 @@
+导航头TopMenu
 1.定制Menu组件，实现头部导航栏TopMenu
 遇到问题：
     menu中元素的响应式布局无法实现
@@ -5,49 +6,55 @@
 
 2.定制搜索框组件SearchInput，被TopMenu调用
 
-3.使用Grid对主页main和视频页video进行布局
+
+主页Main
+1.使用Grid对主页main进行布局
 遇到问题：
     一开始想通过Layout进行布局，发现灵活性不够
         干脆直接全部用Row进行布局
 
-4.在Row的顶端用span为24的Col调用TopMenu
+2.在Row的顶端用span为24的Col调用TopMenu
 
-5.main中创建span为20的主Col
+3.main中创建span为20的主Col
 
-6.定制幻灯片Carousel组件，被主col调用
+4.定制幻灯片Carousel组件，被主col调用
 
-7.定制main所用的视频卡片MainVideoCard，用Flex排列成MainVideoFlex，被主col调用
+5.定制main所用的视频卡片MainVideoCard，用Flex排列成MainVideoFlex，被主col调用
 遇到问题：
     Card中的默认布局不好调整布局
         干脆全部用Flex完成布局
     不知道怎么在图片的右下角显示播放量等数据
         通过设置图片的父标签的style的position为relative，设置与图片平级的数据标签的position为absolute实现浮在图片右下角
 
-8.video中创建span为16的主col，span为5的副col
 
-9.定制video所用的视频卡片SideVideoCard，用Flex排列成SideVideoFlex，被副col调用
+视频页Video
+1.video中创建span为16的主col，span为5的副col
 
-10.定制上传者卡片UploaderCard，被副col调用
+2.定制video所用的视频卡片SideVideoCard，用Flex排列成SideVideoFlex，被副col调用
 
-11.定制视频播放器VideoPlayer，被主col调用
+3.定制上传者卡片UploaderCard，被副col调用
+
+4.定制视频播放器VideoPlayer，被主col调用
 遇到问题：
     不知道怎么保持视频的长宽比，使得在响应式布局时长宽比不变
         给vidio标签设置style={{aspectRatio: '16/9'}}
 
-12.定制评论卡片CommentCard，其下可调用子评论卡片SubCommentCard
+5.定制评论卡片CommentCard，其下可调用子评论卡片SubCommentCard
 
-13.定制评论区Comment，被主col调用
+6.定制评论区CommentFlex，调用CommentCard，被主col调用
 遇到问题：
     由谁来判断是否调用SubCommentCard
         由CommentCard自己判断，是否有SubCommentCard的信息与CommentCard自己关联，在请求自己的信息时就可拿到
 
-14.定制登录对话框LoginModal，当点击时弹出对话框
+
+登录对话框LoginModal
+1.定制登录对话框LoginModal，当点击时弹出对话框
 遇到问题：
     我以为表单提交时只能在当前url提交，如果为了使后端能接收到统一url提交出的数据，这显然无法实现
         考虑通过二级路由在表单处通过统一的二级路由发出请求，但发现二级路由是拼接在一级路由之后的，这还是无法实现统一url
         后来才知道统一的url与发送方没有任何关系，只要接收方是统一的url就可以了
 
-15.定制登录表单LoginForm，注册表单RegisterForm，被LoginModal调用，通过LoginModal中Tabs选择显示哪个表单
+2.定制登录表单LoginForm，注册表单RegisterForm，被LoginModal调用，通过LoginModal中Tabs选择显示哪个表单
 遇到问题：
     无限渲染报错
         我看见useState的setValue都要在jsx外的函数中被封装好，jsx中的click再调用封装函数，为什么不直接在click中用setValue
@@ -57,16 +64,48 @@
         后来发现要自己多写一个判断State的函数，并且竖着的Segment和他右边的组件还要再进行一次布局
         干脆直接使用Tabs完成切换显示和布局
 
-16.定制个人页user，通过Tabs调用子组件
 
-17.定制消息组件UserMessage，通过Tabs调用子组件
+个人页User
+1.定制个人页user，通过Tabs调用子组件
 
-18.定制消息中的对话组件UserMessageChat，通过Tabs实现选择不同的对话
+2.定制消息组件UserMessage，通过Tabs调用子组件
 
-19.定制对话组件Chat，实现对话功能，可被UserMessageChat调用
+3.定制消息中的对话组件UserMessageChat，通过Tabs实现选择不同的对话
+
+4.定制对话组件Chat，实现对话功能，可被UserMessageChat调用
 遇到问题：
     怎么实现对话系统
         通过State存放对话记录
         设置List的dataSource为State，通过List的renderItem逐条得到State中每一条对话，并渲染为jsx
         通过对话的sender属性判断对话该渲染在左边还是右边
         给输入框绑定useRef，点击发送按钮时获取Ref的value并将数据添加进State引发List的再次渲染
+
+5.定制三个通知组件UserMessageAted、UserMessagePraised、UserMessageSystem
+
+6.定制三个通知组件中每一条消息对应的Card组件，被通知组件中的Flex调用
+
+
+动态页Focus
+1.定制动态页focus，包含一个表单和一个Tabs
+遇到问题：
+    antd的Form中如何提交表单
+        Form中需要有htmlType="submit"的Button进行提交
+
+2.定制表单中的文本上传功能UploadText
+
+3.定制表单中的图片列表上传功能UploadFileList
+遇到问题
+    Upload组件的使用
+        设置listType="picture-card"，fileList={fileList}实现多图显示
+        Upload组件中包含一个按钮，当按钮被点击后，生成一个file对象，并将file.status设置为'uploading'
+        file对象为{本次添加的图片file对象,Upload中所有的file对象组成的数组fileList}
+        将file对象上传到action指定的url
+        接收到服务器的响应数据后，响应数据会被添加到file对象中的response属性中，并将并将file.status设置为'done'
+        onChange绑定的函数会在file.status发生变化时触发，并传入file对象作为函数的参数
+        通过在onChange绑定的函数中设置fileList的State实现动态更新Upload的fileList
+    Upload中的图片的预览问题
+        onPreview为点击图片上的预览图标时执行的操作，传入file对象作为参数
+        通过onPreview来控制一个Image的preview的visible来直接展示预览后的图片
+        当通过给visible传入State来控制其状态时，Image会成为受控组件，此时preview中的所有属性都会被覆盖
+        此时preview中原本的点击蒙层实现关闭预览的功能也会被覆盖，需要设置onVisibleChange以实现该功能
+        React中实现控制html标签的方式，不是通过DOM，而是通过useState控制标签的display来实现

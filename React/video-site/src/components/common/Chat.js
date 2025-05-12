@@ -32,7 +32,8 @@ const App = () => {
                                 <Avatar size={20} icon={<UserOutlined />} />
                             </Col>
                             <Col offset={4}>
-                                <div>{msg.content}</div>
+                                <div>{msg.sender}</div>
+                                <div style={{border:'1px solid black'}}>{msg.content}</div>
                                 <div>{msg.time}</div>
                             </Col>
                         </Row>
@@ -42,7 +43,8 @@ const App = () => {
                     {/* 当发送者为自己时，在右侧显示信息 */}
                         <Row>
                             <Col span={20}>
-                                <div>{msg.content}</div>
+                                <div>{msg.sender}</div>
+                                <div style={{border:'1px solid black'}}>{msg.content}</div>
                                 <div>{msg.time}</div>
                             </Col>
                             <Col span={2} offset={2}>

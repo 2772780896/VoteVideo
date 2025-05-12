@@ -97,7 +97,7 @@ const items = [
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
+        <a href="user">
           消息
         </a>
       </div>
@@ -107,7 +107,7 @@ const items = [
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
+        <a href="focus">
           动态
         </a>
       </div>

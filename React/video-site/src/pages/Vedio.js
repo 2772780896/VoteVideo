@@ -4,7 +4,7 @@ import TopMenuApp from '@/components/common/TopMenu'
 import SideVideoFlexApp from '@/components/common/SideVideoFlex'
 import VideoPlayerApp from '@/components/common/VideoPlayer'
 import { Col, Row } from "antd";
-import CommentApp from '@/components/common/Comment'
+import CommentApp from '@/components/common/CommentFlex'
 import UploadCardApp from '@/components/common/UploaderCard'
 
 const App = () => {

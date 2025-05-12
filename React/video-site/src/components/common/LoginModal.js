@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Flex, Segmented } from 'antd';
+import { Button, Modal, Flex, Tabs } from 'antd';
 import LoginFormApp from '@/components/common/LoginForm'
 import RegisterFormApp from '@/components/common/RegisterForm'
 
@@ -15,7 +15,10 @@ const App = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const [isLogin, setForm] = useState(true)
+  const tab = [
+    {key: '1', label: '登录', children: <LoginFormApp />},
+    {key: '2', label: '注册', children: <RegisterFormApp />},
+  ]
   return (
     <>
       <Button type="primary" onClick={showModal}>
@@ -29,15 +32,8 @@ const App = () => {
         centered
         footer={null}>
         <Flex justify='center'>
-            <Segmented
-                options={[
-                    { label: '注册', value: false },
-                    { label: '登录', value: true }
-                ]}
-                value={isLogin}
-                onChange={setForm}/>
+            <Tabs defaultActiveKey="1" items={tab}></Tabs>
         </Flex>
-        { isLogin ? <LoginFormApp /> : <RegisterFormApp /> }
       </Modal>
     </>
   );
