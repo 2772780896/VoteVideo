@@ -4,7 +4,7 @@ import TopMenuApp from '@/components/common/TopMenu'
 import SideVideoFlexApp from '@/components/common/SideVideoFlex'
 import VideoPlayerApp from '@/components/common/VideoPlayer'
 import { Col, Row } from "antd";
-import CommentApp from '@/components/common/CommentFlex'
+import CommentFlexApp from '@/components/common/CommentFlex'
 import UploadCardApp from '@/components/common/UploaderCard'
 
 const App = () => {
@@ -26,7 +26,7 @@ const App = () => {
           <span>收藏</span>
           <span>转发</span>
         </Flex>
-        <CommentApp />
+        <CommentFlexApp />
       </Col>
       <Col span={5} offset={1}>
         <UploadCardApp />

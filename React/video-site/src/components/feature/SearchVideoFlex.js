@@ -8,7 +8,7 @@ const App = ({sort}) => {
       return (
         <Flex wrap gap="middle">
             <MainVideoCardApp width={175}/>
-            <MainVideoCardApp width=d{175}/>
+            <MainVideoCardApp width={175}/>
             <MainVideoCardApp width={175}/>
             <MainVideoCardApp width={175}/>
             <MainVideoCardApp width={175}/>

@@ -4,6 +4,7 @@ import VedioApp from '@/pages/Vedio'
 import UserApp from '@/pages/User'
 import FocusApp from '@/pages/Focus'
 import SearchApp from '@/pages/Search'
+import EssayApp from '@/pages/Essay'
 
 const router = createBrowserRouter([
     {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
     {
         path: '/search',
         element: <SearchApp />
+    },
+    {
+        path: '/essay',
+        element: <EssayApp />
     }
 ])
 export default router
