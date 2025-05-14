@@ -117,6 +117,10 @@
 6.定制动态展示栏FocusUploaderFlex，调用FocusUploaderCard，被FocusTabs调用
 
 
+专栏页Essay
+1.定制专栏页essay，调用TopMenu，调用CommentFlex
+
+
 搜索页Search
 1.调用SearchInput
 
@@ -131,3 +135,18 @@
         在SearchTypeTabs中给SearchVideoFlex传入sort，使其得到排序类型
         也可以通过ValueContext.Provider实现复杂的跨组件通信
         也可以通过Redux进行跨组件的状态管理
+
+5.定制搜索动态展示栏SearchFocusFlex，调用FocusUploaderCardApp，被SearchType调用
+遇到问题：
+    设置Flex中的元素宽度，在SearchVideoFlex是通过给MainVideoCard传入width数据实现限制宽度，但这过于麻烦
+        因为Row的一行中的Col当span大于24时会自动换行，
+        所以可以通过<Flex><Row><Col span={8}><FocusUploaderCardApp/></Col></Row></Flex>，
+        而不用担心换行问题
+
+6.定制搜索专栏展示栏SearchEssayFlex，调用EssayCard，被SearchType调用
+
+6.定制搜索用户展示栏SearchUserFlex，调用UploaderCard，被SearchType调用
+
+
+标签页Tag
+
