@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, message, Space, Flex } from 'antd';
-import SearchVideoFlexApp from '@/components/feature/SearchVideoFlex'
 
 const App = ({pushSort}) => {
   const [sort, setSort] = useState('播放排序')

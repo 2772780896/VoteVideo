@@ -5,6 +5,7 @@ import UserApp from '@/pages/User'
 import FocusApp from '@/pages/Focus'
 import SearchApp from '@/pages/Search'
 import EssayApp from '@/pages/Essay'
+import TagApp from '@/pages/Tag'
 
 const router = createBrowserRouter([
     {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
     {
         path: '/essay',
         element: <EssayApp />
+    },
+    {
+        path: '/tag',
+        element: <TagApp />
     }
 ])
 export default router

@@ -5,9 +5,10 @@ import SearchVideoFlexApp from '@/components/feature/SearchVideoFlex'
 import SearchFocusFlexApp from '@/components/feature/SearchFocusFlex'
 import SearchEssayFlexApp from '@/components/feature/SearchEssayFlex'
 import SearchUserFlexApp from '@/components/feature/SearchUserFlex'
+import SearchTagFlexApp from '@/components/feature/SearchTagFlex'
 
-const App = () => {
-    const  [sort, setSort] = useState()
+const App = ({search='1'}) => {
+    const  [sort, setSort] = useState(search)
     const tab = [
         {key: '1', label: '综合', children: (
             <>
@@ -39,9 +40,15 @@ const App = () => {
             <SearchUserFlexApp sort={sort}/>
             </>
         )},
+        {key: '6', label: '标签', children: (
+            <>
+            <SearchSortDropdownApp pushSort={setSort}/>
+            <SearchTagFlexApp sort={sort}/>
+            </>
+        )},
     ]
     return (
-        <Tabs defaultActiveKey="1" items={tab}></Tabs>
+        <Tabs defaultActiveKey={search} items={tab}></Tabs>
     )
 }
 

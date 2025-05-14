@@ -121,6 +121,10 @@
 1.定制专栏页essay，调用TopMenu，调用CommentFlex
 
 
+标签页Tag
+1.定制标签页Tag，调用TopMenu，调用CommentFlex
+
+
 搜索页Search
 1.调用SearchInput
 
@@ -136,17 +140,21 @@
         也可以通过ValueContext.Provider实现复杂的跨组件通信
         也可以通过Redux进行跨组件的状态管理
 
-5.定制搜索动态展示栏SearchFocusFlex，调用FocusUploaderCardApp，被SearchType调用
+5.定制搜索动态展示栏SearchFocusFlex，调用FocusUploaderCardApp，被SearchTypeTabs调用
 遇到问题：
     设置Flex中的元素宽度，在SearchVideoFlex是通过给MainVideoCard传入width数据实现限制宽度，但这过于麻烦
         因为Row的一行中的Col当span大于24时会自动换行，
         所以可以通过<Flex><Row><Col span={8}><FocusUploaderCardApp/></Col></Row></Flex>，
         而不用担心换行问题
 
-6.定制搜索专栏展示栏SearchEssayFlex，调用EssayCard，被SearchType调用
+6.定制搜索专栏展示栏SearchEssayFlex，调用EssayCard，被SearchTypeTabs调用
 
-6.定制搜索用户展示栏SearchUserFlex，调用UploaderCard，被SearchType调用
+7.定制搜索用户展示栏SearchUserFlex，调用UploaderCard，被SearchTypeTabs调用
 
+8.定制搜索标签展示栏SearchTagFlex，调用TagCard，被SearchTypeTabs调用
+遇到问题：
+    当点击导航头中的标签按钮时，跳转到搜索页并以SearchTagFlex为SearchTypeTabs的默认展示
+        当跳转时携带get数据，在search页通过useSearchParams判断是否有数据并得到参数，
+        根据参数设置Tabs的defaultActiveKey属性值
 
-标签页Tag
 

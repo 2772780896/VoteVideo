@@ -1,10 +1,16 @@
 import React from 'react';
+import {useSearchParams} from 'react-router-dom'
 import {Row, Col} from 'antd'
 import SearchInputApp from '@/components/common/SearchInput'
 import TopMenuApp from "@/components/common/TopMenu";
 import SearTypeTableApp from '@/components/feature/SearchTypeTabs'
 
 const App = () => {
+    const [params] = useSearchParams()
+    let search = '1'
+    if (params.get('search')){
+        search = params.get('search')
+    }
     return (
         <Row>
             <Col span={24}>    
@@ -14,7 +20,7 @@ const App = () => {
                 <SearchInputApp />
             </Col>
             <Col span={20} offset={2}>
-                <SearTypeTableApp />
+                <SearTypeTableApp search={search}/>
             </Col>
         </Row>
     )

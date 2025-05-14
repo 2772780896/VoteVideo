@@ -56,7 +56,7 @@ const items = [
         </a>
       </div>
     ),
-    key: 'animation',
+    key: 'comic',
   },
   {
     label: (
@@ -71,8 +71,8 @@ const items = [
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
-          游戏中心
+        <a href="search?search=6">
+          标签
         </a>
       </div>
     ),
