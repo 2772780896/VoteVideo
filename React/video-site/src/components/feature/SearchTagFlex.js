@@ -1,20 +1,20 @@
 import React from 'react';
-import { Flex } from 'antd';
+import { Flex, Col, Row } from 'antd';
 import TagCardApp from '@/components/feature/TagCard'
-
 
 const App = ({sort}) => {
   const showFocus = (sort) => {
     if (sort === '播放排序') {
       return (
-        <Flex wrap gap="middle">
+          <Flex wrap>
             <TagCardApp/>
             <TagCardApp/>
             <TagCardApp/>
             <TagCardApp/>
             <TagCardApp/>
             <TagCardApp/>
-        </Flex>
+          </Flex>
+
       )
     } else if (sort === '时间顺序'){
       return (

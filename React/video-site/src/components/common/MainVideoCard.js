@@ -24,7 +24,7 @@ const App = ({width=250}) => (
         </Flex>
       </div>
       <Flex vertical justify="space-between">
-        <a href='vedio/'>
+        <a href='vedio'>
             <span>视频标题</span>
         </a>
         <Flex justify="space-between">

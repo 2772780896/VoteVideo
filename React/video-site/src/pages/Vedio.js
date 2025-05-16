@@ -6,6 +6,7 @@ import VideoPlayerApp from '@/components/common/VideoPlayer'
 import { Col, Row } from "antd";
 import CommentFlexApp from '@/components/common/CommentFlex'
 import UploadCardApp from '@/components/common/UploaderCard'
+import TagFlex from '@/components/common/TagRow'
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <span>日期</span>
         </Flex>
         <VideoPlayerApp />
+        <TagFlex />
         <Flex justify="start" gap="middle">
           <span>点赞</span>
           <span>收藏</span>

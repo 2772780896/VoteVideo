@@ -51,26 +51,6 @@ const items = [
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
-          番剧
-        </a>
-      </div>
-    ),
-    key: 'comic',
-  },
-  {
-    label: (
-      <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
-          直播
-        </a>
-      </div>
-    ),
-    key: 'living'
-  },
-  {
-    label: (
-      <div>
         <a href="search?search=6">
           标签
         </a>

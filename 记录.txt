@@ -121,10 +121,6 @@
 1.定制专栏页essay，调用TopMenu，调用CommentFlex
 
 
-标签页Tag
-1.定制标签页Tag，调用TopMenu，调用CommentFlex
-
-
 搜索页Search
 1.调用SearchInput
 
@@ -142,10 +138,13 @@
 
 5.定制搜索动态展示栏SearchFocusFlex，调用FocusUploaderCardApp，被SearchTypeTabs调用
 遇到问题：
-    设置Flex中的元素宽度，在SearchVideoFlex是通过给MainVideoCard传入width数据实现限制宽度，但这过于麻烦
-        因为Row的一行中的Col当span大于24时会自动换行，
-        所以可以通过<Flex><Row><Col span={8}><FocusUploaderCardApp/></Col></Row></Flex>，
-        而不用担心换行问题
+    设置Flex中的元素宽度
+        通过<Flex><FocusUploaderCardApp flex={'0 1 400px'} /></Flex>设置FocusUploaderCardApp的flex属性来实现
+        或将FocusUploaderCardApp的布局全部换成Grid，通过<Row><Col span={24}><FocusUploaderCardApp/></Col></Row>来实现
+    响应式布局
+        纯css中通过媒体查询动态变更style属性值来实现响应式
+        Flex封装了媒体查询，自动进行响应式布局
+        Grid也可以自动进行响应式布局，也能通过断点手动设置响应式布局
 
 6.定制搜索专栏展示栏SearchEssayFlex，调用EssayCard，被SearchTypeTabs调用
 
@@ -158,3 +157,14 @@
         根据参数设置Tabs的defaultActiveKey属性值
 
 
+标签页Tag
+1.定制标签页Tag，调用TopMenu，调用CommentFlex
+
+
+标签栏TagRow
+1.定制标签气泡卡片TagPopover，调用TagCard
+
+2.定制标签栏TagRow，调用TagPopover
+遇到问题；
+    第一行只展示最多指定数量的TagPopover，隐藏多出的部分，并通过右侧的按钮设置多出部分在当前行下方的展示与再次隐藏
+        按钮控制展示状态，状态管理控制多出的TagPopover的展示，由Row本身实现自动换行

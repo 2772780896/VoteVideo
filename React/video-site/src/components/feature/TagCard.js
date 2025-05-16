@@ -2,16 +2,16 @@ import React from 'react';
 import { Card, Flex } from 'antd';
 
 const App = () => (
-  <Card>
-    <Flex justify="space-between">
-      <div style={{width:'20%'}}>
+  <>
+    <Flex justify="space-between" style={{flex:'0 1 350px'}}>
+      <div style={{width:'30%', minWidth:'150px'}}>
         <img 
           alt="example"
           src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
           style={{ width:'100%', aspectRatio:'16/9' }}>
         </img>
       </div>
-      <Flex vertical justify="start" style={{width:'80%'}}>
+      <Flex vertical justify="start" style={{width:'70%', minWidth:'200px'}}>
         <a href='tag'>
             <span>标签名</span>
         </a>
@@ -23,6 +23,6 @@ const App = () => (
         <div>高赞评论</div>
       </Flex>
     </Flex>
-  </Card>
+  </>
 );
 export default App;

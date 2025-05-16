@@ -4,7 +4,7 @@ import { Card, Flex } from 'antd';
 const App = () => (
   <Card>
     <Flex justify="space-between">
-      <div style={{position:'relative', width:'40%'}}>
+      <div style={{position:'relative', width:'40%', minWidth:'250px'}}>
         <img 
           alt="example"
           src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"

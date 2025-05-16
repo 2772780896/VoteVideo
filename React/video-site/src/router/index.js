@@ -9,6 +9,10 @@ import TagApp from '@/pages/Tag'
 
 const router = createBrowserRouter([
     {
+        path: '/',
+        element: <MainApp />,
+    },
+    {
         path: '/main',
         element: <MainApp />,
     },
