@@ -84,6 +84,12 @@
 
 6.定制三个通知组件中每一条消息对应的Card组件，被通知组件中的Flex调用
 
+7.定制收藏组件UserFavourite，通过Tabs区分视频、文章、动态的收藏，并根据对应的类型调用对应参数的UserFacouriteCard
+
+8.定制历史组件UserHitory，类似UserFavourite组件
+
+9.定制稿件组件UserVideo，调用SearchSortDropdown，调用UserVideoFlex，实现查看视频Card并可选排序
+
 
 动态页Focus
 1.定制动态页focus，包含一个表单和一个Tabs

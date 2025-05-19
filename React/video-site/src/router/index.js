@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import MainApp from '../pages/Main'
 import VedioApp from '@/pages/Vedio'
 import UserApp from '@/pages/User'
-import FocusApp from '@/pages/Focus'
+import FollowApp from '@/pages/Follow'
 import SearchApp from '@/pages/Search'
 import EssayApp from '@/pages/Essay'
 import TagApp from '@/pages/Tag'
@@ -25,8 +25,8 @@ const router = createBrowserRouter([
         element: <UserApp />
     },
     {
-        path: '/focus',
-        element: <FocusApp />
+        path: '/follow',
+        element: <FollowApp />
     },
     {
         path: '/search',

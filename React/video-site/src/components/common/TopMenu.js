@@ -7,46 +7,42 @@ const section = [
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
-          动漫
+        <a href="search?search=2">
+          视频
         </a>
       </div>
     ),
-    key: 'animation'
+    key: 'video'
   },
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
-          游戏
+        <a href="search?search=3">
+          文章
         </a>
       </div>
     ),
-    key: 'game'
-  }
-]
-const items = [
-  {
-    label: (
-      <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
-          BL
-        </a>
-      </div>
-    ),
-    icons: <span>BL</span>,
-    key: 'icon',
+    key: 'essay'
   },
   {
     label: (
       <div>
-        <a href="main">
-          首页
+        <a href="search?search=4">
+          动态
         </a>
       </div>
     ),
-    key: 'main',
-    children:  section
+    key: 'post'
+  },
+  {
+    label: (
+      <div>
+        <a href="search?search=5">
+          用户
+        </a>
+      </div>
+    ),
+    key: 'user'
   },
   {
     label: (
@@ -56,17 +52,49 @@ const items = [
         </a>
       </div>
     ),
-    key: 'gameCenter'
-  },
+    key: 'tag'
+  }
+]
+const items = [
   {
     label: (
-      <div style={{width:'300px', margin:'0px 200px 0px 200px'}}>
-        <a href='search'>
-          <SearchInputApp /> 
+      <div>
+        <a href="main">
+          VoteVideo
         </a>
       </div>
     ),
-    key: 'search'
+    key: 'icon'
+  },
+  {
+    label: (
+      <div>
+        <a href="main">
+          首页
+        </a>
+      </div>
+    ),
+    key: 'main'
+  },
+  {
+    label: (
+      <div>
+        <a href="search?search=1">
+          热门
+        </a>
+      </div>
+    ),
+    key: 'hot',
+    children:  section
+  },
+  {
+    label: (
+      <a href='search'>
+        <SearchInputApp /> 
+      </a>
+    ),
+    key: 'search',
+    style:{width: '50%'}
   },
   {
     label: (
@@ -79,7 +107,7 @@ const items = [
   {
     label: (
       <div>
-        <a href="user">
+        <a href="user?search=1">
           消息
         </a>
       </div>
@@ -89,17 +117,17 @@ const items = [
   {
     label: (
       <div>
-        <a href="focus">
-          动态
+        <a href="follow">
+          关注
         </a>
       </div>
     ),
-    key: 'focus'
+    key: 'follow'
   },
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
+        <a href="user?search=3">
           收藏
         </a>
       </div>
@@ -109,7 +137,7 @@ const items = [
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
+        <a href="user?search=4">
           历史
         </a>
       </div>
@@ -119,7 +147,7 @@ const items = [
   {
     label: (
       <div>
-        <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
+        <a href="user?search=5">
           稿件
         </a>
       </div>
@@ -129,7 +157,7 @@ const items = [
   {
     label: (
       <div>
-        <a href="user">
+        <a href="upload">
           上传
         </a>
       </div>
@@ -140,13 +168,18 @@ const items = [
 const App = () => {
   const [current, setCurrent] = useState('');
   const onClick = e => {
-    console.log('click ', e);
     setCurrent(e.key);
   };
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} theme="dark" style={{ flex: 1, minWidth: 0 }}/>
-    </div>
+    <Menu 
+      onClick={onClick} 
+      selectedKeys={[current]} 
+      mode="horizontal" 
+      items={items} 
+      theme="dark" 
+      style={{display:'flex', justifyContent:'space-between'}}
+    />
+
   )
 };
 export default App;

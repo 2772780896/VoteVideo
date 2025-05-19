@@ -22,7 +22,7 @@ const App = ({search='1'}) => {
             <SearchVideoFlexApp sort={sort}/>
             </>
         )},
-        {key: '3', label: '专栏', children: (
+        {key: '3', label: '文章', children: (
             <>
             <SearchSortDropdownApp pushSort={setSort}/>
             <SearchEssayFlexApp sort={sort}/>

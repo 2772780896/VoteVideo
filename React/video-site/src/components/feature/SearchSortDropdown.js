@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, message, Space, Flex } from 'antd';
 
-const App = ({pushSort}) => {
-  const [sort, setSort] = useState('播放排序')
+const App = ({pushSort, defaultSort='播放排序'}) => {
+  const [sort, setSort] = useState(defaultSort)
   const onClick = ({key}) => {
     setSort(key)
   };
