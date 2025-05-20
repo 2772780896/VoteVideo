@@ -16,6 +16,9 @@ const App = () => {
     }
     const [uploadOpen, setUploadOpen] = useState(false)
     const handleUploadOpen = () => {setUploadOpen(!uploadOpen)}
+    const handleRemove = (file) => {
+        setFileList(fileList.filter(i => i.url !== file.url))
+    }
     return(
         <>
         {uploadOpen && (
@@ -27,6 +30,7 @@ const App = () => {
                 fileList={fileList}
                 onChange={handleChange}
                 onPreview={handlePreivew}
+                onRemove={handleRemove}
                 >
                 {fileList.length <= 9 && (
                     <button

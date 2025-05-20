@@ -174,3 +174,22 @@
 遇到问题；
     第一行只展示最多指定数量的TagPopover，隐藏多出的部分，并通过右侧的按钮设置多出部分在当前行下方的展示与再次隐藏
         按钮控制展示状态，状态管理控制多出的TagPopover的展示，由Row本身实现自动换行
+
+
+上传页Upload
+1.定制上传页upload，通过Tabs调用UploadVideo和UploadEssay，实现视频上传和文章上传的切换
+
+2.定制视频上传页UploadVideo，实现视频上传，封面选取，封面上传，简介上传的功能，调用UploadText，后通过Form双传
+遇到问题：
+    上传视频的预览
+        点击预览时显示对话框Modal，Modal中包含上传的video的src
+        关闭预览即为关闭Modal
+    实现截取视频中某一画面作为封面的功能
+        使用canvas标签，将video的画面绘制下来，然后导出为base64的jpeg
+        将该jpeg作为file文件的thumbUrl属性，实现在略缩图中显示封面
+        将该jpeg作为video文件的poster属性，实现在预览时看到封面
+        控制canvas执行的button在Modal中，但在预览时不显示，display为none，只在点击截取按钮后设置display为inline-flex
+    实现单独上传封面的功能
+        单独用一个Upload接收上传的图片，上传成功后将该图片设置为file文件的thumbUrl属性，实现预览显示封面
+
+3.定制文章上传页UploadEssay，调用UploadText，通过Form上传

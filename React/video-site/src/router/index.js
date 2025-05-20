@@ -6,6 +6,7 @@ import FollowApp from '@/pages/Follow'
 import SearchApp from '@/pages/Search'
 import EssayApp from '@/pages/Essay'
 import TagApp from '@/pages/Tag'
+import Upload from '@/pages/Upload'
 
 const router = createBrowserRouter([
     {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
     {
         path: '/tag',
         element: <TagApp />
+    },
+    {
+        path: '/upload',
+        element: <Upload />
     }
 ])
 export default router
