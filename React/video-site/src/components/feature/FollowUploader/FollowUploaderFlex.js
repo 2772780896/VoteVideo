@@ -1,6 +1,6 @@
 import React from 'react';
 import { Flex } from 'antd';
-import FocusUploaderCardApp from '@/components/feature/FocusUploaderCard'
+import FocusUploaderCardApp from '@/components/feature/FollowUploader/FollowUploaderCard'
 
 const App = () => {
   return (

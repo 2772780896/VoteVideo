@@ -1,6 +1,6 @@
 import React from 'react';
 import { Col, Row, Segmented, Tabs } from "antd";
-import FocusUploaderFlexApp from '@/components/feature/FocusUploaderFlex'
+import FocusUploaderFlexApp from '@/components/feature/FollowUploader/FollowUploaderFlex'
 
 const App = () => {
     const tab = [

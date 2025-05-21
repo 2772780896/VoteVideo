@@ -1,9 +1,9 @@
 import React from 'react';
 import { Col, Row, Segmented, Tabs } from "antd";
-import UserMessageChatApp from '@/components/feature/UserMessageChat'
-import UserMessageAtedApp from '@/components/feature/UserMessageAted'
-import UserMessagePraisedApp from '@/components/feature/UserMessagePraised'
-import UserMessageSystemApp from '@/components/feature/UserMessageSystem'
+import UserMessageChatApp from '@/components/feature/UserMessage/UserMessageChat'
+import UserMessageAtedApp from '@/components/feature/UserMessage/UserMessageAted'
+import UserMessagePraisedApp from '@/components/feature/UserMessage/UserMessagePraised'
+import UserMessageSystemApp from '@/components/feature/UserMessage/UserMessageSystem'
 
 const App = () => {
     const tab = [

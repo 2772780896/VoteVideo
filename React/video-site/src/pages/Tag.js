@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import TopMenuApp from '@/components/common/TopMenu'
 import { Col, Row, Flex, Avatar } from "antd";
 import CommentFlexApp from '@/components/common/CommentFlex'
-import SearchSortDropdownApp from '@/components/feature/SearchSortDropdown'
+import SearchSortDropdownApp from '@/components/feature/Search/SearchSortDropdown'
 
 
 const App = () => {

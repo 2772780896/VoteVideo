@@ -3,7 +3,7 @@ import {useSearchParams} from 'react-router-dom'
 import {Row, Col} from 'antd'
 import SearchInputApp from '@/components/common/SearchInput'
 import TopMenuApp from "@/components/common/TopMenu";
-import SearTypeTableApp from '@/components/feature/SearchTypeTabs'
+import SearTypeTableApp from '@/components/feature/Search/SearchTypeTabs'
 
 const App = () => {
     const [params] = useSearchParams()

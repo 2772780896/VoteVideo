@@ -3,7 +3,7 @@ import {useSearchParams} from 'react-router-dom'
 import React from 'react';
 import { Col, Row, Segmented, Tabs} from "antd";
 import UserCardApp from '@/components/common/UserCard'
-import UserMessageApp from '@/components/feature/UserMessage'
+import UserMessageApp from '@/components/feature/UserMessage/UserMessage'
 import UserFocusApp from '@/components/feature/UserFocus'
 import UserFavouriteApp from '@/components/feature/UserFavourite'
 import UserVideoApp from '@/components/feature/UserVideo'

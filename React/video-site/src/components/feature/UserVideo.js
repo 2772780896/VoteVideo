@@ -1,5 +1,5 @@
 import React, {use, useState} from 'react';
-import SearchSortDropdown from '@/components/feature/SearchSortDropdown'
+import SearchSortDropdown from '@/components/feature/Search/SearchSortDropdown'
 import UserVideoFlex from '@/components/feature/UserVideoFlex'
 
 const App = () => {

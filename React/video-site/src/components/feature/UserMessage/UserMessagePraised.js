@@ -1,11 +1,11 @@
 import React from 'react';
-import UserMessageSystemCardApp from '@/components/feature/UserMessageSystemCard'
+import UserMessagePraisedCardApp from '@/components/feature/UserMessage/UserMessagePraisedCard'
 import {Flex} from 'antd'
 
 const App = () => {
     return (
         <Flex vertical>
-            <UserMessageSystemCardApp />
+            <UserMessagePraisedCardApp />
         </Flex>
     )
 }

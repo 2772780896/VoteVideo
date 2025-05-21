@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import { Col, Row, Segmented, Tabs } from "antd";
-import SearchSortDropdownApp from '@/components/feature/SearchSortDropdown'
-import SearchVideoFlexApp from '@/components/feature/SearchVideoFlex'
-import SearchFocusFlexApp from '@/components/feature/SearchFocusFlex'
-import SearchEssayFlexApp from '@/components/feature/SearchEssayFlex'
-import SearchUserFlexApp from '@/components/feature/SearchUserFlex'
-import SearchTagFlexApp from '@/components/feature/SearchTagFlex'
+import SearchSortDropdownApp from '@/components/feature/Search/SearchSortDropdown'
+import SearchVideoFlexApp from '@/components/feature/Search/SearchVideoFlex'
+import SearchFocusFlexApp from '@/components/feature/Search/SearchFocusFlex'
+import SearchEssayFlexApp from '@/components/feature/Search/SearchEssayFlex'
+import SearchUserFlexApp from '@/components/feature/Search/SearchUserFlex'
+import SearchTagFlexApp from '@/components/feature/Search/SearchTagFlex'
 
 const App = ({search='1'}) => {
     const  [sort, setSort] = useState(search)
