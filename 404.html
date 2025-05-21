@@ -5,7 +5,7 @@
       const path = window.location.pathname;
             console.log(1111,path)
       console.log(2222,`index.html?redirect=${encodeURIComponent(path)}`)
-      window.location.href = `index.html?redirect=${encodeURIComponent(path)}`;
+      window.location.href = `?redirect=${encodeURIComponent(path)}`;
     </script>
   </head>
   <body>
