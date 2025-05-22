@@ -3,11 +3,9 @@
   <head>
     <script>
       const path = window.location.pathname;
-      const basename = '/VoteVideo'
-      const redirectPath = path.replace(basename, "")
-      console.log(1111,redirectPath)
-      console.log(2222,`?redirect=${redirectPath}`)
-      window.location.href = `?redirect=${redirectPath}`;
+      console.log(1111,path)
+      console.log(2222,`?redirect=${path}`)
+      window.location.href = `?redirect=${path}`;
     </script>
   </head>
   <body>
