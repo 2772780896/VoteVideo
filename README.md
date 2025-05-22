@@ -1,8 +1,20 @@
 # VoteVideo
-一个以用户投票为导向的视频网站，在实现基本的视频，文章，动态，评论等主要内容的展示之外，还将主要内容以详细的tag进行分区标记，tag由用户投票进行创建，主要内容的tag由用户投票进行修改，为用户实现准确地通过tag寻找想要的内容
+通过React构建的SPA网站，一个视频网站 
+实现
+[首页展示](https://2772780896.github.io/VoteVideo/main)
+[搜索页查看](https://2772780896.github.io/VoteVideo/search)
+[视频查看](https://2772780896.github.io/VoteVideo/video)
+[文章查看](https://2772780896.github.io/VoteVideo/essay)
+[关注查看](https://2772780896.github.io/VoteVideo/follow)
+[消息查看](https://2772780896.github.io/VoteVideo/user?search=1)
+[收藏查看](https://2772780896.github.io/VoteVideo/user?search=3)
+[历史查看](https://2772780896.github.io/VoteVideo/user?search=4)
+[稿件查看](https://2772780896.github.io/VoteVideo/user?search=5)
+[稿件上传](https://2772780896.github.io/VoteVideo/post)
+的页面布局
 
 ### 1.  
 通过*记录.txt*可查看编写过程
 
 ### 2.  
-通过在*VoteVideo/React/video-site*路径下运行*npm start*可查看已编写网页，目前已有主页*127.0.0.1/main*，视频页*127.0.0.1/video*，个人页*127.0.0.1/user*，关注页*127.0.0.1/follow*，搜索页*127.0.0.1/search*，专栏页*127.0.0.1/essay*，标签页*127.0.0.1/tag*
+通过*https://2772780896.github.io/VoteVideo/*可查看在线网页

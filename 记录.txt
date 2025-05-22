@@ -193,3 +193,31 @@
         单独用一个Upload接收上传的图片，上传成功后将该图片设置为file文件的thumbUrl属性，实现预览显示封面
 
 3.定制文章上传页UploadEssay，调用UploadText，通过Form上传
+
+
+部署
+部署在github pages上
+    npm install gh-pages --save-dev
+    package.json中添加 "homepage": "https://2772780896.github.io/项目名"
+    package.json的scripts中添加 "predeploy": "npm run build", "deploy": "gh-pages -d build --repo https://github.com/2772780896/项目名.git"
+    运行 npm run build 将项目打包到build文件夹下
+    运行 npm run deploy 用build文件夹中的内容生成 gh-pages 分支，并将该分支推送到github上
+    github pages 绑定该分支
+路由实现
+    当用creatBrowserRouter实现路由时，
+        当访问 https://2772780896.github.io/项目名 时，github pages会去查看根目录下的index.html
+            当根index.html执行时，react应用会启动，会检查当前url，并通过路由返回对应的页面
+        当访问 https://2772780896.github.io/项目名/子页面 时，github pages会去寻找 子页面.html 
+            由于react为单页面应用，并没有对应页面，所以github pages会返回自带的404.html
+            通过 "build": "craco build && copy build\\index.html build\\404.html" 用index.html生成一个404.html
+            当build文件夹中存在自建的404.html时，当404响应时，github pages会返回这个页面，
+            其中的react应用会再次启动，并根据对应的url返回对应的路由，实现路由跳转
+            通过在 createBrowserRouter([],{basename:'/项目名'}) 设置路由时的根路径，实现跳转到 /子页面 时，为跳转到 /项目名/子页面
+        当在已经启动的react应用中通过Link标签访问 https://2772780896.github.io/项目名/子页面 时，
+            react会更新url为 2772780896.github.io/项目名/子页面 ，然后通过Browser路由根据路径渲染对应组件，而不是发送服务器请求
+    当用creatHashRouter实现路由时，
+        将createBrowserRouter改为creatHashRouter
+        当使用hash路由时，即在已经启动的react应用中通过Link标签访问 https://2772780896.github.io/项目名/#/子页面 时，
+            不会再次向github pages服务器发送请求，而是修改 window.location.hash 的值，并用hash路由捕获这个值，并渲染对应的组件
+        当不在react应用中访问 https://2772780896.github.io/项目名/#/子页面 时，
+            github pages不会收到#之后的信息，所以还是会返回index.html，启动react应用，react再根据hash值进行路由
