@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Menu } from 'antd';
 import SearchInputApp from '@/components/common/SearchInput'
 import LoginModalApp from '@/components/common/LoginModal'
+import {Link} from 'react-router-dom'
 
 const section = [
   {
     label: (
       <div>
-        <a href="search?search=2">
+        <Link to="/search?search=2">
           视频
-        </a>
+        </Link>
       </div>
     ),
     key: 'video'
@@ -17,9 +18,9 @@ const section = [
   {
     label: (
       <div>
-        <a href="search?search=3">
+        <Link to="/search?search=3">
           文章
-        </a>
+        </Link>
       </div>
     ),
     key: 'essay'
@@ -27,9 +28,9 @@ const section = [
   {
     label: (
       <div>
-        <a href="search?search=4">
+        <Link to="/search?search=4">
           动态
-        </a>
+        </Link>
       </div>
     ),
     key: 'post'
@@ -37,9 +38,9 @@ const section = [
   {
     label: (
       <div>
-        <a href="search?search=5">
+        <Link to="/search?search=5">
           用户
-        </a>
+        </Link>
       </div>
     ),
     key: 'user'
@@ -47,9 +48,9 @@ const section = [
   {
     label: (
       <div>
-        <a href="search?search=6">
+        <Link to="/search?search=6">
           标签
-        </a>
+        </Link>
       </div>
     ),
     key: 'tag'
@@ -59,9 +60,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="main">
+        <Link to="/main">
           VoteVideo
-        </a>
+        </Link>
       </div>
     ),
     key: 'icon'
@@ -69,9 +70,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="main">
+        <Link to="/main">
           首页
-        </a>
+        </Link>
       </div>
     ),
     key: 'main'
@@ -79,9 +80,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="search?search=1">
+        <Link to="/search?search=1">
           热门
-        </a>
+        </Link>
       </div>
     ),
     key: 'hot',
@@ -89,9 +90,9 @@ const items = [
   },
   {
     label: (
-      <a href='search'>
+      <Link to='/search'>
         <SearchInputApp /> 
-      </a>
+      </Link>
     ),
     key: 'search',
     style:{width: '50%'}
@@ -107,9 +108,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="user?search=1">
+        <Link to="/user?search=1">
           消息
-        </a>
+        </Link>
       </div>
     ),
     key: 'message'
@@ -117,9 +118,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="follow">
+        <Link to="/follow">
           关注
-        </a>
+        </Link>
       </div>
     ),
     key: 'follow'
@@ -127,9 +128,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="user?search=3">
+        <Link to="/user?search=3">
           收藏
-        </a>
+        </Link>
       </div>
     ),
     key: 'favorite'
@@ -137,9 +138,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="user?search=4">
+        <Link to="/user?search=4">
           历史
-        </a>
+        </Link>
       </div>
     ),
     key: 'history'
@@ -147,9 +148,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="user?search=5">
+        <Link to="/user?search=5">
           稿件
-        </a>
+        </Link>
       </div>
     ),
     key: 'post'
@@ -157,9 +158,9 @@ const items = [
   {
     label: (
       <div>
-        <a href="upload">
+        <Link to="/upload">
           上传
-        </a>
+        </Link>
       </div>
     ),
     key: 'upload'

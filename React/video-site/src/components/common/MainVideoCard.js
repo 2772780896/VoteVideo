@@ -1,17 +1,18 @@
 import React from 'react';
 import { Card, Flex } from 'antd';
+import { Link } from 'react-router-dom';
 
 const App = ({width=250}) => (
   <Card>
     <Flex vertical justify="space-between">
       <div style={{position:'relative'}}>
-        <a href='vedio'>
+        <Link to='/vedio'>
             <img 
                 alt="example"
                 src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
                 style={{ width:`${width}px`, aspectRatio:'16/9'}}>
             </img>
-        </a>
+        </Link>
         <Flex  justify="space-between" style={{
             width:`${width}px`,
             position:'absolute',
@@ -24,9 +25,9 @@ const App = ({width=250}) => (
         </Flex>
       </div>
       <Flex vertical justify="space-between">
-        <a href='vedio'>
+        <Link to='/vedio'>
             <span>视频标题</span>
-        </a>
+        </Link>
         <Flex justify="space-between">
             <span>up名</span>
             <span>日期</span>

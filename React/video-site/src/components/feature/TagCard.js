@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Flex } from 'antd';
+import { Link } from 'react-router-dom';
 
 const App = () => (
   <>
@@ -12,9 +13,9 @@ const App = () => (
         </img>
       </div>
       <Flex vertical justify="start" style={{width:'70%', minWidth:'200px'}}>
-        <a href='tag'>
+        <Link to='/tag'>
             <span>标签名</span>
-        </a>
+        </Link>
         <Flex justify="start" gap={'middle'}>
           <span>点赞数</span>
           <span>关注数</span>

@@ -45,5 +45,7 @@ const router = createBrowserRouter([
         path: '/upload',
         element: <Upload />
     }
-])
+],{
+    basename: "/VoteVideo"
+})
 export default router

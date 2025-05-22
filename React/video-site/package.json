@@ -1,5 +1,5 @@
 {
-  "homepage": "./",
+  "homepage": "https://2772780896.github.io/VoteVideo",
   "name": "vedio-site",
   "version": "0.1.0",
   "private": true,
@@ -18,9 +18,9 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build && copy build\\index.html build\\404.html",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build --repo https://github.com/2772780896/VoteVideo.git"
   },
   "eslintConfig": {
     "extends": [

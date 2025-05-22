@@ -6,6 +6,7 @@ import { Col, Row } from "antd";
 
 const App = () => {
     return (
+        <>
         <Row>
             <Col span={24}>    
                 <TopMenuApp />
@@ -15,6 +16,7 @@ const App = () => {
                 <MainVideoFlex />
             </Col>
         </Row>
+        </>
     )
 }
 export default App
