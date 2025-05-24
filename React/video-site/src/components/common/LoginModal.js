@@ -32,7 +32,7 @@ const App = () => {
         centered
         footer={null}>
         <Flex justify='center'>
-            <Tabs defaultActiveKey="1" items={tab}></Tabs>
+            <Tabs activeKey="1" items={tab}></Tabs>
         </Flex>
       </Modal>
     </>

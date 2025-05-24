@@ -11,7 +11,7 @@ const App = () => {
     return (
         <>
             <div>我的对话</div>
-            <Tabs tabPosition='left' defaultActiveKey="1" items={tab}></Tabs>
+            <Tabs tabPosition='left' activeKey="1" items={tab}></Tabs>
         </>
     )
 }

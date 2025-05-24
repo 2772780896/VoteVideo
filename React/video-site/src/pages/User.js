@@ -32,7 +32,7 @@ const App = () => {
                 </Col>
             </Col>
             <Col span={22} offset={1}>
-                <Tabs defaultActiveKey={search} items={contentList} />
+                <Tabs activeKey={search} items={contentList} />
             </Col>
         </Row>
     )

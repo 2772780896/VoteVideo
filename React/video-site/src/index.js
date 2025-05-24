@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import router from '@/router/index';
 import { RouterProvider } from 'react-router-dom'
+import './mock'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

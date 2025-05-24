@@ -17,7 +17,7 @@ const App = () => {
         <>
         <TopMenuApp />
         <Flex justify='center'>
-            <Tabs defaultActiveKey={'1'} items={tab} centered style={{width:'80%'}}></Tabs>
+            <Tabs activeKey={'1'} items={tab} centered style={{width:'80%'}}></Tabs>
         </Flex>
         </>
     )

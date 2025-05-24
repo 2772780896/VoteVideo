@@ -160,7 +160,7 @@
 遇到问题：
     当点击导航头中的标签按钮时，跳转到搜索页并以SearchTagFlex为SearchTypeTabs的默认展示
         当跳转时携带get数据，在search页通过useSearchParams判断是否有数据并得到参数，
-        根据参数设置Tabs的defaultActiveKey属性值
+        根据参数设置Tabs的activeKey属性值
 
 
 标签页Tag
@@ -221,3 +221,21 @@
             不会再次向github pages服务器发送请求，而是修改 window.location.hash 的值，并用hash路由捕获这个值，并渲染对应的组件
         当不在react应用中访问 https://2772780896.github.io/项目名/#/子页面 时，
             github pages不会收到#之后的信息，所以还是会返回index.html，启动react应用，react再根据hash值进行路由
+
+
+请求实现
+遇到问题:
+    async/await机制
+        async函数一旦执行，就会返回一个状态为pending的promise对象
+        当async函数中运行到await语句时，等待await运行结束，并同时运行async函数外的语句
+        所以通过async函数返回await执行的结果，并在函数外通过赋值得到这个结果是不合理的
+        因为当赋值发生时，async函数并没有得到返回值，即使得到返回值，也会是一个promise对象
+        所以想获取await语句运行得到的值，需要在await下通过useState设置值
+        还需要将async放在useEffect中运行，并且依赖项为 [] ，使得函数只会在渲染完成后运行一次
+        否则每次渲染完成后等待await语句执行完成后，下方的useState运行，触发整个组件重新渲染，导致无限循环
+     mock实现
+        在react的入口文件，根index.js中 import 'mock' 以启动mock
+        src下创建mock文件夹，创建index.js
+        import Mock from 'mock'
+        export const response = Mock.mock('前端所请求的网页路径', 'get/post', {响应数据})
+

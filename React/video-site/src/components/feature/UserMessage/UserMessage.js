@@ -13,7 +13,7 @@ const App = () => {
         {key: '4', label: '系统通知', children: <UserMessageSystemApp />},
     ]
     return (
-        <Tabs tabPosition='left' defaultActiveKey="1" items={tab}></Tabs>
+        <Tabs tabPosition='left' activeKey="1" items={tab}></Tabs>
     )
 }
 

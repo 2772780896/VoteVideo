@@ -36,7 +36,7 @@ const App = () => {
         },
     ];
     return (
-        <Tabs defaultActiveKey="1" items={items} />
+        <Tabs activeKey="1" items={items} />
     )
 }
 

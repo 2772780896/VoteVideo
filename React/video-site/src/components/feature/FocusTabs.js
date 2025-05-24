@@ -10,7 +10,7 @@ const App = () => {
         {key: '4', label: 'Up4', children: <FocusUploaderFlexApp />},
     ]
     return (
-        <Tabs defaultActiveKey="1" items={tab}></Tabs>
+        <Tabs activeKey="1" items={tab}></Tabs>
     )
 }
 
