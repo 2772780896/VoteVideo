@@ -196,7 +196,7 @@
 
 
 部署
-部署在github pages上
+部署在github pages
     npm install gh-pages --save-dev
     package.json中添加 "homepage": "https://2772780896.github.io/项目名"
     package.json的scripts中添加 "predeploy": "npm run build", "deploy": "gh-pages -d build --repo https://github.com/2772780896/项目名.git"
@@ -223,7 +223,7 @@
             github pages不会收到#之后的信息，所以还是会返回index.html，启动react应用，react再根据hash值进行路由
 
 
-请求实现
+Carousel中图片的网络请求与数据渲染
 遇到问题:
     async/await机制
         async函数一旦执行，就会返回一个状态为pending的promise对象
@@ -234,8 +234,18 @@
         还需要将async放在useEffect中运行，并且依赖项为 [] ，使得函数只会在渲染完成后运行一次
         否则每次渲染完成后等待await语句执行完成后，下方的useState运行，触发整个组件重新渲染，导致无限循环
      mock实现
-        在react的入口文件，根index.js中 import 'mock' 以启动mock
-        src下创建mock文件夹，创建index.js
-        import Mock from 'mock'
-        export const response = Mock.mock('前端所请求的网页路径', 'get/post', {响应数据})
-
+        在src下创建mock文件夹，创建index.js，实现mock拦截携带了参数的url请求，并获取参数，设置响应
+        在react的入口文件，根index.js中 import './mock/index.js' 以启动mock
+1. 在utils的request.js中封装axios请求
+2. 在apis的main的getCarouselPicture.js中设置请求的url和携带的参数，并异步执行
+3. 在hooks的main的useCarouselPicture.js中设置state储存数据，在useEffect中异步调用getCarouselPicture，
+    获取响应中实际需要的数据，设置state为对应数据，设置依赖项为getCarouselPicture的参数，返回state
+4. 在pages的Main.js中调用useCarouselPicture并传入参数，将结果传给Carsousel
+5. 在components的common的Carsousel.js中获取数据url组成的列表，将其通过map映射为对应Link标签包裹的img标签，
+    在Carousel标签中调用这个Link标签列表
+遇到问题：
+    运行流程
+        react启动，启动mock，useCarouselPicture中请求发出，此时请求为异步执行，所以setState还没有发生，
+        外部使用useState时设置的值作为数据，继续向下执行，继续渲染Main组件
+        当useCarouselPicture中请求完成，setState设置数据，使Main组件刷新，以新state再次渲染
+        若没有使用useEffect，会导致每次更新时都再次发出请求，并再次setState，导致无限循环
