@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, use} from 'react';
 import { Col, Row, Segmented, Tabs } from "antd";
 import SearchSortDropdownApp from '@/components/feature/Search/SearchSortDropdown'
 import SearchVideoFlexApp from '@/components/feature/Search/SearchVideoFlex'
@@ -8,8 +8,12 @@ import SearchUserFlexApp from '@/components/feature/Search/SearchUserFlex'
 import SearchTagFlexApp from '@/components/feature/Search/SearchTagFlex'
 
 const App = ({search='1'}) => {
-    console.log(2222,search)
-    const  [sort, setSort] = useState(search)
+    const [sort, setSort] = useState('1')
+    const [type, setType] = useState(search)
+    useEffect(() => {setType(search)}, [search])
+    const handleChange = (key) => {
+        setType(key)
+    }
     const tab = [
         {key: '1', label: '综合', children: (
             <>
@@ -49,7 +53,7 @@ const App = ({search='1'}) => {
         )},
     ]
     return (
-        <Tabs activeKey={search} items={tab}></Tabs>
+        <Tabs activeKey={type} items={tab} onChange={handleChange}></Tabs>
     )
 }
 

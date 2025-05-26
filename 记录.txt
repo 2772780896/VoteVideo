@@ -249,3 +249,16 @@ Carousel中图片的网络请求与数据渲染
         外部使用useState时设置的值作为数据，继续向下执行，继续渲染Main组件
         当useCarouselPicture中请求完成，setState设置数据，使Main组件刷新，以新state再次渲染
         若没有使用useEffect，会导致每次更新时都再次发出请求，并再次setState，导致无限循环
+
+MainPicture中的请求
+    流程类似Carousel，流程中的文件为 
+    request.js -> getMainPicture.js -> useMainPicture.js -> Main.js -> MainVideoFlex.js -> MainVideoCardApp.js
+
+Tabs在保证自身切换逻辑时，实现接收网络参数并根据参数切换对应元素
+    通过activeKey绑定state使Tabs成为受控组件，此时Tabs默认onChange失效，onChange绑定handelChange，handelChange默认参数为所被点击的元素的key，
+        通过handelChange还原点击切换功能
+    组件接收跳转参数，通过useEffect中setState为参数的值，设置依赖项为参数，当参数发生变化时，再次setState，实现activeKey的更新
+    实现既可通过点击切换，也可通过接收跳转参数切换
+另一种同时实现两种切换的方式
+    设置Tabs的item为被Link包裹的Outlet，当点击切换时实际上就是渲染该子路径，当跳转发生时，不论是直接跳转还是接收跳转参数然后通过useNative进行跳转，
+        实现效果都是一样的

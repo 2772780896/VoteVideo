@@ -7,11 +7,11 @@ import SearTypeTableApp from '@/components/feature/Search/SearchTypeTabs'
 
 const App = () => {
     const [params] = useSearchParams()
-    console.log(11111,params.get('search'))
     let search = '1'
     if (params.get('search')){
         search = params.get('search')
     }
+    console.log(search)
     return (
         <Row>
             <Col span={24}>    

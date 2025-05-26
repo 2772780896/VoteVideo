@@ -3,15 +3,13 @@ import React from 'react';
 import { Flex } from 'antd';
 import MainVideoCardApp from '@/components/common/MainVideoCard'
 
-const App = () => {
+const App = ({videoList}) => {
+  const videoCardList = videoList.map((i) => (
+    <MainVideoCardApp video={i}/>
+  ))
   return (
-    <Flex wrap gap="middle">
-      <MainVideoCardApp />
-      <MainVideoCardApp />
-      <MainVideoCardApp />
-      <MainVideoCardApp />
-      <MainVideoCardApp />
-      <MainVideoCardApp />
+    <Flex wrap gap="middle" style={{width:'100%'}}>
+      {videoCardList}
     </Flex>
   );
 };
