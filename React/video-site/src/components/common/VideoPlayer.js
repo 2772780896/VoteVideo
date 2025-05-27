@@ -1,12 +1,13 @@
 import React from 'react';
 
-const App = () => {
+const App = ({playVideo}) => {
     return (
         <video 
             controls 
-            poster='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
+            poster={playVideo?.coverUrl}
+            key={playVideo?.vid}
             style={{width:'100%', aspectRatio: '16/9'}}>
-            <source src='https://cdn.pixabay.com/video/2025/04/29/275633_large.mp4' />
+            <source src={playVideo?.videoUrl} type="video/mp4" />
         </video>
     )
 }

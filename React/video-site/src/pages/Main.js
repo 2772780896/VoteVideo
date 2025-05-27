@@ -3,12 +3,13 @@ import CarouselApp from '@/components/common/Carousel'
 import React, {useState,useEffect, use} from 'react';
 import MainVideoFlex from '@/components/common/MainVideoFlex'
 import { Col, Row } from "antd";
-import useCarouselPicture from '@/hooks/main/useCarouselPicture'
-import useMainVideo from '@/hooks/main/useMainVideo'
+import useData from '@/hooks/useData'
+import getCarouselPicture from "@/apis/main/getCarouselPicture";
+import getMainVideo from "@/apis/main/getMainVideo";
 
 const App = () => {
-    const carouselUrlList = useCarouselPicture(5)
-    const mainVideoList = useMainVideo(1, 16)
+    const carouselUrlList = useData(getCarouselPicture, 5)
+    const mainVideoList = useData(getMainVideo, 1, 16)
     return (
         <>
         <Row>

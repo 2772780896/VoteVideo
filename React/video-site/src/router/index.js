@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
 import MainApp from '../pages/Main'
-import VedioApp from '@/pages/Vedio'
+import VideoApp from '@/pages/Video'
 import UserApp from '@/pages/User'
 import FollowApp from '@/pages/Follow'
 import SearchApp from '@/pages/Search'
@@ -18,8 +18,8 @@ const router = createBrowserRouter([
         element: <MainApp />,
     },
     {
-        path: '/vedio',
-        element: <VedioApp />
+        path: '/video',
+        element: <VideoApp />
     },
     {
         path: '/user',

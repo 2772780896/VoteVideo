@@ -1,7 +1,7 @@
 import Mock from 'mockjs'
 const Random = Mock.Random
 export const carouselPicture = Mock.mock(
-    /^\/picture\/carousel(\?.*)?$/,
+    /^\/api\/picture\/carousel(\?.*)?$/,
     'get',
     function(options) {
         const relativePath = options.url
