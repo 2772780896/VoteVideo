@@ -1,5 +1,5 @@
 import Mock from 'mockjs'
-import { addMainVideoList } from './publicState'
+import { addVideoList } from './publicState'
 
 const Random = Mock.Random
 export const mainVideo = Mock.mock(
@@ -20,7 +20,7 @@ export const mainVideo = Mock.mock(
             duration: Random.time('mm:ss'),
             date: Random.datetime('yyyy-MM-dd')
         }))
-        addMainVideoList(dataList)
+        addVideoList(dataList)
         return Mock.mock({
             code: 200,
             message: 'ok',

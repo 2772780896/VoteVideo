@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, message, Space, Flex } from 'antd';
 
-const App = ({pushSort, defaultSort='播放排序'}) => {
+const App = ({pushSort, defaultSort='1'}) => {
   const [sort, setSort] = useState(defaultSort)
   const onClick = ({key}) => {
     setSort(key)
@@ -10,23 +10,23 @@ const App = ({pushSort, defaultSort='播放排序'}) => {
   const items = [
     {
       label: '播放排序',
-      key: '播放排序',
+      key: '1',
     },
     {
       label: '时间顺序',
-      key: '时间顺序',
+      key: '2',
     },
     {
       label: '时间倒序',
-      key: '时间倒序',
+      key: '3',
     },
     {
       label: '点赞排序',
-      key: '点赞排序',
+      key: '4',
     },
     {
       label: '收藏排序',
-      key: '收藏排序',
+      key: '5',
     }
   ];
   pushSort(sort)
@@ -36,7 +36,7 @@ const App = ({pushSort, defaultSort='播放排序'}) => {
       <Dropdown menu={{ items, onClick }}>
         <a onClick={e => e.preventDefault()}>
           <Space>
-            {sort}
+            {items.find(i => i.key === sort).label}
             <DownOutlined />
           </Space>
         </a>

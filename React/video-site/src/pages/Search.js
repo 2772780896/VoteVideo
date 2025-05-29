@@ -11,7 +11,6 @@ const App = () => {
     if (params.get('search')){
         search = params.get('search')
     }
-    console.log(search)
     return (
         <Row>
             <Col span={24}>    

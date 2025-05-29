@@ -8,8 +8,8 @@ import getCarouselPicture from "@/apis/main/getCarouselPicture";
 import getMainVideo from "@/apis/main/getMainVideo";
 
 const App = () => {
-    const carouselUrlList = useData(getCarouselPicture, 5)
-    const mainVideoList = useData(getMainVideo, 1, 16)
+    const carouselUrlList = useData(getCarouselPicture, 5).data
+    const mainVideoList = useData(getMainVideo, 1, 16).data
     return (
         <>
         <Row>

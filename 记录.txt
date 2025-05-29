@@ -240,7 +240,8 @@ Carousel中图片的网络请求与数据渲染
 2. 在utils的request.js中封装axios请求
 3. 在apis的main的getCarouselPicture.js中设置请求的url和携带的参数，并异步执行
 4. 在hooks的useData.js中接收请求函数和请求数据作为参数，设置state储存数据，在useEffect中异步调用请求函数，
-    获取响应中实际需要的数据，设置state为对应数据，设置依赖项为请求函数的参数，返回state
+    获取响应中实际需要的数据，setState为对应数据，设置依赖项为请求函数的参数，返回state，
+    当参数即依赖项变化时，根据新值来再次发出请求，并因为返回state的更新而触发调用useData的组件函数的重新渲染
 5. 在pages的Main.js中调用useData并传入请求函数getCarouselPicture.js和请求参数，将结果传给Carsousel
 6. 在components的common的Carsousel.js中获取数据url组成的列表，将其通过map映射为对应Link标签包裹的img标签，
     在Carousel标签中调用这个Link标签列表
@@ -281,3 +282,24 @@ Video中的请求
         在mainVideo.js中导入修改函数，在Mock.mock()的响应参数处使用函数，用修改函数来将生成的数据添加进静态数据的值，
         在playVideo.js中导入获取函数，在Mock.mock()的响应参数处使用函数，用获取函数拿到mainVideo.js生成的值，根据url中获取到的get参数进行匹配拿到对应的数据
         不直接在publicState中导出静态数据，是为了避免循环依赖和模块导入导致的将静态数据临时的表现为一个只读的getter，而使得直接修改只读数据时报错的情况
+
+SearchVideo中的请求
+    流程类似Carousel，流程中的文件为 
+    searchVideo.js -> request.js -> getSearchVideo.js -> useData.js -> SearchVideoFlex.js -> MainVideoCardApp.js
+遇到问题：
+    排序功能实现
+        在Mock.mock()的外部统一生成所有视频数据组成的列表，
+        在内部的函数中通过接收到的排序参数，通过列表中视频对象的指定属性进行排序
+    分页功能实现
+        在Mock.mock()中获取页数和每页元素数，根据其对已排序的视频列表进行切割，返回指定元素的列表
+        当分页切换时，修改page的state
+        将useData中的useEffect的依赖项设置为传入的参数，当传入的page变化时，useEffect执行，useData返回一个新的data
+        因为data是state，所以在SearchVideoFlex中监听到data变化时，重新渲染，根据新的data生成新的视频列表
+        通过 .map 生成视频标签列表时，通过在useMemo中生成该列表来记忆该列表，当page未改变时，列表也不会重新生成
+    useEffect事件循环
+        当在useEffect中setState，并在之后使用更新的state时，setState不会立刻生效，而是被推到下一次循环中统一执行
+        也就是说，即使使用更新后的state，也还是上一次循环中的state值，而不是更新后的值
+        当useEffect中的语句执行完后，setState才会执行
+    state和useEffect使用原则
+        最小化state：组件的state应该尽可能地少。如果一个state可以从其他state中派生出来，那么它就不应该是一个独立的state
+        将组件的渲染和副作用分离开来，useEffect应该用于处理真正的副作用（数据获取、订阅、手动 DOM 操作等），不应该生成标签

@@ -1,3 +1,3 @@
-let mainVideoList = []
-export const getMainVideoList = () => { return mainVideoList }
-export const addMainVideoList = (dataList) => { mainVideoList.push(...dataList) }
+let videoList = []
+export const getVideoList = () => { return videoList }
+export const addVideoList = (dataList) => { videoList.push(...dataList) }

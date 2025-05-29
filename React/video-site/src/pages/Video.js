@@ -14,7 +14,7 @@ import getPlayVideo from '@/apis/video/getPlayVideo';
 const App = () => {
   const [params] = useSearchParams()
   const vid = params.get('vid')
-  const playVideoList = useData(getPlayVideo, vid)
+  const playVideoList = useData(getPlayVideo, vid).data
   const playVideo = playVideoList[0]
   return (
     <Row>

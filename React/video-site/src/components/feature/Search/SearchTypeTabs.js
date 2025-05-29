@@ -8,7 +8,10 @@ import SearchUserFlexApp from '@/components/feature/Search/SearchUserFlex'
 import SearchTagFlexApp from '@/components/feature/Search/SearchTagFlex'
 
 const App = ({search='1'}) => {
+    // 设置排序方式
     const [sort, setSort] = useState('1')
+
+    // 设置Tabs显示的组件
     const [type, setType] = useState(search)
     useEffect(() => {setType(search)}, [search])
     const handleChange = (key) => {
