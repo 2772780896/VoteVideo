@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/VoteVideo/static/css/main.dc4d6ff2.css",
-    "main.js": "/VoteVideo/static/js/main.c98e008e.js",
+    "main.js": "/VoteVideo/static/js/main.b46914b5.js",
     "index.html": "/VoteVideo/index.html",
     "main.dc4d6ff2.css.map": "/VoteVideo/static/css/main.dc4d6ff2.css.map",
-    "main.c98e008e.js.map": "/VoteVideo/static/js/main.c98e008e.js.map"
+    "main.b46914b5.js.map": "/VoteVideo/static/js/main.b46914b5.js.map"
   },
   "entrypoints": [
     "static/css/main.dc4d6ff2.css",
-    "static/js/main.c98e008e.js"
+    "static/js/main.b46914b5.js"
   ]
 }
