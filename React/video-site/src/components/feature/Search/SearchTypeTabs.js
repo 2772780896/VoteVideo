@@ -1,4 +1,5 @@
-import React, {useState, useEffect, use} from 'react';
+import React, {useState, useMemo} from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Col, Row, Segmented, Tabs } from "antd";
 import SearchSortDropdownApp from '@/components/feature/Search/SearchSortDropdown'
 import SearchVideoFlexApp from '@/components/feature/Search/SearchVideoFlex'
@@ -7,16 +8,20 @@ import SearchEssayFlexApp from '@/components/feature/Search/SearchEssayFlex'
 import SearchUserFlexApp from '@/components/feature/Search/SearchUserFlex'
 import SearchTagFlexApp from '@/components/feature/Search/SearchTagFlex'
 
-const App = ({search='1'}) => {
+const App = () => {
     // 设置排序方式
     const [sort, setSort] = useState('1')
 
-    // 设置Tabs显示的组件
-    const [type, setType] = useState(search)
-    useEffect(() => {setType(search)}, [search])
+    // 当get参数更新时获取参数
+    const [params] = useSearchParams()
+    const activeKey = useMemo(() => (params.get('search')), [params])
+
+    // 当元素切换时更新url，通过get传递key参数
+    const navigate = useNavigate()
     const handleChange = (key) => {
-        setType(key)
+        navigate(`/search?search=${key}`)
     }
+
     const tab = [
         {key: '1', label: '综合', children: (
             <>
@@ -55,8 +60,9 @@ const App = ({search='1'}) => {
             </>
         )},
     ]
+    
     return (
-        <Tabs activeKey={type} items={tab} onChange={handleChange}></Tabs>
+        <Tabs activeKey={activeKey} items={tab} onChange={handleChange}></Tabs>
     )
 }
 

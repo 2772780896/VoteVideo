@@ -6,6 +6,7 @@ import getSearchVideo from '@/apis/search/getSearchVideo';
 
 const App = ({sort}) => {
   // 控制分页
+  console.log('sort:',sort)
   const [page, setPage] = useState(1) // 当前页
   const onChange = page => {
     setPage(page)

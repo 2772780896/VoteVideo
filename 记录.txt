@@ -261,14 +261,18 @@ MainVideo中的请求
     流程类似Carousel，流程中的文件为 
     mainVideo.js -> request.js -> getMainVideo.js -> useData.js -> Main.js -> MainVideoFlex.js -> MainVideoCardApp.js
 
-Tabs在保证自身切换逻辑时，实现接收网络参数并根据参数切换对应元素
+Tabs在保证自身切换逻辑时，实现根据get参数切换对应元素
     通过activeKey绑定state使Tabs成为受控组件，此时Tabs默认onChange失效，onChange绑定handelChange，handelChange默认参数为所被点击的元素的key，
-        通过handelChange还原点击切换功能
-    组件接收跳转参数，通过useEffect中setState为参数的值，设置依赖项为参数，当参数发生变化时，再次setState，实现activeKey的更新
-    实现既可通过点击切换，也可通过接收跳转参数切换
+        执行handelChange时修改activeKey的值为对应的key，并通过useNavigate更新url，携带get参数为key
+    组件获取get参数，通过useEffect中setState设置Tabs的activeKey，设置依赖项为get参数，
+        实现每当get参数改变时，修改activeKey，Tabs根据activeKey的变化而重新渲染
+    改进：
+        当通过setState更新activeKey时，由于setState的事件循环，导致Tabs使用未更新的state又进行了一次渲染，
+            当setState实际执行后，才实现真正的渲染，导致了重复渲染
+        所以需要将在useEffect中setState的逻辑改为通过useMemo生成变量，当次生成的新值可以立刻在Tabs中被使用，避免重复
+        优化了useEffect的使用，通过用useMemo管理数据，减少了事件循环次数，提高了渲染效率
 另一种同时实现两种切换的方式
-    设置Tabs的item为被Link包裹的Outlet，当点击切换时实际上就是渲染该子路径，当跳转发生时，不论是直接跳转还是接收跳转参数然后通过useNative进行跳转，
-        实现效果都是一样的
+    设置Tabs的item为被Link包裹的Outlet，当点击切换时实际上就是跳转到该子路径
 
 Video中的请求
     流程类似Carousel，流程中的文件为 
@@ -296,10 +300,3 @@ SearchVideo中的请求
         将useData中的useEffect的依赖项设置为传入的参数，当传入的page变化时，useEffect执行，useData返回一个新的data
         因为data是state，所以在SearchVideoFlex中监听到data变化时，重新渲染，根据新的data生成新的视频列表
         通过 .map 生成视频标签列表时，通过在useMemo中生成该列表来记忆该列表，当page未改变时，列表也不会重新生成
-    useEffect事件循环
-        当在useEffect中setState，并在之后使用更新的state时，setState不会立刻生效，而是被推到下一次循环中统一执行
-        也就是说，即使使用更新后的state，也还是上一次循环中的state值，而不是更新后的值
-        当useEffect中的语句执行完后，setState才会执行
-    state和useEffect使用原则
-        最小化state：组件的state应该尽可能地少。如果一个state可以从其他state中派生出来，那么它就不应该是一个独立的state
-        将组件的渲染和副作用分离开来，useEffect应该用于处理真正的副作用（数据获取、订阅、手动 DOM 操作等），不应该生成标签

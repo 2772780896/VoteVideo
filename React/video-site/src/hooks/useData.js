@@ -6,9 +6,9 @@ const useData = (requestFunc, ...params) => {
         async function getData() {
             const response = await requestFunc(...params)
             setData(response.data)
+            console.log('useData', response)
         }
         getData()
-        console.log('useData执行了')
     },[...params])
     return data
 }

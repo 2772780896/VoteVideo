@@ -18,7 +18,9 @@ export const mainVideo = Mock.mock(
             messageCount: Random.integer(50, 1000),
             uploader: Random.cword(2,6),
             duration: Random.time('mm:ss'),
-            date: Random.datetime('yyyy-MM-dd')
+            date: Random.datetime('yyyy-MM-dd'),
+            likeCount: Random.integer(200, 20000),
+            favouriteCount: Random.integer(100, 10000)
         }))
         addVideoList(dataList)
         return Mock.mock({

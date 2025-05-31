@@ -3,8 +3,9 @@ import { Flex, Col, Row } from 'antd';
 import EssayCardApp from '@/components/feature/EssayCard'
 
 const App = ({sort}) => {
+  console.log('Essay')
   const showFocus = (sort) => {
-    if (sort === '播放排序') {
+    if (sort === '1') {
       return (
         <Flex wrap gap="middle">
           <Row>
@@ -29,7 +30,7 @@ const App = ({sort}) => {
           </Row>
         </Flex>
       )
-    } else if (sort === '时间顺序'){
+    } else if (sort === '2'){
       return (
         <Flex wrap gap="middle">
             <Col span={12}>
@@ -52,7 +53,7 @@ const App = ({sort}) => {
             </Col>
         </Flex>
       )
-    } else if (sort === '时间倒序'){
+    } else if (sort === '3'){
       return (
         <Flex wrap gap="middle">
             <Col span={12}>
@@ -75,7 +76,7 @@ const App = ({sort}) => {
             </Col>
         </Flex>
       )
-    } else if (sort === '点赞排序'){
+    } else if (sort === '4'){
       return (
         <Flex wrap gap="middle">
             <Col span={12}>
@@ -98,7 +99,7 @@ const App = ({sort}) => {
             </Col>
         </Flex>
       )
-    } else if (sort === '收藏排序'){
+    } else if (sort === '5'){
       return (
         <Flex wrap gap="middle">
             <Col span={12}>

@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { DownOutlined } from '@ant-design/icons';
-import { Dropdown, message, Space, Flex } from 'antd';
+import { Dropdown, Space, Flex } from 'antd';
 
 const App = ({pushSort, defaultSort='1'}) => {
   const [sort, setSort] = useState(defaultSort)
