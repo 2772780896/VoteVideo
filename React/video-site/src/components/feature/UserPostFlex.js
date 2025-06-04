@@ -1,15 +1,15 @@
 import React, { useMemo } from 'react';
 import { Flex } from 'antd';
-import MainVideoCardApp from '@/components/common/MainVideoCard'
+import PostCard from '@/components/common/PostCard'
 
-const App = ({videoList}) => {
+const App = ({postList}) => {
 
   // 列表映射
   const dataList = useMemo(() => (
-    videoList?.map(i => (
-      <MainVideoCardApp key={i.vid} video={i} />
+    postList?.map(i => (
+      <PostCard key={i.vid} post={i} />
     )
-  )), [videoList])
+  )), [postList])
 
   return (
     <>

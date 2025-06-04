@@ -1,5 +1,5 @@
 import Mock from 'mockjs'
-import { getVideoList } from './publicState'
+import { getVideoList } from '../publicState'
 
 export const playVideo = Mock.mock(
     /^\/api\/video\/play(\?.*)?$/,

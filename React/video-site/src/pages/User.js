@@ -1,38 +1,57 @@
 import TopMenuApp from "@/components/common/TopMenu";
 import {useSearchParams} from 'react-router-dom'
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { Col, Row, Segmented, Tabs} from "antd";
-import UserCardApp from '@/components/common/UserCard'
-import UserMessageApp from '@/components/feature/UserMessage/UserMessage'
-import UserFocusApp from '@/components/feature/UserFocus'
-import UserFavouriteApp from '@/components/feature/UserFavourite'
-import UserVideoApp from '@/components/feature/UserVideo'
-import UserHistoryApp from '@/components/feature/UserHistory'
+import UserCard from '@/components/common/UserCard'
+import UserPostFlex from '@/components/feature/UserPostFlex'
+import UserEssayFlex from '@/components/feature/UserEssayFlex'
+import UserVideoFlex from '@/components/feature/UserVideoFlex'
+import useData from '@/hooks/useData';
+import getShowUser from '@/apis/user/getShowUser';
 
 
 const App = () => {
     const [params] = useSearchParams()
-    let search = '1'
-    if (params.get('search')){
-        search = params.get('search')
-    }
+    const uid = params.get('uid')
+    console.log('uid:', uid)
+    const showUserList = useData(getShowUser, uid).data
+    const showUser = showUserList?.[0]
+    const [activeKey, setActiveKey] = useState('1')
+    useEffect(() => {
+        if (showUser?.videoList.length !== 0) {
+            setActiveKey('1')
+        }else if (showUser?.postList.length !== 0) {
+            setActiveKey('2')
+        }else if (showUser?.essayList.length !== 0) {
+            setActiveKey('3')
+        }else {
+            setActiveKey('1')
+        }
+    }, [showUser])
+    console.log('videoList:', showUser?.videoList)
+    console.log('activeKey:', activeKey)
     const contentList = [
-        {key: '1', label: '消息', children: <UserMessageApp />},
-        {key: '2', label: '动态', children: <UserFocusApp />},
-        {key: '3', label: '收藏', children: <UserFavouriteApp />},
-        {key: '4', label: '历史', children: <UserHistoryApp />},
-        {key: '5', label: '视频', children: <UserVideoApp />},
+        {key: '1', label: '视频', children: (
+            <UserVideoFlex videoList={showUser?.videoList} />
+        )},
+        {key: '2', label: '动态', children: (
+            <UserPostFlex postList={showUser?.postList} />
+        )},
+        {key: '3', label: '文章', children: (
+            <UserEssayFlex essayList={showUser?.essayList} />
+        )},
     ]
+    const handleChange = (key) => {setActiveKey(key)}
     return (
         <Row>
             <Col span={24}>    
                 <TopMenuApp />
                 <Col offset={1}>
-                    <UserCardApp />
+                    <UserCard user={showUser} />
                 </Col>
             </Col>
             <Col span={22} offset={1}>
-                <Tabs activeKey={search} items={contentList} />
+                <Tabs activeKey={activeKey} items={contentList} onChange={handleChange}/>
             </Col>
         </Row>
     )

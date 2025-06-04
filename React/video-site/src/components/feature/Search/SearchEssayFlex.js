@@ -1,131 +1,35 @@
-import React from 'react';
-import { Flex, Col, Row } from 'antd';
-import EssayCardApp from '@/components/feature/EssayCard'
+import React, { useState, useMemo } from 'react';
+import { Flex, Pagination } from 'antd';
+import EssayCardApp from '@/components/common/EssayCard'
+import useData from '@/hooks/useData';
+import getSearchEssay from '@/apis/search/getSearchEssay';
 
 const App = ({sort}) => {
-  console.log('Essay')
-  const showFocus = (sort) => {
-    if (sort === '1') {
-      return (
-        <Flex wrap gap="middle">
-          <Row>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-          </Row>
-        </Flex>
-      )
-    } else if (sort === '2'){
-      return (
-        <Flex wrap gap="middle">
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-        </Flex>
-      )
-    } else if (sort === '3'){
-      return (
-        <Flex wrap gap="middle">
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-        </Flex>
-      )
-    } else if (sort === '4'){
-      return (
-        <Flex wrap gap="middle">
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-        </Flex>
-      )
-    } else if (sort === '5'){
-      return (
-        <Flex wrap gap="middle">
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-            <Col span={12}>
-              <EssayCardApp/>
-            </Col>
-        </Flex>
-      )
-    }
-  }
+  // 控制分页
+  console.log('sort:',sort)
+  const [page, setPage] = useState(1) // 当前页
+  const onChange = page => {
+    setPage(page)
+  };
+  // 数据获取
+  const data = useData(getSearchEssay, Number(sort), page, 16)
+  console.log('data:', data)
+
+  // 列表映射
+  const essayList = useMemo(() => (
+    data?.data.map(i => (
+      <EssayCardApp key={i.eid} essay={i} />
+    )
+  )), [data])
+
   return (
-    showFocus(sort)
+    <>
+    <Flex wrap gap="middle">
+      {essayList}
+    </Flex>
+    <Pagination current={page} onChange={onChange} total={data?.total} pageSize={16} />
+    </>
+
   );
 };
 export default App;

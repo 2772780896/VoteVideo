@@ -1,8 +1,8 @@
 import React from 'react';
 import { Flex, Row, Col, Avatar, Button } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import FocusUploaderVideoApp from '@/components/feature/FollowUploader/FollowUploaderVideo'
-import FocusUploaderTextApp from '@/components/feature/FollowUploader/FollowUploaderText'
+import FocusUploaderVideoApp from '@/components/feature/Post/PostVideo'
+import FocusUploaderTextApp from '@/components/feature/Post/PostPicture'
 
 const App = ({type='video'}) => {
     const showContent = (type) => {

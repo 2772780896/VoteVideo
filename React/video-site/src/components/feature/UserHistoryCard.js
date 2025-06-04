@@ -2,7 +2,7 @@ import React from 'react';
 import {Flex} from 'antd'
 import MainVideoCard from '@/components/common/MainVideoCard'
 import FocusUploaderCard from '@/components/feature/FollowUploader/FollowUploaderCard'
-import EssayCard from '@/components/feature/EssayCard'
+import EssayCard from '@/components/common/EssayCard'
 
 const App = ({type='video'}) => {
     const resolveType = (type) => {

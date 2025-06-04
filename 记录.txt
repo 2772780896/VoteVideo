@@ -236,7 +236,9 @@ Carousel中图片的网络请求与数据渲染
      mock实现
         在src下创建mock文件夹，创建index.js，实现mock拦截url请求，并设置响应
         在react的入口文件，根index.js中 import './mock/index.js' 以启动mock
-1. 在mock的carouselPicture.js中定义拦截url和响应数据，将carouselPicture.js导出到index.js中，供入口文件根index.js统一导入
+1. 在mock的createData中生成数据列表
+    在response的carouselPicture.js中定义拦截url和响应数据，调用createData获取数据，
+    将carouselPicture.js导出到index.js中，供入口文件根index.js统一导入
 2. 在utils的request.js中封装axios请求
 3. 在apis的main的getCarouselPicture.js中设置请求的url和携带的参数，并异步执行
 4. 在hooks的useData.js中接收请求函数和请求数据作为参数，设置state储存数据，在useEffect中异步调用请求函数，
@@ -275,6 +277,8 @@ Tabs在保证自身切换逻辑时，实现根据get参数切换对应元素
     设置Tabs的item为被Link包裹的Outlet，当点击切换时实际上就是跳转到该子路径
 
 Video中的请求
+    在点击其他的VideoCard以实现跳转到Video时，接收vid参数
+    通过vid参数向mock下的playVideo请求对应的video数据，以在自身中渲染
     流程类似Carousel，流程中的文件为 
     playVideo.js -> request.js -> getPlayVideo.js -> useData.js -> Video.js -> VideoPlayerApp.js -> UploadCardApp.js
 遇到问题：
@@ -300,3 +304,36 @@ SearchVideo中的请求
         将useData中的useEffect的依赖项设置为传入的参数，当传入的page变化时，useEffect执行，useData返回一个新的data
         因为data是state，所以在SearchVideoFlex中监听到data变化时，重新渲染，根据新的data生成新的视频列表
         通过 .map 生成视频标签列表时，通过在useMemo中生成该列表来记忆该列表，当page未改变时，列表也不会重新生成
+
+SearchEssay中的请求
+    流程类似Carousel，流程中的文件为 
+    searchEssay.js -> request.js -> getSearchEssay.js -> useData.js -> SearchEssayFlex.js -> EssayCard.js
+
+Essay中的请求
+    流程类似Video，流程中的文件为 
+    showEssay.js -> request.js -> getShowEssay.js -> useData.js -> Essay.js
+
+SearchPost中的请求
+    流程类似Carousel，流程中的文件为 
+    searchPost.js -> request.js -> getSearchPost.js -> useData.js -> SearchPostFlex.js -> PostCard.js
+
+Post中的请求
+    流程类似Video，流程中的文件为 
+    showPost.js -> request.js -> getShowPost.js -> useData.js -> Post.js -> PostVideo.js/PostPicture.js
+
+SearchUser中的请求
+    流程类似Carousel，流程中的文件为 
+    searchUser.js -> request.js -> getSearchUser.js -> useData.js -> SearchUserFlex.js -> UserCard.js
+
+User中的请求
+    流程类似Video，流程中的文件为
+    showUser.js -> request.js -> getShowUser.js -> useData.js -> User.js -> UserVideoFlex.js/UserPostFlex.js/UserEssayFlex.js
+遇到问题：
+    searchUser中对其他数据的生成
+        当searchUser中需要用到类似searVideo、searchEssay、searchPost中生成的数据时，如果再写一次代码并提交到publicState会非常麻烦
+        将视频、动态、文章、用户这些固定数据的生成封装为函数，并封装将生成的数据提交到publicState中的操作
+        与对应的数据响应分隔开，当数据响应要用到数据时再调用生成函数获取数据
+    User中的数据获取
+        按理来说在获取了用户的基础数据后，应该根据当前Tabs中的元素来只请求对应的视频、动态、文章的数据，
+        但这样也需要在mock中对User中的子数据进行更详细的分类并实现排序功能
+        但这里数据量不大，我就直接统一获取了，也没有对User中的数据进行更进一步的排序

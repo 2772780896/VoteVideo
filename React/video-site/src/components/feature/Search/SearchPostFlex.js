@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Flex, Pagination } from 'antd';
-import MainVideoCardApp from '@/components/common/MainVideoCard'
 import useData from '@/hooks/useData';
-import getSearchVideo from '@/apis/search/getSearchVideo';
+import getSearchPost from '@/apis/search/getSearchPost';
+import PostCard from '@/components/common/PostCard'
+
 
 const App = ({sort}) => {
   // 控制分页
@@ -12,19 +13,19 @@ const App = ({sort}) => {
     setPage(page)
   };
   // 数据获取
-  const data = useData(getSearchVideo, Number(sort), page, 16)
+  const data = useData(getSearchPost, Number(sort), page, 16)
 
   // 列表映射
-  const videoList = useMemo(() => (
+  const postList = useMemo(() => (
     data?.data.map(i => (
-      <MainVideoCardApp key={i.vid} video={i} />
+      <PostCard key={i.pid} post={i} />
     )
   )), [data])
 
   return (
     <>
     <Flex wrap gap="middle">
-      {videoList}
+      {postList}
     </Flex>
     <Pagination current={page} onChange={onChange} total={data?.total} pageSize={16} />
     </>

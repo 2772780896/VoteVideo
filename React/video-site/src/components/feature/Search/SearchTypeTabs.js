@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Col, Row, Segmented, Tabs } from "antd";
 import SearchSortDropdownApp from '@/components/feature/Search/SearchSortDropdown'
 import SearchVideoFlexApp from '@/components/feature/Search/SearchVideoFlex'
-import SearchFocusFlexApp from '@/components/feature/Search/SearchFocusFlex'
+import SearchPostFlexApp from '@/components/feature/Search/SearchPostFlex'
 import SearchEssayFlexApp from '@/components/feature/Search/SearchEssayFlex'
 import SearchUserFlexApp from '@/components/feature/Search/SearchUserFlex'
 import SearchTagFlexApp from '@/components/feature/Search/SearchTagFlex'
@@ -14,7 +14,10 @@ const App = () => {
 
     // 当get参数更新时获取参数
     const [params] = useSearchParams()
-    const activeKey = useMemo(() => (params.get('search')), [params])
+    const activeKey = useMemo(() => {
+        if (params.size !== 0) {return params.get('search')}
+        else {return '1'}
+    }, [params])
 
     // 当元素切换时更新url，通过get传递key参数
     const navigate = useNavigate()
@@ -44,7 +47,7 @@ const App = () => {
         {key: '4', label: '动态', children: (
             <>
             <SearchSortDropdownApp pushSort={setSort}/>
-            <SearchFocusFlexApp sort={sort}/>
+            <SearchPostFlexApp sort={sort}/>
             </>
         )},
         {key: '5', label: '用户', children: (

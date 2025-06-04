@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Flex, Typography, Space } from 'antd';
+import { Flex, Typography } from 'antd';
 import { PlayCircleOutlined, AlignLeftOutlined } from '@ant-design/icons'
 
 const { Text } = Typography

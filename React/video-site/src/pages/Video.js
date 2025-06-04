@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { useSearchParams } from 'react-router-dom'
-import { Breadcrumb, Layout, theme, Flex } from 'antd';
+import { Flex } from 'antd';
 import TopMenuApp from '@/components/common/TopMenu'
 import SideVideoFlexApp from '@/components/common/SideVideoFlex'
 import VideoPlayerApp from '@/components/common/VideoPlayer'
