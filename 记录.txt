@@ -337,3 +337,28 @@ User中的请求
         按理来说在获取了用户的基础数据后，应该根据当前Tabs中的元素来只请求对应的视频、动态、文章的数据，
         但这样也需要在mock中对User中的子数据进行更详细的分类并实现排序功能
         但这里数据量不大，我就直接统一获取了，也没有对User中的数据进行更进一步的排序
+
+SearchTag中的请求
+    流程类似Carousel，流程中的文件为 
+    searchTag.js -> request.js -> getSearchTag.js -> useData.js -> SearchTagFlex.js -> TagCard.js
+
+Tag中的请求
+    流程类似Video，流程中的文件为
+    showTag.js -> request.js -> getShowTag.js -> useData.js -> Tag.js
+
+Video中的TagRow中的请求
+遇到问题：
+    mock中数据分离的方式
+        在生成时详细生成所有所需的数据
+        在响应时根据请求的参数剔除掉不需要的数据进行响应
+        每个子模块根据自己所需的数据进行请求，减少一次性请求所有的数据然后在模块间通信的方式
+    但这里我还是选择在Video中获取所有数据并传给TagRow
+
+CommentFlex中的请求
+    流程类似Carousel，流程中的文件为 
+    comment.js -> request.js -> getcommentg.js -> useData.js -> CommnetFlex.js -> CommentCard.js
+遇到问题：
+    subComment递归的实现
+        在mock生成Comment时为其生成subCommentCount数，根据这个数量来递归调用自身来不断生成Comment，
+        每调用一次，subCommentCount的最大数值减一
+        在生成Comment标签时，只需查看subCommentCount是否为0来判断是否还要递归

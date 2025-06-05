@@ -1,5 +1,6 @@
 import Mock from 'mockjs'
 import { addVideoList } from "../publicState"
+import { createTag } from './tag'
 
 const Random = Mock.Random
 export const createVideo = (number) => {
@@ -14,7 +15,8 @@ export const createVideo = (number) => {
         duration: Random.time('mm:ss'),
         date: Random.datetime('yyyy-MM-dd'),
         likeCount: Random.integer(200, 20000),
-        favouriteCount: Random.integer(100, 10000)
+        favouriteCount: Random.integer(100, 10000),
+        tagList: createTag(Random.integer(5,15))
     }))
     addVideoList(videoList)
     return videoList

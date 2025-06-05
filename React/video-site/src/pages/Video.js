@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { useSearchParams } from 'react-router-dom'
 import { Flex } from 'antd';
 import TopMenuApp from '@/components/common/TopMenu'
@@ -7,15 +7,18 @@ import VideoPlayerApp from '@/components/common/VideoPlayer'
 import { Col, Row } from "antd";
 import CommentFlexApp from '@/components/common/CommentFlex'
 import UploadCardApp from '@/components/common/UploaderCard'
-import TagFlex from '@/components/common/TagRow'
+import TagRow from '@/components/common/TagRow'
 import useData from '@/hooks/useData';
 import getPlayVideo from '@/apis/video/getPlayVideo';
-
+import SearchSortDropdown from '@/components/feature/Search/SearchSortDropdown'
+ 
 const App = () => {
   const [params] = useSearchParams()
   const vid = params.get('vid')
   const playVideoList = useData(getPlayVideo, vid).data
   const playVideo = playVideoList[0]
+  console.log('videoData:', playVideo)
+  const [sort, setSort] = useState('1')
   return (
     <Row>
       <Col span={24}>    
@@ -29,17 +32,18 @@ const App = () => {
           <span>{playVideo?.date}</span>
         </Flex>
         <VideoPlayerApp playVideo={playVideo} />
-        <TagFlex />
+        <TagRow tagList={playVideo?.tagList} />
         <Flex justify="start" gap="middle">
           <span>点赞</span>
           <span>收藏</span>
           <span>转发</span>
         </Flex>
-        <CommentFlexApp />
+        <SearchSortDropdown pushSort={setSort}/>
+        <CommentFlexApp sort={sort}/>
       </Col>
       <Col span={5} offset={1}>
         <UploadCardApp playVideo={playVideo} />
-        <SideVideoFlexApp />
+        <SideVideoFlexApp/>
       </Col>
     </Row>
   )

@@ -10,7 +10,7 @@ const App = ({post}) => {
   const picture = post.pictureList?.[0]
   return (
     <Link to={link} style={{ color: 'inherit', textDecoration: 'none' }}>
-      <Flex justify="space-between" style={{flex:'0 1 300px',minWidth:'300px'}}>
+      <Flex justify="space-between" style={{minWidth:'250px', maxWidth:'450px'}}>
         {video && (
           <div style={{position:'relative', width:'30%'}}>
             <img 
@@ -25,7 +25,7 @@ const App = ({post}) => {
             }}>{video.duration}</div>
           </div>
         )}
-        {picture && <img src={picture} style={{position:'relative', width:'30%'}} />}
+        {picture && <img src={picture} style={{position:'relative', width:'30%', aspectRatio:'16/9'}} />}
         <Flex vertical justify="start" style={{ width:'70%' }}>
           <Text strong>{post.title}</Text>
           <Flex justify="start" gap={'middle'}>

@@ -8,7 +8,7 @@ const App = ({essay}) => {
   const link = `/essay?eid=${essay.eid}`
   return (
     <Link to={link} style={{ color: 'inherit', textDecoration: 'none' }}>
-      <Flex justify="space-between" style={{flex:'0 1 300px'}}>
+      <Flex justify="space-between" style={{minWidth:'250px', maxWidth:'450px'}}>
         <img 
           alt="example"
           src={essay.coverUrl}

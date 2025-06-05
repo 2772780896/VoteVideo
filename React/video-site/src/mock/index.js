@@ -8,6 +8,9 @@ import { searchPost } from "./response/searchPost";
 import { showPost } from "./response/showPost";
 import { searchUser } from "./response/searchUser";
 import { showUser } from "./response/showUser";
+import { searchTag } from "./response/searchTag";
+import { showTag } from "./response/showTag";
+import { comment } from "./response/comment";
 export { 
     carouselPicture, 
     mainVideo, 
@@ -18,5 +21,8 @@ export {
     searchPost,
     showPost,
     searchUser,
-    showUser
+    showUser,
+    searchTag,
+    showTag,
+    comment
 }

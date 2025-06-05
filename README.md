@@ -6,5 +6,5 @@
 ### 1. 
 通过[*记录.txt*](https://github.com/2772780896/VoteVideo/blob/master/%E8%AE%B0%E5%BD%95.txt)可查看编写过程。
 
-### 2. 
+### 2.  
 通过[*https://2772780896.github.io/VoteVideo/*](https://2772780896.github.io/VoteVideo/)可查看在线网页。

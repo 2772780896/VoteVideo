@@ -13,3 +13,11 @@ export const addPostList = (dataList) => { postList.push(...dataList) }
 let userList = []
 export const getUserList = () => { return userList }
 export const addUserList = (dataList) => { userList.push(...dataList) }
+
+let tagList = []
+export const getTagList = () => { return tagList }
+export const addTagList = (dataList) => { tagList.push(...dataList) }
+
+let commentList = []
+export const getCommentList = () => { return commentList }
+export const addCommentList = (dataList) => { commentList.push(...dataList) }

@@ -1,18 +1,21 @@
 import React from 'react';
 import { Button, Popover, Flex } from 'antd';
-import TagCard from '@/components/feature/TagCard'
-const content = (
-  <div style={{width:'250px'}}>
-    <TagCard />
-    <Flex justify='start' gap='middle'>
-        <span>点赞</span>
-        <span>点踩</span>
-    </Flex>
-  </div>
-);
-const App = () => (
+import TagCard from '@/components/common/TagCard'
+
+const App = ({tag}) => {
+  const content = (
+    <div style={{width:'300px'}}>
+      <TagCard tag={tag}/>
+      <Flex justify='start' gap='middle'>
+          <span>点赞</span>
+          <span>点踩</span>
+      </Flex>
+    </div>
+  );
+  return(
     <Popover content={content} trigger="click">
-        <Button>标签名</Button>
+        <Button>{tag.tagName}</Button>
     </Popover>
-);
+  )
+}
 export default App;

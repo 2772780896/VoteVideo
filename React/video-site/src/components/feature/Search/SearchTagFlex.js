@@ -1,69 +1,35 @@
-import React from 'react';
-import { Flex, Col, Row } from 'antd';
-import TagCardApp from '@/components/feature/TagCard'
+import TagCard from '@/components/common/TagCard'
+import React, { useState, useMemo } from 'react';
+import { Flex, Pagination } from 'antd';
+import useData from '@/hooks/useData';
+import getSearchTag from '@/apis/search/getSearchTag';
 
-const App = ({sort}) => {
-  const showFocus = (sort) => {
-    if (sort === '播放排序') {
-      return (
-          <Flex wrap>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-          </Flex>
+const App = ({sort='1'}) => {
+  // 控制分页
+  console.log('sort:',sort)
+  const [page, setPage] = useState(1) // 当前页
+  const onChange = page => {
+    setPage(page)
+  };
+  // 数据获取
+  const data = useData(getSearchTag, Number(sort), page, 16)
+  console.log('data:', data)
 
-      )
-    } else if (sort === '时间顺序'){
-      return (
-        <Flex wrap gap="middle">
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-        </Flex>
-      )
-    } else if (sort === '时间倒序'){
-      return (
-        <Flex wrap gap="middle">
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-        </Flex>
-      )
-    } else if (sort === '点赞排序'){
-      return (
-        <Flex wrap gap="middle">
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-        </Flex>
-      )
-    } else if (sort === '收藏排序'){
-      return (
-        <Flex wrap gap="middle">
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-            <TagCardApp/>
-        </Flex>
-      )
-    }
-  }
+  // 列表映射
+  const tagList = useMemo(() => (
+    data?.data.map(i => (
+      <TagCard key={i?.tid} tag={i} />
+    )
+  )), [data])
+
   return (
-    showFocus(sort)
+    <>
+    <Flex wrap gap="middle">
+      {tagList}
+    </Flex>
+    <Pagination current={page} onChange={onChange} total={data?.total} pageSize={16} />
+    </>
+
   );
 };
 export default App;

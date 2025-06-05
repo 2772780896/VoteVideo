@@ -4,7 +4,7 @@ import EssayCardApp from '@/components/common/EssayCard'
 import useData from '@/hooks/useData';
 import getSearchEssay from '@/apis/search/getSearchEssay';
 
-const App = ({sort}) => {
+const App = ({sort='1'}) => {
   // 控制分页
   console.log('sort:',sort)
   const [page, setPage] = useState(1) // 当前页

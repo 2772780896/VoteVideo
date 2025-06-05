@@ -1,44 +1,35 @@
-import React from 'react';
-import CommentCardApp from '@/components/common/CommentCard'
-import {Flex} from 'antd'
+import CommentCard from '@/components/common/CommentCard'
+import React, { useState, useMemo } from 'react';
+import { Flex, Pagination } from 'antd';
+import useData from '@/hooks/useData';
+import getComment from '@/apis/getComment';
 
-const App = ({sort}) => {
-  const showFocus = (sort) => {
-    if (sort === '播放排序') {
-      return (
-        <Flex vertical>
-            <CommentCardApp />
-            <CommentCardApp />
-        </Flex>
-      )
-    } else if (sort === '时间顺序'){
-      return (
-        <Flex vertical>
-            <CommentCardApp />
-        </Flex>
-      )
-    } else if (sort === '时间倒序'){
-      return (
-        <Flex vertical>
-            <CommentCardApp />
-        </Flex>
-      )
-    } else if (sort === '点赞排序'){
-      return (
-        <Flex vertical>
-            <CommentCardApp />
-        </Flex>
-      )
-    } else if (sort === '收藏排序'){
-      return (
-        <Flex vertical>
-            <CommentCardApp />
-        </Flex>
-      )
-    }
-  }
+const App = ({sort='1'}) => {
+  // 控制分页
+  console.log('sort:',sort)
+  const [page, setPage] = useState(1) // 当前页
+  const onChange = page => {
+    setPage(page)
+  };
+  // 数据获取
+  const data = useData(getComment, Number(sort), page, 16)
+  console.log('commentdata:', data)
+
+  // 列表映射
+  const commentList = useMemo(() => (
+    data?.data.map(i => (
+      <CommentCard key={i.eid} comment={i} />
+    )
+  )), [data])
+
   return (
-    showFocus(sort)
+    <>
+    <Flex wrap gap="middle">
+      {commentList}
+    </Flex>
+    <Pagination current={page} onChange={onChange} total={data?.total} pageSize={16} />
+    </>
+
   );
 };
 export default App;
