@@ -275,6 +275,9 @@ Tabs在保证自身切换逻辑时，实现根据get参数切换对应元素
         优化了useEffect的使用，通过用useMemo管理数据，减少了事件循环次数，提高了渲染效率
 另一种同时实现两种切换的方式
     设置Tabs的item为被Link包裹的Outlet，当点击切换时实际上就是跳转到该子路径
+问题：
+    实现只渲染activeKey当前指定的组件，而不是全部渲染所有子元素
+        这在子路径中很容易实现，但在基于state的渲染时，需要设置Tabs的destroyInactiveTabPane属性，销毁不活跃的元素
 
 Video中的请求
     在点击其他的VideoCard以实现跳转到Video时，接收vid参数
@@ -362,3 +365,93 @@ CommentFlex中的请求
         在mock生成Comment时为其生成subCommentCount数，根据这个数量来递归调用自身来不断生成Comment，
         每调用一次，subCommentCount的最大数值减一
         在生成Comment标签时，只需查看subCommentCount是否为0来判断是否还要递归
+
+注册请求实现
+1. 在mock的createData中的profile中生成个人数据，创建收藏和历史列表时向创建函数传递时间数据进行添加
+2. 将个人数据提交到publicState的profileList中方便查找，同时提交到userList中方便UserCard的查找
+3. 在mock的response的profileRegister中通过post接收用户名和密码来生成个人数据，设置响应
+4. 在apis的profile中创建register.js，向mock提交数据
+5. 在RegisterForm中接收Form标签中数据并直接调用register.js
+遇到问题：
+    antd的Form的数据接收
+        当Form的onFinish绑定handelFinish时，当点击了Form中htmlType为submit的按钮后，
+        Form中的Form.Item的name和他的value会中作为数据对象中的一个键值对
+        然后该数据对象会作为参数被传递给handleFinish，并执行handleFinish
+        此时可在handleFinish调用封装的axios请求函数
+    生成数据时的数据添加实现
+        生成函数中接收要添加的对象，遍历生成列表中的每一项，通过 i = {...i, ...addData} 来合并两个对象，实现对数据的添加
+    mockjs接收post数据
+        在option函数中通过options.body得到函数体的post数据
+        该数据是json，格式为字符串，需要将其通过JSON.parse解析为js对象
+
+登录请求实现
+1. 在mock的response的profileLogin中通过post接收用户名和密码来向profileList查询，
+2. 查询成功生成token，将token添加到查询到的profile中，响应token和uid
+2. 在apis的profile的login.js中向mock提交数据
+3. 在LoginForm中接收Form标签中数据并直接调用Register.js，得到成功响应后，将数据中的token和uid设置为cookie
+
+Profile数据验证
+1. 进入Profile时，获取cookie中的token、uid，通过post发送到showProfile，
+2. showProfile获取post中的token、uid，获取profileList并进行匹配，若profile存在，返回profile
+3. 若profile不存在，因为mockjs无法直接设置响应的状态码为401，所以设置响应的data中的code为401
+4. 在request.js中，因为响应码一定会是200，所以设置响应拦截器在成功获取数据后通过response.data.code获取真正的响应码401，并通过Promise.reject(response)抛出错误
+5. 在getProfile调用request时，通过try request() catch error来接收错误，并通过throw error继续抛出错误
+6. 在useData处通过try getProfile() catch error来接收错误，并将错误set为data的state，以保障之前对useData的调用不变
+7. 在Profile调用useData获取data后，通过useEffect判断data.code是否为401，再alert错误信息并进行跳转
+遇到问题：
+    为什么不将错误信息在调用request处或useData里封装
+        它们中无法使用useNavigate
+
+ProfileFavouriteVideo子数据获取
+1. 在apis的showProfile中向mock中的showProfile发送post数据，包含uid、token、所请求数据subData、sort、page、element
+2. 在mock的showProfile中获取到所求profile，根据post中的subData得到profile[0].favourite.favouriteVideoList
+3. 封装sortData对favouriteVideoList进行排序，返回favouriteVideoList
+4. 在ProfileFavourite中调用SearchVideoFlex，并传入useData使用的请求函数showFavourite和showFavourite要使用的额外的参数token、uid，在SearchVideoFlex中用useData调用showProfile得到data
+ProfileFavourite、ProfileUpload、ProfileHistory中的子数据类似
+
+ProfileFollow中的子数据获取
+1. mock的profile中添加followPost，以包含user和该user创建的post的对象作为数据
+2. 当请求user时，返回整个followPost，当请求该user的post时，匹配对应的post
+3. 在ProfileFollow中获取user列表，渲染为Tabs。在Tabs中根据user请求post列表
+
+ProfileMessageAted数据获取
+1. mock的message.js中创建message，接收sender和receiver两个用户数据
+2. 在profile中生成message，随机生成用户作为sender
+3. MessageAted请求message列表并渲染
+ProfileMessagePraised和ProfileMessageSystem同理
+
+ProfileMessageDialogue数据获取
+1. 在profile中使用profile的基本数据生成一个用户数据，避免对profile的无限调用
+2. 从profileUser和随机生成的user中随机选取sender和receiver，生成message
+3. MessageDialogue中调用Chat，Chat中根据判断发送者是否为profile，来在左右不同位置显示数据
+
+遇到问题：
+    数据生成的不规范使得在实现添加数据时遇到问题
+        改为以user为核心，一切由user生成，其他被生成的数据中不得调用user
+    post数据过于混乱，不利于理解和复用
+        改为使用restFulApi，使用请求拦截器实现数据请求携带token的复用，简洁化请求
+    错误响应混乱
+        规范useData的loading和error响应
+
+user为核心生成数据的设计理念
+    调用addUser时不仅将user添加到userList，同时在userExtension数组中添加 {uid: uid, videoList: [], essayList: [], postList: []} 的对象
+    生成videoList时，为其中每一项的upload通过createUser生成一个user，
+    当需要指定生成的所有项的upload时，通过在调用createVideo时传入 {upload: user} 实现修改每一项的upload为指定user
+    调用addVideo时不仅将video添加到videoList，同时遍历dataList，根据每一项的upload.uid将每一项添加到userExtension中对应的videoList中
+    调用addEssay和addPost时同理
+
+profile设计理念
+    不单独创建profile数据，通过在createUser时在addData中传入userName和password来修改添加对应数据，其他部分与user相同
+    实现history
+        不依靠直接在profile中生成数据
+        当访问视频时，通过token判断是否登录，如果登录获取uid，获取视频vid
+        根据uid在userExtension中对应用户的history中插入添加了addDate数据的video对象
+    实现favourite
+        在收到添加收藏的请求后，同history
+    实现message
+        在收到访问message的请求后，调用creatMessage生成message，并将生成数据添加到userExtionsion中
+
+api设计理念
+    通过 /api/video?sort=xx&page=xxx&element=xx 进行数据列表请求
+    通过 /api/video/123 进行指定uid的数据请求
+    通过在请求头中携带Authorization进行携带token

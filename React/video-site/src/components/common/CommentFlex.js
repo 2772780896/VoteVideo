@@ -1,4 +1,4 @@
-import CommentCard from '@/components/common/CommentCard'
+import CommentCard from '@/components/common/DataCard/CommentCard'
 import React, { useState, useMemo } from 'react';
 import { Flex, Pagination } from 'antd';
 import useData from '@/hooks/useData';

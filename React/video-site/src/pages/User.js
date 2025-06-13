@@ -2,20 +2,23 @@ import TopMenuApp from "@/components/common/TopMenu";
 import {useSearchParams} from 'react-router-dom'
 import React, {useEffect, useState} from 'react';
 import { Col, Row, Segmented, Tabs} from "antd";
-import UserCard from '@/components/common/UserCard'
-import UserPostFlex from '@/components/feature/UserPostFlex'
-import UserEssayFlex from '@/components/feature/UserEssayFlex'
-import UserVideoFlex from '@/components/feature/UserVideoFlex'
+import UserCard from '@/components/common/DataCard/UserCard'
+import UserPostFlex from '@/components/feature/User/UserPostFlex'
+import UserEssayFlex from '@/components/feature/User/UserEssayFlex'
+import UserVideoFlex from '@/components/feature/User/UserVideoFlex'
 import useData from '@/hooks/useData';
 import getShowUser from '@/apis/user/getShowUser';
 
 
 const App = () => {
+    // 获取数据
     const [params] = useSearchParams()
     const uid = params.get('uid')
     console.log('uid:', uid)
     const showUserList = useData(getShowUser, uid).data
     const showUser = showUserList?.[0]
+
+    // 根据数据有无设置activeKey
     const [activeKey, setActiveKey] = useState('1')
     useEffect(() => {
         if (showUser?.videoList.length !== 0) {
@@ -30,6 +33,11 @@ const App = () => {
     }, [showUser])
     console.log('videoList:', showUser?.videoList)
     console.log('activeKey:', activeKey)
+
+    // 控制Tabs切换
+    const handleChange = (key) => {setActiveKey(key)}
+
+    // Tabs元素
     const contentList = [
         {key: '1', label: '视频', children: (
             <UserVideoFlex videoList={showUser?.videoList} />
@@ -41,7 +49,6 @@ const App = () => {
             <UserEssayFlex essayList={showUser?.essayList} />
         )},
     ]
-    const handleChange = (key) => {setActiveKey(key)}
     return (
         <Row>
             <Col span={24}>    

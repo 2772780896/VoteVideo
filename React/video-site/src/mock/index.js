@@ -1,28 +1,32 @@
 import { carouselPicture } from "./response/carouselPicture";
-import { mainVideo } from "./response/mainVideo"
-import { playVideo } from "./response/playVideo";
-import { searchVideo } from "./response/searchVideo";
-import { searchEssay } from "./response/searchEssay";
-import { showEssay } from "./response/showEssay";
-import { searchPost } from "./response/searchPost";
-import { showPost } from "./response/showPost";
-import { searchUser } from "./response/searchUser";
+import { getVideo } from "./response/getVideo";
+import { getVideoList } from "./response/getVideoList";
+import { getEssayList } from "./response/getEssayList";
+import { getEssay } from "./response/getEssay";
+import { getPostList } from "./response/getPostList";
+import { getPost } from "./response/getPost";
+import { getUserList } from "./response/getUserList";
 import { showUser } from "./response/showUser";
-import { searchTag } from "./response/searchTag";
+import { getTagList } from "./response/getTagList";
 import { showTag } from "./response/showTag";
 import { comment } from "./response/comment";
+import { profileLogin } from "./response/login";
+import { profileRegister } from "./response/register";
+import { showProfile } from "./response/showProfile";
 export { 
     carouselPicture, 
-    mainVideo, 
-    playVideo, 
-    searchVideo, 
-    searchEssay, 
-    showEssay,
-    searchPost,
-    showPost,
-    searchUser,
+    getVideo, 
+    getVideoList, 
+    getEssayList, 
+    getEssay, 
+    getPost,
+    getPostList,
+    getUserList,
     showUser,
-    searchTag,
+    getTagList,
     showTag,
-    comment
+    comment,
+    profileLogin,
+    profileRegister,
+    showProfile
 }

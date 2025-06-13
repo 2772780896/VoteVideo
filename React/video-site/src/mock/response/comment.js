@@ -1,5 +1,5 @@
 import Mock from 'mockjs'
-import { createComment } from '../createData/comment'
+import { createComment } from '../basicData/ceateComment'
 
 const commentList = createComment(16*3)
 

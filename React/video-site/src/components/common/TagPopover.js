@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Popover, Flex } from 'antd';
-import TagCard from '@/components/common/TagCard'
+import TagCard from '@/components/common/DataCard/TagCard'
 
 const App = ({tag}) => {
   const content = (

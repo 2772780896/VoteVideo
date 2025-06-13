@@ -1,7 +1,7 @@
 import TopMenuApp from "@/components/common/TopMenu";
 import CarouselApp from '@/components/common/Carousel'
 import React, {useState,useEffect, use} from 'react';
-import MainVideoFlex from '@/components/common/MainVideoFlex'
+import MainVideoFlex from '@/components/common/Video/MainVideoFlex'
 import { Col, Row } from "antd";
 import useData from '@/hooks/useData'
 import getCarouselPicture from "@/apis/main/getCarouselPicture";

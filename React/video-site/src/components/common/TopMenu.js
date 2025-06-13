@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Menu } from 'antd';
 import SearchInputApp from '@/components/common/SearchInput'
-import LoginModalApp from '@/components/common/LoginModal'
+import LoginModalApp from '@/components/common/Login/LoginModal'
 import {Link} from 'react-router-dom'
 
 const section = [
@@ -108,7 +108,7 @@ const items = [
   {
     label: (
       <div>
-        <Link to="/user?search=1">
+        <Link to="/profile?search=1">
           消息
         </Link>
       </div>
@@ -128,7 +128,7 @@ const items = [
   {
     label: (
       <div>
-        <Link to="/user?search=3">
+        <Link to="/profile?search=3">
           收藏
         </Link>
       </div>
@@ -138,7 +138,7 @@ const items = [
   {
     label: (
       <div>
-        <Link to="/user?search=4">
+        <Link to="/profile?search=4">
           历史
         </Link>
       </div>
@@ -148,7 +148,7 @@ const items = [
   {
     label: (
       <div>
-        <Link to="/user?search=5">
+        <Link to="/profile?search=5">
           稿件
         </Link>
       </div>

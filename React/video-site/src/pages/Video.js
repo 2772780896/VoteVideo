@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import { useSearchParams } from 'react-router-dom'
 import { Flex } from 'antd';
 import TopMenuApp from '@/components/common/TopMenu'
-import SideVideoFlexApp from '@/components/common/SideVideoFlex'
-import VideoPlayerApp from '@/components/common/VideoPlayer'
+import SideVideoFlexApp from '@/components/common/Video/SideVideoFlex'
+import VideoPlayerApp from '@/components/common/Video/VideoPlayer'
 import { Col, Row } from "antd";
 import CommentFlexApp from '@/components/common/CommentFlex'
 import UploadCardApp from '@/components/common/UploaderCard'
