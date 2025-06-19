@@ -1,49 +1,51 @@
 import React, {useState} from 'react';
-import { useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Flex } from 'antd';
 import TopMenuApp from '@/components/common/TopMenu'
 import SideVideoFlexApp from '@/components/common/Video/SideVideoFlex'
 import VideoPlayerApp from '@/components/common/Video/VideoPlayer'
 import { Col, Row } from "antd";
-import CommentFlexApp from '@/components/common/CommentFlex'
+import CommentFlexApp from '@/components/common/DataList/CommentList'
 import UploadCardApp from '@/components/common/UploaderCard'
 import TagRow from '@/components/common/TagRow'
 import useData from '@/hooks/useData';
-import getPlayVideo from '@/apis/video/getPlayVideo';
-import SearchSortDropdown from '@/components/feature/Search/SearchSortDropdown'
+import getVideo from '@/apis/getData/getVideo';
+import SortDropdown from '@/components/common/SortDropdown'
  
 const App = () => {
-  const [params] = useSearchParams()
-  const vid = params.get('vid')
-  const playVideoList = useData(getPlayVideo, vid).data
-  const playVideo = playVideoList[0]
-  console.log('videoData:', playVideo)
-  const [sort, setSort] = useState('1')
+  const { vid } = useParams()
+  console.log('videoVid:', vid)
+
+  // 获取视频数据
+  const video = useData(getVideo, vid)?.data
+  console.log('videoData:', video)
+
+  const [sort, setSort] = useState()
   return (
     <Row>
       <Col span={24}>    
         <TopMenuApp />
       </Col>
       <Col span={16} offset={1}>
-        <h1>{playVideo?.title}</h1>
+        <h1>{video?.title}</h1>
         <Flex justify="start" gap="middle">
-          <span>{playVideo?.viewCount}</span>
-          <span>{playVideo?.messageCount}</span>
-          <span>{playVideo?.date}</span>
+          <span>{video?.viewCount}</span>
+          <span>{video?.messageCount}</span>
+          <span>{video?.date}</span>
         </Flex>
-        <VideoPlayerApp playVideo={playVideo} />
-        <TagRow tagList={playVideo?.tagList} />
+        <VideoPlayerApp playVideo={video} />
+        <TagRow tagList={video?.tagList} />
         <Flex justify="start" gap="middle">
           <span>点赞</span>
           <span>收藏</span>
           <span>转发</span>
         </Flex>
-        <SearchSortDropdown pushSort={setSort}/>
+        <SortDropdown pushSort={setSort}/>
         <CommentFlexApp sort={sort}/>
       </Col>
       <Col span={5} offset={1}>
-        <UploadCardApp playVideo={playVideo} />
-        <SideVideoFlexApp/>
+        {/* <UploadCardApp playVideo={video} /> */}
+        {/* <SideVideoFlexApp/> */}
       </Col>
     </Row>
   )

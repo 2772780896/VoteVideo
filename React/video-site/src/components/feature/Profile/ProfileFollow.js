@@ -3,7 +3,7 @@ import { Tabs } from 'antd';
 import SearchPostFlex from '@/components/common/DataList/PostList'
 import useData from '@/hooks/useData';
 import { getFollowUser, getFollowPost } from '@/apis/profile/showFollow';
-import SearchSortDropdown from '@/components/feature/Search/SearchSortDropdown'
+import SearchSortDropdown from '@/components/common/SortDropdown'
 
 const App = ({uid, token}) => {
     const followPostList = useData(getFollowUser, uid, token).data

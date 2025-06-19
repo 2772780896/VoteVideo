@@ -8,8 +8,6 @@ const sortData = (list, sort, page, element) => {
     console.log('sortOrder:aaa', sortOrder, 'aaa', 'sortType:aaa', sortType, 'aaa')
     if (sortOrder === '+' || sortOrder === undefined) { // 实现递增排序
         const sortList = [...list].sort((a,b) => {
-            console.log('a', a)
-            console.log('a[sortType]', a[sortType])
             if (a[sortType] > b[sortType]) return 1
             if (b[sortType] > a[sortType]) return -1
             return 0
@@ -18,6 +16,7 @@ const sortData = (list, sort, page, element) => {
 
     }else if (sortOrder === '-') { // 实现递减排序
         const sortList = [...list].sort((a,b) => {
+            console.log('mockSrot', sortType)
             if (b[sortType] > a[sortType]) return 1
             if (a[sortType] > b[sortType]) return -1
             return 0

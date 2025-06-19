@@ -16,12 +16,12 @@ const App = ({sort, request=getVideoList, params=[]}) => {
   
   // 数据获取
   const data = useData(request, sort, page, 16, ...params)
-  console.log('videoFlexData:',data)
+  console.log('videoListData:',data)
   const navigate = useNavigate()
   useEffect(() => {
     if (data.code !== 200 && data.code !== undefined) {
       if (typeof window !== 'undefined' && window.alert) { // 仅在浏览器环境且 alert 可用时
-        alert('token错误');
+        alert(data.message);
       }
       navigate('/main')
     }

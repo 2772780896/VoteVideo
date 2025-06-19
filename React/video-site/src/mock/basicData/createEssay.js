@@ -11,7 +11,7 @@ export const createEssay = (number=1, addData={}) => {
         text: Random.cword(500, 1000),
         viewCount: Random.integer(1000, 99999),
         commentCount: Random.integer(50, 1000),
-        uploader: createUser(),
+        uploader: createUser()[0],
         date: Random.datetime('yyyy-MM-dd'),
         likeCount: Random.integer(200, 20000),
         favouriteCount: Random.integer(100, 10000)

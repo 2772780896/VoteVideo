@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
-async function getShowPost(pid) {
+async function getUser(uid) {
     const response = await request({
-        url: `/api/post/show?pid=${pid}`,
+        url: `/api/user/${uid}`,
         method: 'get',
     })
     return response
 }
 
-export default getShowPost
+export default getUser

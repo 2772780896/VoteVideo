@@ -12,7 +12,7 @@ export const createPost = (number=1, addData={}) => {
         type: Random.pick(['video', 'text', 'picture']),
         viewCount: Random.integer(1000, 99999),
         commentCount: Random.integer(50, 1000),
-        uploader: createUser(),
+        uploader: createUser()[0],
         duration: Random.time('mm:ss'),
         date: Random.datetime('yyyy-MM-dd'),
         likeCount: Random.integer(200, 20000),

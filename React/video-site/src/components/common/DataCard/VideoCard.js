@@ -5,7 +5,7 @@ import { PlayCircleOutlined, AlignLeftOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
 const App = ({video}) => {
-  const link = `/video?vid=${video.vid}`
+  const link = `/video/${video.vid}`
   return (
     <Link to={link} style={{ color: 'inherit', textDecoration: 'none' }}>
       <Flex vertical justify="space-between">

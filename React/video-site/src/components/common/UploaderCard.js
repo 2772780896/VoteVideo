@@ -10,7 +10,7 @@ const App = ({playVideo}) => {
             </Col>
             <Col span={19}>
                 <Flex justify="start" gap="middle">
-                    <div>{playVideo?.uploader}</div>
+                    <div>{playVideo?.uploader?.userName}</div>
                     <a>发消息</a>
                 </Flex>
                 <Button type="primary">+关注 粉丝数</Button>

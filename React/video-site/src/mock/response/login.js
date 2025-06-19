@@ -19,7 +19,7 @@ export const profileLogin = Mock.mock(
                 if (i.password === data.password) {
                     const token = Mock.Random.guid()
                     console.log('mockToken:', token)
-                    i.token = token
+                    i.token = token // 将token添加到userList中
                     console.log('TrueProfile', i)
                     return Mock.mock({
                         code: 200,

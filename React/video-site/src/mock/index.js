@@ -1,15 +1,15 @@
 import { carouselPicture } from "./response/carouselPicture";
-import { getVideo } from "./response/getVideo";
-import { getVideoList } from "./response/getVideoList";
-import { getEssayList } from "./response/getEssayList";
-import { getEssay } from "./response/getEssay";
-import { getPostList } from "./response/getPostList";
-import { getPost } from "./response/getPost";
-import { getUserList } from "./response/getUserList";
-import { showUser } from "./response/showUser";
-import { getTagList } from "./response/getTagList";
-import { showTag } from "./response/showTag";
-import { comment } from "./response/comment";
+import { getVideo } from "./response/getData/getVideo";
+import { getVideoList } from "./response/getDataList/getVideoList";
+import { getEssayList } from "./response/getDataList/getEssayList";
+import { getEssay } from "./response/getData/getEssay";
+import { getPostList } from "./response/getDataList/getPostList";
+import { getPost } from "./response/getData/getPost";
+import { getUserList } from "./response/getDataList/getUserList";
+import { getUser } from "./response/getData/getUser";
+import { getTagList } from "./response/getDataList/getTagList";
+import { getTag } from "./response/getData/getTag";
+import { comment } from "./response/getDataList/getCommentList";
 import { profileLogin } from "./response/login";
 import { profileRegister } from "./response/register";
 import { showProfile } from "./response/showProfile";
@@ -22,9 +22,9 @@ export {
     getPost,
     getPostList,
     getUserList,
-    showUser,
+    getUser,
     getTagList,
-    showTag,
+    getTag,
     comment,
     profileLogin,
     profileRegister,

@@ -2,9 +2,9 @@ import CommentCard from '@/components/common/DataCard/CommentCard'
 import React, { useState, useMemo } from 'react';
 import { Flex, Pagination } from 'antd';
 import useData from '@/hooks/useData';
-import getComment from '@/apis/getComment';
+import getComment from '@/apis/getData/getComment';
 
-const App = ({sort='1'}) => {
+const App = ({sort}) => {
   // 控制分页
   console.log('sort:',sort)
   const [page, setPage] = useState(1) // 当前页

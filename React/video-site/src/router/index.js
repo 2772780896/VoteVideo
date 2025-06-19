@@ -20,11 +20,11 @@ const router = createBrowserRouter([
         element: <MainApp />,
     },
     {
-        path: '/video',
+        path: '/video/:vid',
         element: <VideoApp />
     },
     {
-        path: '/profile',
+        path: '/profile/:uid',
         element: <Profile />
     },
     {
@@ -36,11 +36,11 @@ const router = createBrowserRouter([
         element: <SearchApp />
     },
     {
-        path: '/essay',
+        path: '/essay/:eid',
         element: <EssayApp />
     },
     {
-        path: '/tag',
+        path: '/tag/:tid',
         element: <TagApp />
     },
     {
@@ -48,11 +48,11 @@ const router = createBrowserRouter([
         element: <Upload />
     },
     {
-        path: '/post',
+        path: '/post/:pid',
         element: <Post />
     },
     {
-        path: '/user',
+        path: '/user/:uid',
         element: <User />
     }
 ],{

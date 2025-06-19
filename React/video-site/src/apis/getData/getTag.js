@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
-async function getShowEssay(eid) {
+async function getTag(tid) {
     const response = await request({
-        url: `/api/essay/show?eid=${eid}`,
+        url: `/api/tag/${tid}`,
         method: 'get',
     })
     return response
 }
 
-export default getShowEssay
+export default getTag

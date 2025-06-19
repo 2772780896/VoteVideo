@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { Tabs } from 'antd'
-import SearchSortDropdown from '@/components/feature/Search/SearchSortDropdown'
+import SearchSortDropdown from '@/components/common/SortDropdown'
 import SearchVideoFlex from '@/components/common/DataList/VideoList'
 import SearchPostFlex from '@/components/common/DataList/PostList'
 import SearchEssayFlex from '@/components/common/DataList/EssayList'

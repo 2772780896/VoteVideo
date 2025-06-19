@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Flex, Row, Col, Avatar, Button } from 'antd';
 
 const App = ({user}) => {
-    const link = `/user?uid=${user?.uid}`
+    const link = `/user/${user?.uid}`
     return(
         <Link to={link} style={{ color: 'inherit', textDecoration: 'none' }}>
             <Row style={{minWidth:'250px'}}>

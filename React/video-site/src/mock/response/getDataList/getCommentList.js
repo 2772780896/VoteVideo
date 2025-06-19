@@ -1,12 +1,11 @@
 import Mock from 'mockjs'
-import { createEssay } from '../basicData/createEssay'
-import sortData from '../utils/sortData'
+import { createComment } from '../../basicData/ceateComment'
+import sortData from '../../utils/sortData'
 
-const total = 16*3
-const essayList = createEssay(total)
+const commentList = createComment(16*3)
 
-export const getEssayList = Mock.mock(
-    /^\/api\/essay(\?.*)?$/,
+export const comment = Mock.mock(
+    /^\/api\/comment(\?.*)?$/,
     'get',
     function(options) {
         const relativePath = options.url
@@ -14,13 +13,13 @@ export const getEssayList = Mock.mock(
         const sort = url.searchParams.get('sort')
         const page = Number(url.searchParams.get('page'))
         const element = Number(url.searchParams.get('element'))
-        const dataList = sortData(essayList, sort, page, element)
-        console.log('mockdata:', dataList)
+        const dataList = sortData(commentList, sort, page, element)
+        console.log('mockComment:', dataList)
         return Mock.mock({
             code: 200,
             message: 'ok',
             data: dataList,
-            total: total
+            total: 16*3
         })
     }
 )

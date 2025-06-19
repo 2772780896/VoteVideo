@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const { Text } = Typography
 const App = ({tag}) => {
-  const link = `/tag?tid=${tag?.tid}`
+  const link = `/tag/${tag?.tid}`
   return (
     <Link to={link} style={{ color: 'inherit', textDecoration: 'none' }}>
       <Flex justify="space-between" style={{minWidth:'250px'}}>

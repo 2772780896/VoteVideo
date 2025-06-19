@@ -1,22 +1,20 @@
 import Mock from 'mockjs'
-import { createVideo } from '../basicData/createVideo'
-import sortData from '../utils/sortData'
+import { createPost } from '../../basicData/createPost'
+import sortData from '../../utils/sortData'
 
 const total = 16*3
-const videoList = createVideo(total)
+const postList = createPost(total)
 
-export const getVideoList = Mock.mock(
-    /^\/api\/video(\?.*)?$/, // 精确匹配/api/video
+export const getPostList = Mock.mock(
+    /^\/api\/post(\?.*)?$/,
     'get',
     function(options) {
-        console.log('options:', options)
         const relativePath = options.url
         const url = new URL(relativePath, 'http://localhost')
         const sort = url.searchParams.get('sort')
         const page = Number(url.searchParams.get('page'))
         const element = Number(url.searchParams.get('element'))
-        console.log('sort:', sort, page, element)
-        const dataList = sortData(videoList, sort, page, element)
+        const dataList = sortData(postList, sort, page, element)
         console.log('mockdata:', dataList)
         return Mock.mock({
             code: 200,

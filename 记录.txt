@@ -455,3 +455,5 @@ api设计理念
     通过 /api/video?sort=xx&page=xxx&element=xx 进行数据列表请求
     通过 /api/video/123 进行指定uid的数据请求
     通过在请求头中携带Authorization进行携带token
+
+getVideo返回单个视频

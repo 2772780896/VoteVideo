@@ -1,12 +1,12 @@
 import Mock from 'mockjs'
-import { createPost } from '../basicData/createPost'
-import sortData from '../utils/sortData'
+import { createUser } from '../../basicData/createUser'
+import sortData from '../../utils/sortData'
 
 const total = 16*3
-const postList = createPost(total)
+const userList = createUser(total)
 
-export const getPostList = Mock.mock(
-    /^\/api\/post(\?.*)?$/,
+export const getUserList = Mock.mock(
+    /^\/api\/user(\?.*)?$/,
     'get',
     function(options) {
         const relativePath = options.url
@@ -14,7 +14,7 @@ export const getPostList = Mock.mock(
         const sort = url.searchParams.get('sort')
         const page = Number(url.searchParams.get('page'))
         const element = Number(url.searchParams.get('element'))
-        const dataList = sortData(postList, sort, page, element)
+        const dataList = sortData(userList, sort, page, element)
         console.log('mockdata:', dataList)
         return Mock.mock({
             code: 200,
