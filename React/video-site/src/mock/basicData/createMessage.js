@@ -10,11 +10,8 @@ export const createMessage = (senderUser, receiverUser, number, addData={}) => {
         sender: senderUser, 
         receiver: receiverUser,
         date: Random.datetime('yyyy-MM-dd'),
-    }))
-    for (let i of messageList) {
-        // 额外数据的添加
-        i = {...i, ...addData}
-    } 
+    })).map( (i) => ({...i, ...addData})) // 使用map方法直接添加额外数据
+
     addMessageList(messageList)
     return messageList
 }

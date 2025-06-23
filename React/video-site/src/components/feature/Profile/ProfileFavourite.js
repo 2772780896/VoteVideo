@@ -4,12 +4,10 @@ import SearchSortDropdown from '@/components/common/SortDropdown'
 import SearchVideoFlex from '@/components/common/DataList/VideoList'
 import SearchPostFlex from '@/components/common/DataList/PostList'
 import SearchEssayFlex from '@/components/common/DataList/EssayList'
-import { getFavouriteVideo } from '@/apis/profile/showFavourite';
-import { getFavouritePost } from '@/apis/profile/showFavourite';
-import { getFavouriteEssay } from '@/apis/profile/showFavourite';
+import getProfileSubdata from '@/apis/profile/getProfileSubdata'
 
-const App = ({uid, token}) => {
-    const [sort, setSort] = useState('1')
+const App = () => {
+    const [sort, setSort] = useState()
     const items = [
         {
             key: '1',
@@ -17,7 +15,7 @@ const App = ({uid, token}) => {
             children: (
                 <>
                 <SearchSortDropdown pushSort={setSort}/>
-                <SearchVideoFlex sort={sort} func={getFavouriteVideo} params={[uid, token]}/>
+                <SearchVideoFlex sort={sort} func={getProfileSubdata} params={['favourite', 'videoList']}/>
                 </>
             )
         },
@@ -27,7 +25,7 @@ const App = ({uid, token}) => {
             children: (
                 <>
                 <SearchSortDropdown pushSort={setSort}/>
-                <SearchPostFlex sort={sort} func={getFavouritePost} params={[uid, token]}/>
+                <SearchPostFlex sort={sort} func={getProfileSubdata} params={['favourite', 'postList']}/>
                 </>
             )
         },
@@ -37,7 +35,7 @@ const App = ({uid, token}) => {
             children: (
                 <>
                 <SearchSortDropdown pushSort={setSort}/>
-                <SearchEssayFlex sort={sort} func={getFavouriteEssay} params={[uid, token]}/>
+                <SearchEssayFlex sort={sort} func={getProfileSubdata} params={['favourite', 'essayList']}/>
                 </>
             )
         },

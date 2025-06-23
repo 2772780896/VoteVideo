@@ -3,7 +3,6 @@ import { getTagList } from '../../publicState'
 
 export const getTag = Mock.mock(
     /^\/api\/tag\/(\d+)$/,
-    'get',
     function(options) {
         const match = options.url.match(/\/api\/tag\/(\d+)/)
         const tid = Number(match[1])

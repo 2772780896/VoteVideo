@@ -2,7 +2,7 @@ import React, {useMemo, useState} from 'react';
 import { Tabs } from "antd";
 import ChatApp from '@/components/common/Chat'
 import useData from '@/hooks/useData';
-import { getDialogue } from '@/apis/profile/showMessage';
+import { getDialogue } from '@/apis/user/showMessage';
 
 const App = ({token, uid}) => {
     const dataList = useData(getDialogue, uid, token)?.data

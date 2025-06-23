@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Button, Form, Input } from 'antd';
-import login from '@/apis/profile/login'
+import login from '@/apis/user/login'
 import Cookies from 'js-cookie'
 
 const App = () => {
@@ -15,7 +15,7 @@ const App = () => {
     if (data?.data?.message === 'ok') {
       for (const [key, value] of Object.entries(data.data.data)) {
         Cookies.set(key, value)
-        navigate('/profile')
+        navigate('/user/profile')
       }
     }else if (data?.data?.message === 'fail') {
         alert('登录失败')

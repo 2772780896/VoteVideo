@@ -11,12 +11,7 @@ export const createUser = (number=1, addData={}) => {
         fansCount: Random.integer(100, 9999),
         followCount: Random.integer(50, 1000),
         date: Random.datetime('yyyy-MM-dd'),
-    }))
-
-    // 额外数据的添加
-    for (let i of userList) {
-        i = {...i, ...addData}
-    }
+    })).map( (i) => ({...i, ...addData})) // 使用map方法直接添加额外数据
     
     addUser(userList)
     return userList

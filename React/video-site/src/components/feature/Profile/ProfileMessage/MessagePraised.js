@@ -2,7 +2,7 @@ import React, {useMemo, useState} from 'react';
 import { Flex } from "antd";
 import MessageCard from '@/components/feature/Profile/ProfileMessage/MessageCard'
 import useData from '@/hooks/useData';
-import { getPraisedMessage } from '@/apis/profile/showMessage';
+import { getPraisedMessage } from '@/apis/user/showMessage';
 
 const App = ({token, uid}) => {
     const dataList = useData(getPraisedMessage, uid, token)?.data

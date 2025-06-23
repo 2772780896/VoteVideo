@@ -24,10 +24,6 @@ const router = createBrowserRouter([
         element: <VideoApp />
     },
     {
-        path: '/profile/:uid',
-        element: <Profile />
-    },
-    {
         path: '/follow',
         element: <FollowApp />
     },
@@ -50,6 +46,10 @@ const router = createBrowserRouter([
     {
         path: '/post/:pid',
         element: <Post />
+    },
+    {
+        path: '/user/profile',
+        element: <Profile />
     },
     {
         path: '/user/:uid',

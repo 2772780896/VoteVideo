@@ -1,18 +1,18 @@
 // 用户所上传的内容
 let userExtension = []
 // 获取指定用户的指定上传内容
-export const getUserExtension = (uid, uploadType) => { 
+export const getUserExtension = (uid, profileType, dataType) => { 
     for (let i of userExtension) {
         if (i.uid === uid) {
-            return i[uploadType]
+            return i[profileType][dataType]
         }
     }
 }
 // 添加指定用户的指定上传内容
-const addUserExtension = (uid, uploadType, data) => {
+export const addUserExtension = (uid, profileType, dataType, data) => {
     for (let i of userExtension) {
         if (i.uid === uid) {
-            i[uploadType].push(data)
+            i[profileType]?.[dataType].push(data)
         }
     }
 }
@@ -24,11 +24,21 @@ export const addUser = (dataList) => {
     userList.push(...dataList) 
     userExtension.push(...dataList.map(user => ({
         uid: user.uid,
-        videoList: [],
-        essayList: [],
-        postList: [],
-        hitory: [],
-        favourite: [],
+        upload: {
+            videoList: [],
+            essayList: [],
+            postList: [],
+        },
+        history: {
+            videoList: [],
+            essayList: [],
+            postList: [],
+        },
+        favourite: {
+            videoList: [],
+            essayList: [],
+            postList: [],
+        },
         message: [],
     })))
 }
@@ -40,7 +50,7 @@ export const addVideo = (dataList) => {
     videoList.push(...dataList) 
     for (let i of dataList) {
         const user = i.uploader
-        addUserExtension(user.uid, 'videoList', i)
+        addUserExtension(user.uid, 'upload', 'videoList', i)
     }
 }
 
@@ -51,7 +61,7 @@ export const addEssay = (dataList) => {
     essayList.push(...dataList) 
     for (let i of dataList) {
         const user = i.uploader
-        addUserExtension(user.uid, 'essayList', i)
+        addUserExtension(user.uid, 'upload', 'essayList', i)
     }
 }
 

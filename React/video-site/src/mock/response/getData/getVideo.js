@@ -1,12 +1,11 @@
 import Mock from 'mockjs'
 import { verifyAuthorization } from '../../utils/verifyAuthorization'
 import { getVideoList } from '../../publicState'
-import { getUserExtension } from '../../publicState'
+import { addUserExtension } from '../../publicState'
 import { format } from 'date-fns'
 
 export const getVideo = Mock.mock(
     /^\/api\/video\/(\d+)$/,  // 精准匹配/api/video/
-    'get',
     function(options) {
         const match = options.url.match(/\/api\/video\/(\d+)/)
         const vid = Number(match[1])
@@ -22,8 +21,7 @@ export const getVideo = Mock.mock(
                 // 如果登录，在video中添加时间，将video添加到userExtension的对应uid的history中
                 const date = format(new Date(), 'yyyy-MM-dd')
                 const historyVideo = {...video, history: date}
-                const userExtension = getUserExtension()
-                userExtension.find(item => item.uid === uid).history.push(historyVideo)
+                addUserExtension(uid, 'history', 'videoList', historyVideo)
             }
             return Mock.mock({
                 code: 200,

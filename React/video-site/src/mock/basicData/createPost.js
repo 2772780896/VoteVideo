@@ -17,7 +17,7 @@ export const createPost = (number=1, addData={}) => {
         date: Random.datetime('yyyy-MM-dd'),
         likeCount: Random.integer(200, 20000),
         favouriteCount: Random.integer(100, 10000)
-    }))
+    })).map( (i) => ({...i, ...addData})) // 使用map方法直接添加额外数据
 
     // 根据type的不同而额外添加不同的数据
     for (let i of postList) {
@@ -32,9 +32,6 @@ export const createPost = (number=1, addData={}) => {
                 Random.image('1920x1080', Random.color(), Random.color(), 'jpg', Random.string(1,5))
             ))
         }
-
-        // 额外数据的添加
-        i = {...i, ...addData}
     }
     addPost(postList)
     return postList

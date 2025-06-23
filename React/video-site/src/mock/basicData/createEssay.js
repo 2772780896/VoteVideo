@@ -15,12 +15,7 @@ export const createEssay = (number=1, addData={}) => {
         date: Random.datetime('yyyy-MM-dd'),
         likeCount: Random.integer(200, 20000),
         favouriteCount: Random.integer(100, 10000)
-    }))
-
-    // 额外数据的添加
-    for (let i of essayList) {
-        i = {...i, ...addData}
-    } 
+    })).map( (i) => ({...i, ...addData})) // 使用map方法直接添加额外数据
     
     addEssay(essayList)
     return essayList

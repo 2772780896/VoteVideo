@@ -9,13 +9,14 @@ export const profileLogin = Mock.mock(
         const data = JSON.parse(options.body)
         console.log('loginMock:', data)
         const userList = getUserList()
-        console.log('LoginProfileList:', userList)
+        console.log('userList:', userList)
         for (const i of userList) {
             console.log('inputUsername', data.username, typeof data.username)
-            console.log('trueUsername', i.userName, typeof i.userName)
+            console.log('username:', i.userName, typeof i.userName)
             if (i.userName === data.username) {
+                console.log('trueUsername', i.userName, typeof i.userName)
                 console.log('inputpassword', data.password, typeof data.password)
-                console.log('truepassword', i.userPassword, typeof i.userPassword)
+                console.log('truepassword', i.password, typeof i.password)
                 if (i.password === data.password) {
                     const token = Mock.Random.guid()
                     console.log('mockToken:', token)
@@ -29,10 +30,10 @@ export const profileLogin = Mock.mock(
                     })
                 }
             }
-            return Mock.mock({
-                        code: 200,
-                        message: '登录失败',
-            })
         }
+        return Mock.mock({
+            code: 200,
+            message: '登录失败',
+    })
     }
 )

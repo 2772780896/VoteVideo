@@ -1,10 +1,12 @@
-# VoteVideo
-通过React构建的SPA网站，一个视频网站。  
-通过Mockjs实现伪数据的请求与获取，并基于伪数据实现完整的数据通信流程。  
-实现[首页展示](https://2772780896.github.io/VoteVideo/main)、[搜索页查看](https://2772780896.github.io/VoteVideo/search)、[视频查看](https://2772780896.github.io/VoteVideo/video)、[文章查看](https://2772780896.github.io/VoteVideo/essay)、[关注查看](https://2772780896.github.io/VoteVideo/follow)、[消息查看与对话](https://2772780896.github.io/VoteVideo/user?search=1)、[收藏查看](https://2772780896.github.io/VoteVideo/user?search=3)、[历史查看](https://2772780896.github.io/VoteVideo/user?search=4)、[稿件查看](https://2772780896.github.io/VoteVideo/user?search=5)、[稿件上传](https://2772780896.github.io/VoteVideo/upload)的页面布局。  
-
-### 1. 
-通过[*记录.txt*](https://github.com/2772780896/VoteVideo/blob/master/%E8%AE%B0%E5%BD%95.txt)可查看编写过程。
-
-### 2.  
-通过[*https://2772780896.github.io/VoteVideo/*](https://2772780896.github.io/VoteVideo/)可查看在线网页。
+### VoteVideo
+#### 介绍：
+​	一个实现视频、文章、动态等内容展示的综合视频网站，提供信息卡片对内容进行基本展示，提供内容页对不同内容进行详细展示，提供搜索页对内容进行不同排序的请求与展示，提供用户页对同一用户的内容进行归纳展示，提供个人页对登录者个人内容进行展示并提供对话组件实现用户间通信，提供上传页对登录者进行内容上传。
+    在线预览：https://2772780896.github.io/VoteVideo/
+#### 技术要点：
+- 基于React框架进行搭建，使用react-router-dom的BrowserRouter进行页面组件间的路由，将内容的基本信息以及对详细信息的路由跳转封装为对应组件，将信息卡片列表的请求与展示封装为对应组件，实现内容展示的高度可复用，做到“所见即所得”
+- 将Axios请求API进行模块化封装，将错误信息统一在响应拦截器中处理，将token等cookie的携带统一在请求拦截器中处理。再通过Hook函数统一调用API并返回响应数据与错误信息，实现数据请求与UI渲染分离，提高代码的可维护性和可复用性
+- 基于AntDesign进行Flex、Grid、Tabs、Menu、Modal、Form、Upload等页面布局与动态功能的实现，提高组件的现代化与可复用性
+- 使用Mockjs进行后端伪数据的搭建，搭建出一套基于用户而产生内容信息的数据体系，使用RESTful风格构建API请求，提升API的可读性与信息获取效率。通过Mockjs对Axios请求进行响应，实现脱离后端的完整数据请求响应流程，便于进行数据测试
+- 通过Redux对登录Modal的展示进行状态管理，通过封装高阶组件拦截未登录者对个人页的访问，实现在对未授权页面的跳转时拦截该跳转并展示登录Modal
+- 将项目部署在github page上，并通过配置404.html与BrowserRouter的basename实现SPA网页的正常访问。
+- 对开发流程与遇到问题的解决进行总结归纳以积累开发经验，提高开发效率，存放在[*记录.txt*](https://github.com/2772780896/VoteVideo/blob/master/%E8%AE%B0%E5%BD%95.txt)

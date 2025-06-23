@@ -13,6 +13,8 @@ import { comment } from "./response/getDataList/getCommentList";
 import { profileLogin } from "./response/login";
 import { profileRegister } from "./response/register";
 import { showProfile } from "./response/showProfile";
+import { getProfile } from "./response/Profile/getProfile";
+import { getProfileSubdata } from "./response/Profile/getProfileSubdata";
 export { 
     carouselPicture, 
     getVideo, 
@@ -28,5 +30,7 @@ export {
     comment,
     profileLogin,
     profileRegister,
-    showProfile
+    showProfile,
+    getProfile,
+    getProfileSubdata
 }

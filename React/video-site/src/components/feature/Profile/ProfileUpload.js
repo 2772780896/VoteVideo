@@ -1,23 +1,21 @@
 import React, {useState} from 'react';
 import { Tabs } from 'antd'
-import SearchSortDropdown from '@/components/common/SortDropdown'
-import SearchVideoFlex from '@/components/common/DataList/VideoList'
-import SearchPostFlex from '@/components/common/DataList/PostList'
-import SearchEssayFlex from '@/components/common/DataList/EssayList'
-import { getUploadEssay } from '@/apis/profile/showUpload';
-import { getUploadPost } from '@/apis/profile/showUpload';
-import { getUploadVideo } from '@/apis/profile/showUpload';
+import SortDropdown from '@/components/common/SortDropdown'
+import VideoList from '@/components/common/DataList/VideoList'
+import PostList from '@/components/common/DataList/PostList'
+import EssayList from '@/components/common/DataList/EssayList'
+import getProfileSubdata from '@/apis/profile/getProfileSubdata';
 
-const App = ({uid, token}) => {
-    const [sort, setSort] = useState('1')
+const App = () => {
+    const [sort, setSort] = useState()
     const items = [
         {
             key: '1',
             label: '视频',
             children: (
                 <>
-                <SearchSortDropdown pushSort={setSort}/>
-                <SearchVideoFlex sort={sort} func={getUploadVideo} params={[uid, token]}/>
+                <SortDropdown pushSort={setSort}/>
+                <VideoList sort={sort} func={getProfileSubdata} params={['upload', 'videoList']}/>
                 </>
             )
         },
@@ -26,8 +24,8 @@ const App = ({uid, token}) => {
             label: '动态',
             children: (
                 <>
-                <SearchSortDropdown pushSort={setSort}/>
-                <SearchPostFlex sort={sort} func={getUploadPost} params={[uid, token]}/>
+                <SortDropdown pushSort={setSort}/>
+                <PostList sort={sort} func={getProfileSubdata} params={['upload', 'postList']}/>
                 </>
             )
         },
@@ -36,8 +34,8 @@ const App = ({uid, token}) => {
             label: '文章',
             children: (
                 <>
-                <SearchSortDropdown pushSort={setSort}/>
-                <SearchEssayFlex sort={sort} func={getUploadEssay} params={[uid, token]}/>
+                <SortDropdown pushSort={setSort}/>
+                <EssayList sort={sort} func={getProfileSubdata} params={['essay']}/>
                 </>
             )
         },

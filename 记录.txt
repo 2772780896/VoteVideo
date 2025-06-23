@@ -457,3 +457,7 @@ api设计理念
     通过在请求头中携带Authorization进行携带token
 
 getVideo返回单个视频
+
+user实现与profile实现方式不同，统一改为profile实现方式，先实现profile
+对于以登录用户，通过token获取唯一用户，封装逻辑通过token验证登录状态和uid
+完成profile基础数据的对接

@@ -1,12 +1,11 @@
 import Mock from 'mockjs'
 import { verifyAuthorization } from '../../utils/verifyAuthorization'
 import { getEssayList } from '../../publicState'
-import { getUserExtension } from '../../publicState'
+import { addUserExtension } from '../../publicState'
 import { format } from 'date-fns'
 
 export const getEssay = Mock.mock(
     /^\/api\/essay\/\d+/,
-    'get',
     function(options) {
         const match = options.url.match(/\/api\/essay\/(\d+)/)
         const eid = Number(match[1])
@@ -19,8 +18,7 @@ export const getEssay = Mock.mock(
                 // 如果登录，在essay中添加时间，将essay添加到userExtension的对应uid的history中
                 const date = format(new Date(), 'yyyy-MM-dd')
                 const historyEssay = {...essay, history: date}
-                const userExtension = getUserExtension()
-                userExtension.find(item => item.uid === uid).history.push(historyEssay)
+                addUserExtension(uid, 'history', 'essayList', historyEssay)
             }
             return Mock.mock({
                 code: 200,

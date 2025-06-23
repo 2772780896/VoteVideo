@@ -18,12 +18,7 @@ export const createVideo = (number=1, addData={}) => {
         likeCount: Random.integer(200, 20000),
         favouriteCount: Random.integer(100, 10000),
         tagList: createTag(Random.integer(5,15))
-    }))
-
-    // 额外数据的添加
-    for (let i of videoList) {
-        i = {...i, ...addData}
-    }
+    })).map( (i) => ({...i, ...addData})) // 使用map方法直接添加额外数据
     
     addVideo(videoList)
     return videoList

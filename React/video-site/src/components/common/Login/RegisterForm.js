@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Form, Input, Alert } from 'antd';
 
-import register from '@/apis/profile/register';
+import register from '@/apis/user/register';
 
 const App = () => {
   const onFinish = async (data) => { 
