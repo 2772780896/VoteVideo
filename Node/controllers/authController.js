@@ -185,36 +185,18 @@ const login = async (req, res) => {
 }
 
 // --- 获取当前用户信息（需要认证）---
+// 注意：Token 验证已由 needToken 中间件完成，req.user 中包含用户信息
 const getProfile = async (req, res) => {
   try {
-    // 从 Authorization Header 读取 Token
-    // 前端已修改为：config.headers.Authorization = `Bearer ${token}`
-    const authHeader = req.headers.authorization
-
-    if (!authHeader) {
-      return res.status(401).json({
-        code: 401,
-        message: '请先登录',
-        data: null
-      })
-    }
-
-    // 去掉 "Bearer " 前缀
-    const token = authHeader.split(' ')[1]
-
-    // 验证 Token
-    // jwt.verify(Token, 密钥) 用法：
-    //   - Token：前端传递的 Token
-    //   - 密钥：JWT_SECRET
-    //   - 返回载荷（{ uid, username, iat, exp }）
-    //   - 如果 Token 无效或过期，会抛出错误
-    const decoded = jwt.verify(token, JWT_SECRET)
+    // 从 req.user 获取用户信息（由 needToken 中间件设置）
+    // req.user 包含：{ uid, username, iat, exp }
+    const { uid } = req.user
 
     // 根据 Token 中的 uid 查询用户
     // Prisma Client 用法：
-    //   prisma.user.findUnique({ where: { uid: decoded.uid } })
+    //   prisma.user.findUnique({ where: { uid: uid } })
     const user = await prisma.user.findUnique({
-      where: { uid: decoded.uid },
+      where: { uid: uid },
       // select: 指定返回的字段（不返回 password）
       select: {
         uid: true,
@@ -243,15 +225,6 @@ const getProfile = async (req, res) => {
     })
 
   } catch (error) {
-    // Token 无效或过期
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        code: 401,
-        message: 'Token 无效或已过期',
-        data: null
-      })
-    }
-
     console.error('获取用户信息错误:', error)
     return res.status(500).json({
       code: 500,

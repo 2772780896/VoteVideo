@@ -3,6 +3,7 @@
 const express = require('express')
 const router = express.Router()
 const authController = require('../controllers/authController')
+const { needToken } = require('../middleware/authMiddleware')
 
 // --- 路由定义 ---
 
@@ -22,6 +23,6 @@ router.post('/login', authController.login)
 // GET /api/auth/profile
 // Header: Authorization: Bearer <token>
 // 响应：{ code: 200, data: UserItem } 或 { code: 401, message: 'Token 无效' }
-router.get('/profile', authController.getProfile)
+router.get('/profile', needToken, authController.getProfile)
 
 module.exports = router

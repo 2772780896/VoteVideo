@@ -7,17 +7,31 @@ const router = express.Router()
 // 引入上传控制器
 const uploadController = require('../controllers/uploadController')
 
-// --- 上传视频 ---
+// 引入 Token 验证中间件
+const { needToken } = require('../middleware/authMiddleware')
+
+// --- 路由定义 ---
+
+// 上传视频
 // POST /api/upload/video
-router.post('/upload/video', uploadController.uploadVideo)
+// Header: Authorization: Bearer <token>
+// 请求体：{ title, description, cover, videoUrl }
+// 响应：{ code: 201, data: { vid } } 或 { code: 401, message: 'Token 无效' }
+router.post('/video', needToken, uploadController.uploadVideo)
 
-// --- 上传文章 ---
+// 上传文章
 // POST /api/upload/essay
-router.post('/upload/essay', uploadController.uploadEssay)
+// Header: Authorization: Bearer <token>
+// 请求体：{ title, description }
+// 响应：{ code: 201, data: { eid } } 或 { code: 401, message: 'Token 无效' }
+router.post('/essay', needToken, uploadController.uploadEssay)
 
-// --- 上传动态 ---
+// 上传动态
 // POST /api/upload/post
-router.post('/upload/post', uploadController.uploadPost)
+// Header: Authorization: Bearer <token>
+// 请求体：{ text, images }
+// 响应：{ code: 201, data: { pid } } 或 { code: 401, message: 'Token 无效' }
+router.post('/post', needToken, uploadController.uploadPost)
 
 // 导出路由
 module.exports = router

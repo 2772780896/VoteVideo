@@ -7,26 +7,34 @@ const router = express.Router()
 // 引入交互控制器
 const interactController = require('../controllers/interactController')
 
-// --- 点赞/取消点赞 ---
-// POST /api/:type/:id/like
-// DELETE /api/:type/:id/like
-// 注意：app.js 中的错误处理中间件会捕获 405 错误（方法不支持）
-// 这里简单处理：用同一个路由处理 POST 和 DELETE
-router.post('/:type/:id/like', interactController.like)
-router.delete('/:type/:id/like', interactController.like)
+// 引入 Token 验证中间件
+const { needToken } = require('../middleware/authMiddleware')
 
-// --- 收藏/取消收藏 ---
-// POST /api/:type/:id/favourite
-// DELETE /api/:type/:id/favourite
-router.post('/:type/:id/favourite', interactController.favourite)
-router.delete('/:type/:id/favourite', interactController.favourite)
+// --- 路由定义 ---
 
-// --- 关注/取消关注 ---
-// POST /api/user/:id/follow
-// DELETE /api/user/:id/follow
-// 注意：关注是用户专用，路径是 /user/:id/follow
-router.post('/user/:id/follow', interactController.follow)
-router.delete('/user/:id/follow', interactController.follow)
+// 点赞/取消点赞
+// POST /api/interact/:type/:id/like
+// DELETE /api/interact/:type/:id/like
+// Header: Authorization: Bearer <token>
+// 响应：{ code: 200, data: { likeCount } } 或 { code: 401, message: 'Token 无效' }
+router.post('/:type/:id/like', needToken, interactController.like)
+router.delete('/:type/:id/like', needToken, interactController.like)
+
+// 收藏/取消收藏
+// POST /api/interact/:type/:id/favourite
+// DELETE /api/interact/:type/:id/favourite
+// Header: Authorization: Bearer <token>
+// 响应：{ code: 200, message: '收藏成功' } 或 { code: 401, message: 'Token 无效' }
+router.post('/:type/:id/favourite', needToken, interactController.favourite)
+router.delete('/:type/:id/favourite', needToken, interactController.favourite)
+
+// 关注/取消关注
+// POST /api/interact/user/:id/follow
+// DELETE /api/interact/user/:id/follow
+// Header: Authorization: Bearer <token>
+// 响应：{ code: 200, message: '关注成功' } 或 { code: 401, message: 'Token 无效' }
+router.post('/user/:id/follow', needToken, interactController.follow)
+router.delete('/user/:id/follow', needToken, interactController.follow)
 
 // 导出路由
 module.exports = router
