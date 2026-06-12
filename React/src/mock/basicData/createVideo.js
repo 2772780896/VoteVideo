@@ -11,7 +11,7 @@ export const createVideo = (number=1, addData={}) => {
         coverUrl: Random.image('1920x1080', Random.color(), Random.color(), 'jpg', Random.string(1,5)),
         videoUrl: 'http://vjs.zencdn.net/v/oceans.mp4',
         viewCount: Random.integer(1000, 99999),
-        messageCount: Random.integer(50, 1000),
+        commentCount: Random.integer(50, 1000),
         uploader: createUser()[0],
         duration: Random.time('mm:ss'),
         date: Random.datetime('yyyy-MM-dd'),

@@ -50,7 +50,7 @@ const ProfileFollow = () => {
               />
               <div>
                 <div className="text-sm font-medium text-gray-900">{user.userName}</div>
-                <div className="text-xs text-gray-500">{user.fansCount?.toLocaleString()} 粉丝</div>
+                <div className="text-xs text-gray-500">{user.followerCount?.toLocaleString()} 粉丝</div>
               </div>
             </div>
 

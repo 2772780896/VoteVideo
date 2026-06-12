@@ -61,7 +61,7 @@ const VideoPage = () => {
             {/* 播放量 / 评论数 / 日期 */}
             <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
               <span>{video?.viewCount} 播放</span>
-              <span>{video?.messageCount} 评论</span>
+              <span>{video?.commentCount} 评论</span>
               <span>{video?.date}</span>
             </div>
 

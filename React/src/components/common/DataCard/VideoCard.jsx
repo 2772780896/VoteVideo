@@ -22,7 +22,7 @@ const VideoCard = ({ video }) => {
               </span>
               <span className="flex items-center space-x-1">
                 <span>💬</span>
-                <span>{video.messageCount}</span>
+                <span>{video.commentCount}</span>
               </span>
             </div>
             <span>{video.duration}</span>

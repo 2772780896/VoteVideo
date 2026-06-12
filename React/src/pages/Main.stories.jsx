@@ -92,7 +92,7 @@ const mockCarousel = [
 const mockVideos = Array(8).fill(0).map((_, i) => ({
   vid: i + 1, coverUrl: `https://picsum.photos/300/170?random=${i + 10}`,
   title: `测试视频 ${i + 1} — 正常长短标题`, viewCount: '12.3万',
-  messageCount: '456', duration: '10:30',
+  commentCount: '456', duration: '10:30',
   uploader: { userName: `用户${i + 1}` }, date: '2024-01-15',
 }))
 

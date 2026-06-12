@@ -141,10 +141,10 @@ export const showProfile = Mock.mock(
                 data: dataList
             })
         }
-        else if (subData === 'dialoge') {
-            console.log('dialoage')
+        else if (subData === 'dialogue') {
+            console.log('dialogue')
             const dataList = profile[0].message.dialogueList
-            console.log('mockDialogeList', dataList)
+            console.log('mockDialogueList', dataList)
             return Mock.mock({
                 code: 200,
                 message: 'ok',

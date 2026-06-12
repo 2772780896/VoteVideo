@@ -13,8 +13,8 @@ export const createProfile = (number, userName, userPassword, addData={}) => {
         userPassword: userPassword,
         info: Random.cword(10,30),
         profilePictureUrl: Random.image('1920x1080', Random.color(), Random.color(), 'jpg', Random.string(1,5)),
-        fansCount: Random.integer(100, 9999),
-        followCount: Random.integer(50, 1000),
+        followerCount: Random.integer(100, 9999),
+        followingCount: Random.integer(50, 1000),
         date: Random.datetime('yyyy-MM-dd'),
         upload: {
             uploadVideoList: createVideo(Random.integer(0,3)),

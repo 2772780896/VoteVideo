@@ -22,7 +22,7 @@ export const Default = {
       coverUrl: 'https://picsum.photos/300/170?random=1',
       title: 'React 19 新特性深度解析',
       viewCount: '12.3万',
-      messageCount: '456',
+      commentCount: '456',
       duration: '10:30',
       uploader: { userName: '张三' },
       date: '2024-01-15',
@@ -74,7 +74,7 @@ export const LargeNumbers = {
       coverUrl: 'https://picsum.photos/300/170?random=4',
       title: '爆款视频',
       viewCount: '999.9万',
-      messageCount: '2.3万',
+      commentCount: '2.3万',
     },
   },
 }

@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'
 import TopMenuApp from '@/components/common/TopMenu'
 import useData from '@/hooks/useData';
-import { fetchItem } from '@/apis/content';
+import { fetchItem, fetchItemList } from '@/apis/content';
 import interact from '@/apis/content';
+import DataList from '@/components/common/DataList';
+import VideoCard from '@/components/common/DataCard/VideoCard';
+import PostCard from '@/components/common/DataCard/PostCard';
+import EssayCard from '@/components/common/DataCard/EssayCard';
 
 const tabs = ['视频', '动态', '文章']
 
@@ -89,8 +93,8 @@ const UserPage = () => {
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-900">{user.userName}</h1>
                 <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-                  <span>{user.fansCount?.toLocaleString()} 粉丝</span>
-                  <span>{user.followCount} 关注</span>
+                  <span>{user.followerCount?.toLocaleString()} 粉丝</span>
+                  <span>{user.followingCount} 关注</span>
                 </div>
                 {user.info && (
                   <p className="text-sm text-gray-600 mt-2">{user.info}</p>
@@ -136,9 +140,49 @@ const UserPage = () => {
             </div>
 
             {/* Tab 内容区 */}
-            <div className="text-center py-12 text-gray-400">
-              <span className="text-4xl mb-2 block">📺</span>
-              <span className="text-sm">{tabs[active]}列表暂未开放</span>
+            <div>
+              {/* 视频 Tab */}
+              {active === 0 && (
+                <DataList
+                  request={(sort, page, element) =>
+                    fetchItemList('video', { uid: user?.uid, sort, page, element })
+                  }
+                  sort={null}
+                  params={[user?.uid]}
+                  pageSize={12}
+                  renderItem={(video) => <VideoCard key={video.vid} video={video} />}
+                  gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  emptyText="该用户还没有上传视频"
+                />
+              )}
+
+              {/* 动态 Tab */}
+              {active === 1 && (
+                <DataList
+                  request={(sort, page, element) =>
+                    fetchItemList('post', { uid: user?.uid, sort, page, element })
+                  }
+                  sort={null}
+                  params={[user?.uid]}
+                  pageSize={10}
+                  renderItem={(post) => <PostCard key={post.pid} post={post} />}
+                  emptyText="该用户还没有发布动态"
+                />
+              )}
+
+              {/* 文章 Tab */}
+              {active === 2 && (
+                <DataList
+                  request={(sort, page, element) =>
+                    fetchItemList('essay', { uid: user?.uid, sort, page, element })
+                  }
+                  sort={null}
+                  params={[user?.uid]}
+                  pageSize={10}
+                  renderItem={(essay) => <EssayCard key={essay.eid} essay={essay} />}
+                  emptyText="该用户还没有发布文章"
+                />
+              )}
             </div>
           </>
         )}

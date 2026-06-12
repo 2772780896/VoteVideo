@@ -28,8 +28,80 @@ const useData = (requestFunc, ...params) => {
             setData(response.data)
         } catch (err) {
             if (currentId !== requestIdRef.current) return        // 过期，丢弃
-            console.log('useDataError:', err)
-            setError(err)
+            
+            // 错误分类处理
+            let errorInfo = {
+                message: '未知错误',
+                code: 500,
+                original: err
+            }
+            
+            if (err.response) {
+                // 服务器返回了错误响应
+                const status = err.response.status
+                const responseData = err.response.data
+                
+                switch (status) {
+                    case 400:
+                        errorInfo = {
+                            message: responseData?.message || '请求参数错误',
+                            code: 400,
+                            original: err
+                        }
+                        break
+                    case 401:
+                        errorInfo = {
+                            message: responseData?.message || '未登录或登录已过期',
+                            code: 401,
+                            original: err
+                        }
+                        break
+                    case 403:
+                        errorInfo = {
+                            message: responseData?.message || '没有权限访问',
+                            code: 403,
+                            original: err
+                        }
+                        break
+                    case 404:
+                        errorInfo = {
+                            message: responseData?.message || '请求的资源不存在',
+                            code: 404,
+                            original: err
+                        }
+                        break
+                    case 500:
+                        errorInfo = {
+                            message: responseData?.message || '服务器内部错误',
+                            code: 500,
+                            original: err
+                        }
+                        break
+                    default:
+                        errorInfo = {
+                            message: responseData?.message || `请求失败 (${status})`,
+                            code: status,
+                            original: err
+                        }
+                }
+            } else if (err.request) {
+                // 请求发出但没有收到响应
+                errorInfo = {
+                    message: '网络连接失败，请检查网络',
+                    code: 0,
+                    original: err
+                }
+            } else {
+                // 请求配置出错
+                errorInfo = {
+                    message: err.message || '请求配置错误',
+                    code: -1,
+                    original: err
+                }
+            }
+            
+            console.error('useDataError:', errorInfo)
+            setError(errorInfo)
         } finally {
             if (currentId !== requestIdRef.current) return         // 过期，不设 loading=false
             setLoading(false)

@@ -15,7 +15,7 @@ const App = ({user}) => {
                         <div>{user?.userName}</div>
                         <a>发消息</a>
                     </Flex>
-                    <Button type="primary">+关注 {user?.fansCount}</Button>
+                    <Button type="primary">+关注 {user?.followerCount}</Button>
                 </Col>
             </Row>
         </Link>
