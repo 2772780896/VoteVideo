@@ -1,6 +1,6 @@
-// services/baseService.js - 通用服务基类
-// 职责：封装通用的分页、排序、搜索、CRUD逻辑
-// 各模块服务层可以继承或调用此类
+// services/baseService.js - 通用服务工厂函数
+// 职责：提供通用的分页、排序、搜索、CRUD逻辑
+// 各模块服务层可以调用此工厂函数创建基础服务
 
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
@@ -71,175 +71,179 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`
 }
 
-// ==================== 通用服务类 ====================
+// ==================== 服务工厂函数 ====================
 
-class BaseService {
-  /**
-   * 构造函数
-   * @param {string} modelName - Prisma模型名称（如 'video', 'essay', 'post'）
-   * @param {object} config - 配置对象
-   * @param {string} config.idField - 主键字段名（如 'vid', 'eid'）
-   * @param {string} config.searchField - 搜索字段名（如 'title'）
-   * @param {string} config.defaultSortField - 默认排序字段（默认'createdAt'）
-   * @param {object} config.includeConfig - 关联查询配置
-   * @param {function} config.transformFunction - 数据转换函数
-   */
-  constructor(modelName, config = {}) {
-    this.modelName = modelName
-    this.idField = config.idField || 'id'
-    this.searchField = config.searchField || 'title'
-    this.defaultSortField = config.defaultSortField || 'createdAt'
-    this.includeConfig = config.includeConfig || {}
-    this.transformFunction = config.transformFunction || null
-    
-    // 获取Prisma模型（动态访问prisma[modelName]）
-    this.model = prisma[modelName]
-    
-    if (!this.model) {
-      throw new Error(`Prisma模型 "${modelName}" 不存在`)
-    }
+/**
+ * 创建通用服务
+ * @param {string} modelName - Prisma模型名称（如 'video', 'essay', 'post'）
+ * @param {object} config - 配置对象
+ * @param {string} config.idField - 主键字段名（如 'vid', 'eid'）
+ * @param {string} config.searchField - 搜索字段名（如 'title'）
+ * @param {string} config.defaultSortField - 默认排序字段（默认'createdAt'）
+ * @param {object} config.includeConfig - 关联查询配置
+ * @param {function} config.transformFunction - 数据转换函数
+ * @returns {object} 包含通用服务方法的对象
+ */
+const createService = (modelName, config = {}) => {
+  // 获取Prisma模型（动态访问prisma[modelName]）
+  const model = prisma[modelName]
+  
+  if (!model) {
+    throw new Error(`Prisma模型 "${modelName}" 不存在`)
   }
   
-  /**
-   * 获取列表数据（支持分页、排序、搜索）
-   * @param {object} options - 查询选项
-   * @param {number} options.page - 页码
-   * @param {number} options.element - 每页数量
-   * @param {string} options.sort - 排序参数
-   * @param {string} options.q - 搜索关键词
-   * @param {object} options.where - 额外查询条件
-   * @param {object} options.include - 关联查询配置（覆盖默认配置）
-   * @returns {Promise<object>} 包含数据和总数的对象
-   */
-  async getListData(options = {}) {
-    const {
-      page = 1,
-      element = 16,
-      sort = `-${this.defaultSortField}`,
-      q = '',
-      where: extraWhere = {},
-      include: overrideInclude = null
-    } = options
-    
-    const { skip, take } = parsePagination(page, element)
-    const orderBy = parseSortParam(sort, this.defaultSortField)
-    
-    // 构建查询条件
-    const where = { ...extraWhere }
-    if (q && this.searchField) {
-      where[this.searchField] = {
-        contains: q,
-        mode: 'insensitive'
+  // 解构配置
+  const {
+    idField = 'id',
+    searchField = 'title',
+    defaultSortField = 'createdAt',
+    includeConfig = {},
+    transformFunction = null
+  } = config
+  
+  // 返回包含通用服务方法的对象
+  return {
+    /**
+     * 获取列表数据（支持分页、排序、搜索）
+     * @param {object} options - 查询选项
+     * @param {number} options.page - 页码
+     * @param {number} options.element - 每页数量
+     * @param {string} options.sort - 排序参数
+     * @param {string} options.q - 搜索关键词
+     * @param {object} options.where - 额外查询条件
+     * @param {object} options.include - 关联查询配置（覆盖默认配置）
+     * @returns {Promise<object>} 包含数据和总数的对象
+     */
+    async getListData(options = {}) {
+      const {
+        page = 1,
+        element = 16,
+        sort = `-${defaultSortField}`,
+        q = '',
+        where: extraWhere = {},
+        include: overrideInclude = null
+      } = options
+      
+      const { skip, take } = parsePagination(page, element)
+      const orderBy = parseSortParam(sort, defaultSortField)
+      
+      // 构建查询条件
+      const where = { ...extraWhere }
+      if (q && searchField) {
+        where[searchField] = {
+          contains: q,
+          mode: 'insensitive'
+        }
       }
-    }
+      
+      // 确定关联查询配置
+      const include = overrideInclude || includeConfig
+      
+      // 并行执行查询，提高性能
+      const [items, total] = await Promise.all([
+        model.findMany({
+          where,
+          orderBy,
+          skip,
+          take,
+          include: include || undefined
+        }),
+        model.count({ where })
+      ])
+      
+      // 数据转换
+      let transformedItems = items
+      if (transformFunction) {
+        transformedItems = items.map(item => transformFunction(item))
+      }
+      
+      return {
+        data: transformedItems,
+        total: total
+      }
+    },
     
-    // 确定关联查询配置
-    const include = overrideInclude || this.includeConfig
-    
-    // 并行执行查询，提高性能
-    const [items, total] = await Promise.all([
-      this.model.findMany({
-        where,
-        orderBy,
-        skip,
-        take,
+    /**
+     * 根据ID获取详情数据
+     * @param {number} id - 主键ID
+     * @param {object} options - 查询选项
+     * @param {object} options.include - 关联查询配置（覆盖默认配置）
+     * @param {boolean} options.throwIfNotFound - 不存在时是否抛出异常
+     * @returns {Promise<object|null>} 数据对象或null
+     */
+    async getItemData(id, options = {}) {
+      const {
+        include: overrideInclude = null,
+        throwIfNotFound = false
+      } = options
+      
+      // 确定关联查询配置
+      const include = overrideInclude || includeConfig
+      
+      const item = await model.findUnique({
+        where: { [idField]: parseInt(id) },
         include: include || undefined
-      }),
-      this.model.count({ where })
-    ])
+      })
+      
+      if (!item && throwIfNotFound) {
+        const error = new Error(`${modelName}不存在`)
+        error.statusCode = 404
+        throw error
+      }
+      
+      // 数据转换
+      if (item && transformFunction) {
+        return transformFunction(item)
+      }
+      
+      return item
+    },
     
-    // 数据转换
-    let transformedItems = items
-    if (this.transformFunction) {
-      transformedItems = items.map(item => this.transformFunction(item))
+    /**
+     * 获取数据总数
+     * @param {object} where - 查询条件
+     * @returns {Promise<number>} 数据总数
+     */
+    async count(where = {}) {
+      return await model.count({ where })
+    },
+    
+    /**
+     * 创建数据
+     * @param {object} data - 创建数据
+     * @returns {Promise<object>} 创建后的数据对象
+     */
+    async create(data) {
+      return await model.create({
+        data,
+        include: includeConfig || undefined
+      })
+    },
+    
+    /**
+     * 更新数据
+     * @param {number} id - 主键ID
+     * @param {object} data - 更新数据
+     * @returns {Promise<object>} 更新后的数据对象
+     */
+    async update(id, data) {
+      return await model.update({
+        where: { [idField]: parseInt(id) },
+        data,
+        include: includeConfig || undefined
+      })
+    },
+    
+    /**
+     * 删除数据
+     * @param {number} id - 主键ID
+     * @returns {Promise<object>} 删除的数据对象
+     */
+    async delete(id) {
+      return await model.delete({
+        where: { [idField]: parseInt(id) }
+      })
     }
-    
-    return {
-      data: transformedItems,
-      total: total
-    }
-  }
-  
-  /**
-   * 根据ID获取详情数据
-   * @param {number} id - 主键ID
-   * @param {object} options - 查询选项
-   * @param {object} options.include - 关联查询配置（覆盖默认配置）
-   * @param {boolean} options.throwIfNotFound - 不存在时是否抛出异常
-   * @returns {Promise<object|null>} 数据对象或null
-   */
-  async getItemData(id, options = {}) {
-    const {
-      include: overrideInclude = null,
-      throwIfNotFound = false
-    } = options
-    
-    // 确定关联查询配置
-    const include = overrideInclude || this.includeConfig
-    
-    const item = await this.model.findUnique({
-      where: { [this.idField]: parseInt(id) },
-      include: include || undefined
-    })
-    
-    if (!item && throwIfNotFound) {
-      const error = new Error(`${this.modelName}不存在`)
-      error.statusCode = 404
-      throw error
-    }
-    
-    // 数据转换
-    if (item && this.transformFunction) {
-      return this.transformFunction(item)
-    }
-    
-    return item
-  }
-  
-  /**
-   * 获取数据总数
-   * @param {object} where - 查询条件
-   * @returns {Promise<number>} 数据总数
-   */
-  async count(where = {}) {
-    return await this.model.count({ where })
-  }
-  
-  /**
-   * 创建数据
-   * @param {object} data - 创建数据
-   * @returns {Promise<object>} 创建后的数据对象
-   */
-  async create(data) {
-    return await this.model.create({
-      data,
-      include: this.includeConfig || undefined
-    })
-  }
-  
-  /**
-   * 更新数据
-   * @param {number} id - 主键ID
-   * @param {object} data - 更新数据
-   * @returns {Promise<object>} 更新后的数据对象
-   */
-  async update(id, data) {
-    return await this.model.update({
-      where: { [this.idField]: parseInt(id) },
-      data,
-      include: this.includeConfig || undefined
-    })
-  }
-  
-  /**
-   * 删除数据
-   * @param {number} id - 主键ID
-   * @returns {Promise<object>} 删除的数据对象
-   */
-  async delete(id) {
-    return await this.model.delete({
-      where: { [this.idField]: parseInt(id) }
-    })
   }
 }
 
@@ -346,7 +350,7 @@ const MODULE_CONFIG = {
 // ==================== 导出 ====================
 
 module.exports = {
-  BaseService,
+  createService,
   MODULE_CONFIG,
   parseSortParam,
   parsePagination,

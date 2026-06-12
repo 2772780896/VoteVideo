@@ -1,8 +1,10 @@
-// services/commentService.js - 评论服务层（继承BaseService）
+// services/commentService.js - 评论服务层（函数式实现）
 // 职责：封装数据库操作、业务逻辑、数据格式转换
 // 特殊点：需要处理递归子评论
 
-const { BaseService, MODULE_CONFIG, formatCount, formatDate } = require('./baseService')
+const { createService, MODULE_CONFIG, formatCount, formatDate, parsePagination, parseSortParam } = require('./baseService')
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
 // ==================== 数据格式转换函数 ====================
 
@@ -59,126 +61,59 @@ const transformCommentData = (comment) => {
   return commentData
 }
 
-// ==================== CommentService类 ====================
+// ==================== 业务服务函数 ====================
 
-class CommentService extends BaseService {
-  /**
-   * 构造函数
-   */
-  constructor() {
-    // 调用父类构造函数，传入模块配置
-    super('comment', MODULE_CONFIG.comment)
-    
-    // Comment的转换函数需要递归处理，不使用简单的transformFunction
-    this.transformFunction = null
+/**
+ * 获取评论列表数据（需要处理递归子评论）
+ * @param {object} options - 查询选项
+ * @param {number} options.page - 页码
+ * @param {number} options.element - 每页数量
+ * @param {string} options.sort - 排序参数
+ * @param {string} options.q - 搜索关键词
+ * @param {number} options.vid - 视频ID（筛选条件）
+ * @returns {Promise<object>} 包含评论列表和总数的对象
+ */
+const getCommentListData = async (options = {}) => {
+  const {
+    page = 1,
+    element = 16,
+    sort = '-createdAt',
+    q = '',
+    vid = null
+  } = options
+  
+  const { skip, take } = parsePagination(page, element)
+  const orderBy = parseSortParam(sort, 'createdAt')
+  
+  // 构建查询条件
+  const where = {}
+  
+  // 按视频ID筛选
+  if (vid) {
+    where.vid = parseInt(vid)
   }
   
-  /**
-   * 获取评论列表数据（重写父类方法，需要处理递归子评论）
-   * @param {object} options - 查询选项
-   * @param {number} options.page - 页码
-   * @param {number} options.element - 每页数量
-   * @param {string} options.sort - 排序参数
-   * @param {string} options.q - 搜索关键词
-   * @param {number} options.vid - 视频ID（筛选条件）
-   * @returns {Promise<object>} 包含评论列表和总数的对象
-   */
-  async getCommentListData(options = {}) {
-    const {
-      page = 1,
-      element = 16,
-      sort = '-createdAt',
-      q = '',
-      vid = null
-    } = options
-    
-    const { skip, take } = require('./baseService').parsePagination(page, element)
-    const orderBy = require('./baseService').parseSortParam(sort, this.defaultSortField)
-    
-    // 构建查询条件
-    const where = {}
-    
-    // 按视频ID筛选
-    if (vid) {
-      where.vid = parseInt(vid)
-    }
-    
-    // 搜索关键词
-    if (q) {
-      where.text = {
-        contains: q,
-        mode: 'insensitive'
-      }
-    }
-    
-    // 只包含顶级评论（不包含子评论）
-    where.replyTo_cid = null
-    
-    // 关联查询配置（包含子评论的递归查询）
-    const include = {
-      uploader: {
-        select: {
-          uid: true,
-          username: true,
-          profilePictureUrl: true
-        }
-      },
-      replies: {
-        include: {
-          uploader: {
-            select: {
-              uid: true,
-              username: true,
-              profilePictureUrl: true
-            }
-          },
-          parentComment: {
-            include: {
-              uploader: {
-                select: {
-                  uid: true,
-                  username: true,
-                  profilePictureUrl: true
-                }
-              }
-            }
-          },
-          replies: true  // 需要进一步递归
-        }
-      }
-    }
-    
-    // 并行执行查询
-    const [comments, total] = await Promise.all([
-      this.model.findMany({
-        where,
-        orderBy,
-        skip,
-        take,
-        include
-      }),
-      this.model.count({ where })
-    ])
-    
-    // 数据转换（递归处理子评论）
-    const commentItems = comments.map(comment => 
-      transformCommentData(comment)
-    )
-    
-    return {
-      data: commentItems,
-      total: total
+  // 搜索关键词
+  if (q) {
+    where.text = {
+      contains: q,
+      mode: 'insensitive'
     }
   }
   
-  /**
-   * 获取评论详情数据
-   * @param {number} cid - 评论ID
-   * @returns {Promise<object>} 评论详情数据
-   */
-  async getCommentDetailData(cid) {
-    const comment = await this.getItemData(cid, { 
-      throwIfNotFound: true,
+  // 只包含顶级评论（不包含子评论）
+  where.replyTo_cid = null
+  
+  // 关联查询配置（包含子评论的递归查询）
+  const include = {
+    uploader: {
+      select: {
+        uid: true,
+        username: true,
+        profilePictureUrl: true
+      }
+    },
+    replies: {
       include: {
         uploader: {
           select: {
@@ -189,56 +124,112 @@ class CommentService extends BaseService {
         },
         parentComment: {
           include: {
-            uploader: true
+            uploader: {
+              select: {
+                uid: true,
+                username: true,
+                profilePictureUrl: true
+              }
+            }
           }
-        }
+        },
+        replies: true  // 需要进一步递归
       }
-    })
-    
-    return transformCommentData(comment)
+    }
   }
   
-  /**
-   * 创建评论（重写父类方法，处理JSON字段和回复逻辑）
-   * @param {object} data - 创建数据
-   * @returns {Promise<object>} 创建后的评论对象
-   */
-  async createComment(data) {
-    const commentData = { ...data }
-    
-    // 处理图片列表
-    if (commentData.pictureList && Array.isArray(commentData.pictureList)) {
-      commentData.pictureList = JSON.stringify(commentData.pictureList)
-    }
-    
-    // 处理回复逻辑
-    if (commentData.replyTo_cid) {
-      // 回复评论，需要增加父评论的subCommentCount
-      await this.model.update({
-        where: { cid: parseInt(commentData.replyTo_cid) },
-        data: { subCommentCount: { increment: 1 } }
-      })
-    }
-    
-    return await this.model.create({
-      data: commentData,
-      include: this.includeConfig
-    })
+  // 并行执行查询
+  const [comments, total] = await Promise.all([
+    prisma.comment.findMany({
+      where,
+      orderBy,
+      skip,
+      take,
+      include
+    }),
+    prisma.comment.count({ where })
+  ])
+  
+  // 数据转换（递归处理子评论）
+  const commentItems = comments.map(comment => 
+    transformCommentData(comment)
+  )
+  
+  return {
+    data: commentItems,
+    total: total
   }
 }
 
-// 创建实例并导出
-const commentService = new CommentService()
+/**
+ * 获取评论详情数据
+ * @param {number} cid - 评论ID
+ * @returns {Promise<object>} 评论详情数据
+ */
+const getCommentDetailData = async (cid) => {
+  const comment = await prisma.comment.findUnique({
+    where: { cid: parseInt(cid) },
+    include: {
+      uploader: {
+        select: {
+          uid: true,
+          username: true,
+          profilePictureUrl: true
+        }
+      },
+      parentComment: {
+        include: {
+          uploader: true
+        }
+      }
+    }
+  })
+  
+  if (!comment) {
+    const error = new Error('评论不存在')
+    error.statusCode = 404
+    throw error
+  }
+  
+  return transformCommentData(comment)
+}
+
+/**
+ * 创建评论（处理JSON字段和回复逻辑）
+ * @param {object} data - 创建数据
+ * @returns {Promise<object>} 创建后的评论对象
+ */
+const createComment = async (data) => {
+  const commentData = { ...data }
+  
+  // 处理图片列表
+  if (commentData.pictureList && Array.isArray(commentData.pictureList)) {
+    commentData.pictureList = JSON.stringify(commentData.pictureList)
+  }
+  
+  // 处理回复逻辑
+  if (commentData.replyTo_cid) {
+    // 回复评论，需要增加父评论的subCommentCount
+    await prisma.comment.update({
+      where: { cid: parseInt(commentData.replyTo_cid) },
+      data: { subCommentCount: { increment: 1 } }
+    })
+  }
+  
+  return await prisma.comment.create({
+    data: commentData,
+    include: MODULE_CONFIG.comment.includeConfig
+  })
+}
+
+// ==================== 导出 ====================
 
 module.exports = {
-  // 业务服务函数（实例方法）
-  getCommentListData: commentService.getCommentListData.bind(commentService),
-  getCommentDetailData: commentService.getCommentDetailData.bind(commentService),
-  createComment: commentService.createComment.bind(commentService),
+  // 业务服务函数
+  getCommentListData,
+  getCommentDetailData,
+  createComment,
   
   // 数据格式转换函数
-  transformCommentData,
-  
-  // 类（供其他模块使用）
-  CommentService
+  transformCommentData
 }

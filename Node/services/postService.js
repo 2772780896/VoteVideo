@@ -1,7 +1,9 @@
-// services/postService.js - 动态服务层（继承BaseService）
+// services/postService.js - 动态服务层（函数式实现）
 // 职责：封装数据库操作、业务逻辑、数据格式转换
 
-const { BaseService, MODULE_CONFIG, formatCount, formatDate } = require('./baseService')
+const { createService, MODULE_CONFIG, formatCount, formatDate } = require('./baseService')
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
 // ==================== 数据格式转换函数 ====================
 
@@ -34,67 +36,58 @@ const transformPostData = (post) => {
   return postData
 }
 
-// ==================== PostService类 ====================
+// ==================== 创建基础服务 ====================
 
-class PostService extends BaseService {
-  /**
-   * 构造函数
-   */
-  constructor() {
-    // 调用父类构造函数，传入模块配置
-    super('post', MODULE_CONFIG.post)
-    
-    // 设置数据转换函数
-    this.transformFunction = transformPostData
-  }
+// 调用工厂函数创建基础服务
+const baseService = createService('post', {
+  ...MODULE_CONFIG.post,
+  transformFunction: transformPostData
+})
+
+// ==================== 业务服务函数 ====================
+
+/**
+ * 获取动态详情数据
+ * @param {number} pid - 动态ID
+ * @returns {Promise<object>} 动态详情数据
+ */
+const getPostDetailData = async (pid) => {
+  const post = await baseService.getItemData(pid, { throwIfNotFound: true })
   
-  /**
-   * 获取动态详情数据
-   * @param {number} pid - 动态ID
-   * @returns {Promise<object>} 动态详情数据
-   */
-  async getPostDetailData(pid) {
-    const post = await this.getItemData(pid, { throwIfNotFound: true })
-    
-    return transformPostData(post)
-  }
-  
-  /**
-   * 创建动态（重写父类方法，处理JSON字段）
-   * @param {object} data - 创建数据
-   * @returns {Promise<object>} 创建后的动态对象
-   */
-  async createPost(data) {
-    // 处理JSON字段
-    const postData = { ...data }
-    
-    if (postData.pictureList && Array.isArray(postData.pictureList)) {
-      postData.pictureList = JSON.stringify(postData.pictureList)
-    }
-    
-    if (postData.videoList && Array.isArray(postData.videoList)) {
-      postData.videoList = JSON.stringify(postData.videoList)
-    }
-    
-    return await this.model.create({
-      data: postData,
-      include: this.includeConfig
-    })
-  }
+  return transformPostData(post)
 }
 
-// 创建实例并导出
-const postService = new PostService()
+/**
+ * 创建动态（处理JSON字段）
+ * @param {object} data - 创建数据
+ * @returns {Promise<object>} 创建后的动态对象
+ */
+const createPost = async (data) => {
+  // 处理JSON字段
+  const postData = { ...data }
+  
+  if (postData.pictureList && Array.isArray(postData.pictureList)) {
+    postData.pictureList = JSON.stringify(postData.pictureList)
+  }
+  
+  if (postData.videoList && Array.isArray(postData.videoList)) {
+    postData.videoList = JSON.stringify(postData.videoList)
+  }
+  
+  return await prisma.post.create({
+    data: postData,
+    include: MODULE_CONFIG.post.includeConfig
+  })
+}
+
+// ==================== 导出 ====================
 
 module.exports = {
-  // 业务服务函数（实例方法）
-  getPostListData: postService.getListData.bind(postService),
-  getPostDetailData: postService.getPostDetailData.bind(postService),
-  createPost: postService.createPost.bind(postService),
+  // 业务服务函数
+  getPostListData: baseService.getListData,
+  getPostDetailData,
+  createPost,
   
   // 数据格式转换函数
-  transformPostData,
-  
-  // 类（供其他模块使用）
-  PostService
+  transformPostData
 }

@@ -1,7 +1,7 @@
-// services/essayService.js - 文章服务层（继承BaseService）
+// services/essayService.js - 文章服务层（函数式实现）
 // 职责：封装数据库操作、业务逻辑、数据格式转换
 
-const { BaseService, MODULE_CONFIG, formatCount, formatDate } = require('./baseService')
+const { createService, MODULE_CONFIG, formatCount, formatDate } = require('./baseService')
 
 // ==================== 数据格式转换函数 ====================
 
@@ -34,49 +34,40 @@ const transformEssayData = (essay) => {
   return essayData
 }
 
-// ==================== EssayService类 ====================
+// ==================== 创建基础服务 ====================
 
-class EssayService extends BaseService {
-  /**
-   * 构造函数
-   */
-  constructor() {
-    // 调用父类构造函数，传入模块配置
-    super('essay', MODULE_CONFIG.essay)
-    
-    // 设置数据转换函数
-    this.transformFunction = transformEssayData
-  }
+// 调用工厂函数创建基础服务
+const baseService = createService('essay', {
+  ...MODULE_CONFIG.essay,
+  transformFunction: transformEssayData
+})
+
+// ==================== 业务服务函数 ====================
+
+/**
+ * 获取文章详情数据
+ * @param {number} eid - 文章ID
+ * @returns {Promise<object>} 文章详情数据
+ */
+const getEssayDetailData = async (eid) => {
+  const essay = await baseService.getItemData(eid, { throwIfNotFound: true })
   
-  /**
-   * 获取文章详情数据（重写父类方法，可增加阅读量等逻辑）
-   * @param {number} eid - 文章ID
-   * @returns {Promise<object>} 文章详情数据
-   */
-  async getEssayDetailData(eid) {
-    const essay = await this.getItemData(eid, { throwIfNotFound: true })
-    
-    // 可以增加阅读量逻辑（如果需要）
-    // await this.model.update({
-    //   where: { eid: parseInt(eid) },
-    //   data: { viewCount: essay.viewCount + 1 }
-    // })
-    
-    return transformEssayData(essay)
-  }
+  // 可以增加阅读量逻辑（如果需要）
+  // await prisma.essay.update({
+  //   where: { eid: parseInt(eid) },
+  //   data: { viewCount: essay.viewCount + 1 }
+  // })
+  
+  return transformEssayData(essay)
 }
 
-// 创建实例并导出
-const essayService = new EssayService()
+// ==================== 导出 ====================
 
 module.exports = {
-  // 业务服务函数（实例方法）
-  getEssayListData: essayService.getListData.bind(essayService),
-  getEssayDetailData: essayService.getEssayDetailData.bind(essayService),
+  // 业务服务函数
+  getEssayListData: baseService.getListData,
+  getEssayDetailData,
   
   // 数据格式转换函数
-  transformEssayData,
-  
-  // 类（供其他模块使用）
-  EssayService
+  transformEssayData
 }
