@@ -1,0 +1,214 @@
+// Prisma Schema for VoteVideo
+// 数据库：SQLite
+// 生成时间：2026-06-11
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --- 用户表 ---
+model User {
+  uid             Int     @id @default(autoincrement())
+  username        String  @unique
+  password        String
+  profilePictureUrl String?
+  info            String?
+  followerCount   Int     @default(0)
+  followingCount  Int     @default(0)
+  createdAt       DateTime @default(now())
+
+  // 关联关系
+  videos          Video[]          // 用户上传的视频
+  essays          Essay[]          // 用户上传的文章
+  posts           Post[]           // 用户发布的动态
+  comments        Comment[]        // 用户发布的评论
+  sentMessages    Message[]        @relation("SentMessages")  // 发送的消息
+  dialogues1      Dialogue[]        @relation("DialogueParticipant1") // 作为参与者1的对话
+  dialogues2      Dialogue[]        @relation("DialogueParticipant2") // 作为参与者2的对话
+  notifications   Notification[]   // 发送的通知
+  favourites      UserFavourite[]  // 收藏
+  history         UserHistory[]     // 历史记录
+  following       UserFollowing[]   @relation("Following") // 关注的人
+  followers       UserFollowing[]   @relation("Follower")  // 粉丝
+}
+
+// --- 视频表 ---
+model Video {
+  vid             Int     @id @default(autoincrement())
+  title           String
+  coverUrl        String?
+  videoUrl        String?
+  duration        String?
+  viewCount       Int     @default(0)
+  messageCount    Int     @default(0)
+  likeCount       Int     @default(0)
+  favouriteCount  Int     @default(0)
+  createdAt       DateTime @default(now())
+
+  // 关联关系
+  uploader_uid    Int
+  uploader        User    @relation(fields: [uploader_uid], references: [uid])
+  comments        Comment[]
+  videoTags       VideoTag[]
+}
+
+// --- 文章表 ---
+model Essay {
+  eid             Int     @id @default(autoincrement())
+  title           String
+  text            String
+  viewCount       Int     @default(0)
+  commentCount    Int     @default(0)
+  likeCount       Int     @default(0)
+  favouriteCount  Int     @default(0)
+  createdAt       DateTime @default(now())
+
+  // 关联关系
+  uploader_uid    Int
+  uploader        User    @relation(fields: [uploader_uid], references: [uid])
+  comments        Comment[]
+}
+
+// --- 动态表 ---
+model Post {
+  pid             Int     @id @default(autoincrement())
+  text            String?
+  pictureList     String?   // JSON 字符串
+  videoList       String?   // JSON 字符串
+  viewCount       Int     @default(0)
+  commentCount    Int     @default(0)
+  likeCount       Int     @default(0)
+  createdAt       DateTime @default(now())
+
+  // 关联关系
+  uploader_uid    Int
+  uploader        User    @relation(fields: [uploader_uid], references: [uid])
+  comments        Comment[]
+}
+
+// --- 标签表 ---
+model Tag {
+  tid             Int     @id @default(autoincrement())
+  tagName         String  @unique
+  likeCount       Int     @default(0)
+  favouriteCount  Int     @default(0)
+  commentCount    Int     @default(0)
+
+  // 关联关系
+  videoTags       VideoTag[]
+}
+
+// --- 视频-标签中间表 ---
+model VideoTag {
+  vid   Int
+  tid   Int
+  video Video  @relation(fields: [vid], references: [vid])
+  tag   Tag    @relation(fields: [tid], references: [tid])
+
+  @@id([vid, tid])
+}
+
+// --- 评论表 ---
+model Comment {
+  cid             Int     @id @default(autoincrement())
+  text            String
+  type            String  @default("text")  // 'text' 或 'picture'
+  pictureList     String?   // JSON 字符串
+  viewCount       Int     @default(0)
+  likeCount       Int     @default(0)
+  favouriteCount  Int     @default(0)
+  subCommentCount Int     @default(0)
+  createdAt       DateTime @default(now())
+
+  // 关联关系
+  vid             Int?
+  video           Video?   @relation(fields: [vid], references: [vid])
+  uploader_uid    Int
+  uploader        User    @relation(fields: [uploader_uid], references: [uid])
+  replyTo_cid    Int?
+  replies         Comment[] @relation("CommentReplies")
+  parentComment  Comment?  @relation("CommentReplies", fields: [replyTo_cid], references: [cid])
+  essay           Essay?   @relation(fields: [vid], references: [eid])
+  post            Post?    @relation(fields: [vid], references: [pid])
+}
+
+// --- 用户收藏中间表 ---
+model UserFavourite {
+  uid       Int
+  type      String   // 'video', 'essay', 'post'
+  item_id   Int
+  addDate   DateTime @default(now())
+  user      User     @relation(fields: [uid], references: [uid])
+
+  @@id([uid, type, item_id])
+}
+
+// --- 用户历史中间表 ---
+model UserHistory {
+  uid     Int
+  type    String   // 'video', 'essay', 'post'
+  item_id Int
+  addDate DateTime @default(now())
+  user    User     @relation(fields: [uid], references: [uid])
+
+  @@id([uid, type, item_id])
+}
+
+// --- 用户关注中间表 ---
+model UserFollowing {
+  uid           Int
+  following_uid Int
+  user          User  @relation("Following", fields: [uid], references: [uid])
+  following     User  @relation("Follower", fields: [following_uid], references: [uid])
+
+  @@id([uid, following_uid])
+}
+
+// --- 对话表 ---
+model Dialogue {
+  mid             Int      @id @default(autoincrement())
+  participant1_uid Int
+  participant2_uid Int
+  lastMessage     String?
+  lastDate         DateTime?
+
+  // 关联关系
+  participant1    User     @relation("DialogueParticipant1", fields: [participant1_uid], references: [uid])
+  participant2    User     @relation("DialogueParticipant2", fields: [participant2_uid], references: [uid])
+  messages        Message[]
+}
+
+// --- 消息表 ---
+model Message {
+  id         Int      @id @default(autoincrement())
+  mid        Int
+  sender_uid Int
+  text       String
+  createdAt  DateTime @default(now())
+
+  // 关联关系
+  dialogue   Dialogue @relation(fields: [mid], references: [mid])
+  sender     User     @relation("SentMessages", fields: [sender_uid], references: [uid])
+}
+
+// --- 通知表 ---
+model Notification {
+  nid           Int      @id @default(autoincrement())
+  type          String    // 'like', 'comment', 'follow', 'favourite', 'at'
+  from_uid      Int
+  targetType    String    // 'video', 'essay', 'post', 'comment'
+  targetId      Int
+  parentType    String?   // 可选
+  parentId      Int?
+  text          String
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  // 关联关系
+  fromUser      User     @relation(fields: [from_uid], references: [uid])
+}

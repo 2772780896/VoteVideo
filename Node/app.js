@@ -1,11 +1,61 @@
-const http = require('http');
+// app.js - VoteVideo 后端入口文件
 
-const server = http.createServer((req, res) => {
-  // 设置响应头，防止中文乱码
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  if (req.url === '/index') {
-    res.end('首页');
-  }
-});
+// 加载环境变量（从 .env 文件读取 DATABASE_URL, JWT_SECRET, PORT）
+require('dotenv').config()
 
-server.listen(3000, () => console.log('启动在 3000'));
+const express = require('express')
+const cors = require('cors')
+const routes = require('./routes')  // 引入路由索引（批量注册）
+
+// 创建 Express 应用实例
+const app = express()
+
+// --- 中间件配置 ---
+
+// CORS 中间件：允许前端跨域请求
+// 开发阶段允许所有来源，生产环境应配置具体域名
+app.use(cors())
+
+// JSON 解析中间件：自动解析请求体中的 JSON 数据
+// 等价于 body-parser.json()，但 Express 4.16+ 已内置
+// 解析后的数据可通过 req.body 访问
+app.use(express.json())
+
+// URL-encoded 解析中间件：解析表单数据（可选）
+app.use(express.urlencoded({ extended: true }))
+
+// --- 路由注册（批量注册） ---
+
+// 从 routes/index.js 读取所有路由配置
+// 循环注册每个路由模块（按数组顺序执行）
+routes.forEach(({ path, router }) => {
+  app.use(path, router)
+})
+
+// --- 健康检查接口 ---
+app.get('/', (req, res) => {
+  res.json({
+    code: 200,
+    message: 'VoteVideo API is running',
+    data: null
+  })
+})
+
+// --- 错误处理中间件 ---
+// 放在所有路由之后，用于捕获未处理的错误
+app.use((err, req, res, next) => {
+  console.error('全局错误:', err.stack)
+  res.status(500).json({
+    code: 500,
+    message: '服务器内部错误',
+    data: null
+  })
+})
+
+// --- 启动服务器 ---
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(`✅ VoteVideo 后端服务已启动`)
+  console.log(`   - 本地访问: http://localhost:${PORT}`)
+  console.log(`   - 健康检查: http://localhost:${PORT}/`)
+})
