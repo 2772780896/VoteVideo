@@ -443,7 +443,6 @@ const getProfileSubdata = async (req, res) => {
       if (dataType === 'followingList') {
         const followings = await prisma.userFollowing.findMany({
           where: { uid: decoded.uid },
-          orderBy: {},
           skip: (parseInt(page) - 1) * parseInt(element),
           take: parseInt(element),
           include: {

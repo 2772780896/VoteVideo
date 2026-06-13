@@ -82,24 +82,25 @@ const transformVideoData = (video, options = {}) => {
     reshareCount: video.reshareCount !== undefined ? video.reshareCount : 0,
     duration: video.duration,
     date: formatDate(video.date),
-    // 检查当前用户是否已点赞/收藏/转发
-    isLiked: currentUid ? video.likes?.some(like => like.uid === currentUid) || false : false,
-    isFavourited: currentUid ? video.favourites?.some(fav => fav.uid === currentUid) || false : false,
-    isReshared: currentUid ? video.reshares?.some(r => r.uid === currentUid) || false : false
+    // 互动状态默认为 false，由 checkVideoInteractions 单独查询后覆盖
+    isLiked: false,
+    isFavourited: false,
+    isReshared: false
   }
-  
+
   // 详情页需要视频URL
   if (includeVideoUrl) {
     videoData.videoUrl = video.videoUrl
   }
-  
+
   // 上传者信息
   if (video.uploader) {
     videoData.uploader = {
       uid: video.uploader.uid,
       userName: video.uploader.username,
       profilePictureUrl: video.uploader.profilePictureUrl,
-      isFollowing: currentUid ? video.uploader.followers?.some(f => f.uid === currentUid) || false : false
+      // isFollowing 默认为 false，由外部查询覆盖
+      isFollowing: false
     }
   }
   
@@ -235,25 +236,28 @@ const getRelatedVideosData = async (options = {}) => {
             username: true,
             profilePictureUrl: true
           }
-        },
-        likes: {
-          select: {
-            uid: true
-          }
-        },
-        favourites: {
-          select: {
-            uid: true
-          }
         }
       }
     }),
     prisma.video.count({ where })
   ])
   
+  // 转换视频数据
   const videoItems = videos.map(video => 
-    transformVideoData(video, { includeTags: false, currentUid })
+    transformVideoData(video, { includeTags: false })
   )
+  
+  // 如果已登录，通过 checkVideoInteractions 查询交互状态
+  if (currentUid && videoItems.length > 0) {
+    const videoIds = videoItems.map(v => v.vid)
+    const interactionMap = await checkVideoInteractions(videoIds, currentUid)
+    videoItems.forEach(v => {
+      if (interactionMap[v.vid]) {
+        v.isLiked = interactionMap[v.vid].isLiked
+        v.isFavourited = interactionMap[v.vid].isFavourited
+      }
+    })
+  }
   
   return {
     data: videoItems,
