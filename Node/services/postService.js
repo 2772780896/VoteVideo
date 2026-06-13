@@ -58,10 +58,14 @@ const transformPostData = (post, options = {}) => {
     videoList: post.videoList ? JSON.parse(post.videoList) : null,
     viewCount: formatCount(post.viewCount),
     commentCount: formatCount(post.commentCount),
-    likeCount: formatCount(post.likeCount),
+    likeCount: post.likeCount !== undefined ? post.likeCount : 0,
+    favouriteCount: post.favouriteCount !== undefined ? post.favouriteCount : 0,
+    reshareCount: post.reshareCount !== undefined ? post.reshareCount : 0,
     date: formatDate(post.date),
     // 检查当前用户是否已点赞
-    isLiked: currentUid ? post.likes?.some(like => like.uid === currentUid) || false : false
+    isLiked: currentUid ? post.likes?.some(like => like.uid === currentUid) || false : false,
+    isFavourited: false,
+    isReshared: false
   }
   
   // 上传者信息

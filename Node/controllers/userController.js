@@ -40,6 +40,7 @@ const getUserDetail = async (req, res) => {
       uid: user.uid,
       userName: user.username,
       profilePictureUrl: user.profilePictureUrl,
+      info: user.info,
       followerCount: user.followerCount,
       followingCount: user.followingCount
     }
@@ -334,8 +335,8 @@ const getProfileSubdata = async (req, res) => {
         }))
       }
     } else if (profileType === 'favourites') {
-      // 用户收藏
-      const result = await prisma.userFavourite.findMany({
+      // 用户收藏 - 关联查询实际内容数据
+      const favourites = await prisma.userFavourite.findMany({
         where: { uid: decoded.uid, type: dataType },
         orderBy: { addDate: 'desc' },
         skip: (parseInt(page) - 1) * parseInt(element),
@@ -344,12 +345,50 @@ const getProfileSubdata = async (req, res) => {
       total = await prisma.userFavourite.count({
         where: { uid: decoded.uid, type: dataType }
       })
-      // 根据 dataType 查询具体数据
-      // 这里简化：只返回收藏记录，前端需要根据 item_id 再次查询
-      data = result
+      const itemIds = favourites.map(f => f.item_id)
+      if (itemIds.length > 0) {
+        if (dataType === 'videos') {
+          const items = await prisma.video.findMany({
+            where: { vid: { in: itemIds } },
+            include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } }
+          })
+          data = items.map(v => ({
+            vid: v.vid, coverUrl: v.coverUrl, title: v.title,
+            viewCount: v.viewCount, commentCount: v.commentCount,
+            duration: v.duration, date: formatDate(v.date),
+            uploader: { uid: v.uploader.uid, userName: v.uploader.username, profilePictureUrl: v.uploader.profilePictureUrl }
+          }))
+        } else if (dataType === 'posts') {
+          const items = await prisma.post.findMany({
+            where: { pid: { in: itemIds } },
+            include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } }
+          })
+          data = items.map(p => ({
+            pid: p.pid, text: p.text,
+            pictureList: p.pictureList ? JSON.parse(p.pictureList) : null,
+            videoList: p.videoList ? JSON.parse(p.videoList) : null,
+            viewCount: p.viewCount, commentCount: p.commentCount, likeCount: p.likeCount,
+            date: formatDate(p.date),
+            uploader: { uid: p.uploader.uid, userName: p.uploader.username, profilePictureUrl: p.uploader.profilePictureUrl }
+          }))
+        } else if (dataType === 'essays') {
+          const items = await prisma.essay.findMany({
+            where: { eid: { in: itemIds } },
+            include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } }
+          })
+          data = items.map(e => ({
+            eid: e.eid, title: e.title,
+            text: e.text.length > 200 ? e.text.substring(0, 200) + '...' : e.text,
+            viewCount: e.viewCount, commentCount: e.commentCount,
+            likeCount: e.likeCount, favouriteCount: e.favouriteCount,
+            date: formatDate(e.date),
+            uploader: { uid: e.uploader.uid, userName: e.uploader.username, profilePictureUrl: e.uploader.profilePictureUrl }
+          }))
+        }
+      }
     } else if (profileType === 'history') {
-      // 用户历史
-      const result = await prisma.userHistory.findMany({
+      // 用户历史 - 关联查询实际内容数据
+      const histories = await prisma.userHistory.findMany({
         where: { uid: decoded.uid, type: dataType },
         orderBy: { addDate: 'desc' },
         skip: (parseInt(page) - 1) * parseInt(element),
@@ -358,9 +397,86 @@ const getProfileSubdata = async (req, res) => {
       total = await prisma.userHistory.count({
         where: { uid: decoded.uid, type: dataType }
       })
-      // 根据 dataType 查询具体数据
-      // 这里简化：只返回历史记录，前端需要根据 item_id 再次查询
-      data = result
+      const itemIds = histories.map(h => h.item_id)
+      if (itemIds.length > 0) {
+        if (dataType === 'videos') {
+          const items = await prisma.video.findMany({
+            where: { vid: { in: itemIds } },
+            include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } }
+          })
+          data = items.map(v => ({
+            vid: v.vid, coverUrl: v.coverUrl, title: v.title,
+            viewCount: v.viewCount, commentCount: v.commentCount,
+            duration: v.duration, date: formatDate(v.date),
+            uploader: { uid: v.uploader.uid, userName: v.uploader.username, profilePictureUrl: v.uploader.profilePictureUrl }
+          }))
+        } else if (dataType === 'posts') {
+          const items = await prisma.post.findMany({
+            where: { pid: { in: itemIds } },
+            include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } }
+          })
+          data = items.map(p => ({
+            pid: p.pid, text: p.text,
+            pictureList: p.pictureList ? JSON.parse(p.pictureList) : null,
+            videoList: p.videoList ? JSON.parse(p.videoList) : null,
+            viewCount: p.viewCount, commentCount: p.commentCount, likeCount: p.likeCount,
+            date: formatDate(p.date),
+            uploader: { uid: p.uploader.uid, userName: p.uploader.username, profilePictureUrl: p.uploader.profilePictureUrl }
+          }))
+        } else if (dataType === 'essays') {
+          const items = await prisma.essay.findMany({
+            where: { eid: { in: itemIds } },
+            include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } }
+          })
+          data = items.map(e => ({
+            eid: e.eid, title: e.title,
+            text: e.text.length > 200 ? e.text.substring(0, 200) + '...' : e.text,
+            viewCount: e.viewCount, commentCount: e.commentCount,
+            likeCount: e.likeCount, favouriteCount: e.favouriteCount,
+            date: formatDate(e.date),
+            uploader: { uid: e.uploader.uid, userName: e.uploader.username, profilePictureUrl: e.uploader.profilePictureUrl }
+          }))
+        }
+      }
+    } else if (profileType === 'follow') {
+      // 关注列表
+      if (dataType === 'followingList') {
+        const followings = await prisma.userFollowing.findMany({
+          where: { uid: decoded.uid },
+          orderBy: {},
+          skip: (parseInt(page) - 1) * parseInt(element),
+          take: parseInt(element),
+          include: {
+            following: {
+              select: {
+                uid: true,
+                username: true,
+                profilePictureUrl: true,
+                followerCount: true
+              }
+            }
+          }
+        })
+        total = await prisma.userFollowing.count({
+          where: { uid: decoded.uid }
+        })
+        data = followings.map(f => ({
+          uid: f.following.uid,
+          userName: f.following.username,
+          profilePictureUrl: f.following.profilePictureUrl,
+          followerCount: f.following.followerCount
+        }))
+      }
+    } else if (profileType === 'message') {
+      // 消息相关 - 委托给 messageService
+      const messageService = require('../services/messageService')
+      if (dataType === 'dialogueList') {
+        data = await messageService.getDialogues(decoded.uid)
+        total = data.length
+      } else if (dataType === 'notificationList') {
+        data = await messageService.getNotifications(decoded.uid)
+        total = data.length
+      }
     }
 
     return res.status(200).json({

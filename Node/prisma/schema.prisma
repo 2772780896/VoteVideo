@@ -36,6 +36,8 @@ model User {
   favourites            UserFavourite[] // 收藏
   likes                 UserLike[] // 点赞
   history               UserHistory[] // 历史记录
+  reshares            UserReshare[] // 转发
+  dislikes            UserDislike[] // 踩
   following             UserFollowing[] @relation("Following") // 关注的人
   followers             UserFollowing[] @relation("Follower") // 粉丝
 }
@@ -51,6 +53,7 @@ model Video {
   commentCount   Int      @default(0)
   likeCount      Int      @default(0)
   favouriteCount Int      @default(0)
+  reshareCount   Int      @default(0)
   date           DateTime @default(now())
 
   // 关联关系
@@ -69,6 +72,7 @@ model Essay {
   commentCount   Int      @default(0)
   likeCount      Int      @default(0)
   favouriteCount Int      @default(0)
+  reshareCount   Int      @default(0)
   date           DateTime @default(now())
 
   // 关联关系
@@ -86,6 +90,8 @@ model Post {
   viewCount    Int      @default(0)
   commentCount Int      @default(0)
   likeCount    Int      @default(0)
+  reshareCount   Int      @default(0)
+  favouriteCount Int      @default(0)
   date         DateTime @default(now())
 
   // 关联关系
@@ -101,6 +107,7 @@ model Tag {
   likeCount      Int    @default(0)
   favouriteCount Int    @default(0)
   commentCount   Int    @default(0)
+  viewCount      Int    @default(0)
 
   // 关联关系
   videoTags VideoTag[]
@@ -124,6 +131,7 @@ model Comment {
   pictureList     String? // JSON 字符串
   viewCount       Int      @default(0)
   likeCount       Int      @default(0)
+  dislikeCount    Int      @default(0)
   favouriteCount  Int      @default(0)
   subCommentCount Int      @default(0)
   date            DateTime @default(now())
@@ -168,6 +176,28 @@ model UserLike {
 model UserHistory {
   uid     Int
   type    String // 'video', 'essay', 'post'
+  item_id Int
+  addDate DateTime @default(now())
+  user    User     @relation(fields: [uid], references: [uid])
+
+  @@id([uid, type, item_id])
+}
+
+// --- 用户转发中间表 ---
+model UserReshare {
+  uid     Int
+  type    String // 'video', 'essay', 'post'
+  item_id Int
+  addDate DateTime @default(now())
+  user    User     @relation(fields: [uid], references: [uid])
+
+  @@id([uid, type, item_id])
+}
+
+// --- 用户踩中间表 ---
+model UserDislike {
+  uid     Int
+  type    String // 'comment'
   item_id Int
   addDate DateTime @default(now())
   user    User     @relation(fields: [uid], references: [uid])

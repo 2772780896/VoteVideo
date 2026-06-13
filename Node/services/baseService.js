@@ -138,6 +138,11 @@ const createService = (modelName, config = {}) => {
         }
       }
       
+      // 支持按用户ID筛选（用户主页投稿列表）
+      if (options.uid) {
+        where.uploader_uid = parseInt(options.uid)
+      }
+      
       // 确定关联查询配置
       const include = overrideInclude || includeConfig
       

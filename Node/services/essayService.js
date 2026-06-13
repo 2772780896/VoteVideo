@@ -67,12 +67,14 @@ const transformEssayData = (essay, options = {}) => {
     text: essay.text,
     viewCount: formatCount(essay.viewCount),
     commentCount: formatCount(essay.commentCount),
-    likeCount: formatCount(essay.likeCount),
-    favouriteCount: formatCount(essay.favouriteCount),
+    likeCount: essay.likeCount !== undefined ? essay.likeCount : 0,
+    favouriteCount: essay.favouriteCount !== undefined ? essay.favouriteCount : 0,
+    reshareCount: essay.reshareCount !== undefined ? essay.reshareCount : 0,
     date: formatDate(essay.date),
     // 检查当前用户是否已点赞/收藏
     isLiked: currentUid ? essay.likes?.some(like => like.uid === currentUid) || false : false,
-    isFavourited: currentUid ? essay.favourites?.some(fav => fav.uid === currentUid) || false : false
+    isFavourited: currentUid ? essay.favourites?.some(fav => fav.uid === currentUid) || false : false,
+    isReshared: false
   }
   
   // 上传者信息

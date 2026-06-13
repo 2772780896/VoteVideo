@@ -38,42 +38,57 @@ function pushMessageToUser(uid, message) {
 // 参数：senderUid (发送者ID), receiverUid (接收者ID), text (消息内容)
 // 返回：{ messageId, dialogueId }
 // 用途：创建或更新对话，插入消息记录，并通过SSE推送
-async function sendMessage(senderUid, receiverUid, text) {
+async function sendMessage(senderUid, receiverUid, text, dialogueMid = null) {
   // 参数校验
   if (!text) {
     throw new Error('消息内容不能为空')
   }
 
   // 1. 查找或创建对话
-  let dialogue = await prisma.dialogue.findFirst({
-    where: {
-      OR: [
-        { participant1_uid: senderUid, participant2_uid: receiverUid },
-        { participant1_uid: receiverUid, participant2_uid: senderUid }
-      ]
+  let dialogue = null
+
+  // 优先通过 dialogueMid 查找已有对话
+  if (dialogueMid) {
+    dialogue = await prisma.dialogue.findUnique({
+      where: { mid: parseInt(dialogueMid) }
+    })
+    if (!dialogue) {
+      throw new Error('对话不存在')
+    }
+  }
+
+  // 如果没有通过 dialogueMid 找到，则通过用户ID查找
+  if (!dialogue) {
+    dialogue = await prisma.dialogue.findFirst({
+      where: {
+        OR: [
+          { participant1_uid: senderUid, participant2_uid: receiverUid },
+          { participant1_uid: receiverUid, participant2_uid: senderUid }
+        ]
+      }
+    })
+
+    if (!dialogue) {
+      // 创建新对话
+      dialogue = await prisma.dialogue.create({
+        data: {
+          participant1_uid: senderUid,
+          participant2_uid: receiverUid,
+          lastMessage: text,
+          lastDate: new Date()
+        }
+      })
+    }
+  }
+
+  // 更新对话的最后消息和时间
+  dialogue = await prisma.dialogue.update({
+    where: { mid: dialogue.mid },
+    data: {
+      lastMessage: text,
+      lastDate: new Date()
     }
   })
-
-  if (!dialogue) {
-    // 创建新对话
-    dialogue = await prisma.dialogue.create({
-      data: {
-        participant1_uid: senderUid,
-        participant2_uid: receiverUid,
-        lastMessage: text,
-        lastDate: new Date()
-      }
-    })
-  } else {
-    // 更新对话的最后消息和时间
-    dialogue = await prisma.dialogue.update({
-      where: { mid: dialogue.mid },
-      data: {
-        lastMessage: text,
-        lastDate: new Date()
-      }
-    })
-  }
 
   // 2. 插入消息记录
   const newMessage = await prisma.message.create({
@@ -96,7 +111,11 @@ async function sendMessage(senderUid, receiverUid, text) {
     }
   }
 
-  const pushed = pushMessageToUser(receiverUid, messageData)
+  // 确定接收者（对话中的另一方）
+  const receiverId = dialogue.participant1_uid === senderUid
+    ? dialogue.participant2_uid
+    : dialogue.participant1_uid
+  const pushed = pushMessageToUser(receiverId, messageData)
 
   // 4. 返回结果
   return {
@@ -189,19 +208,28 @@ async function getDialogues(uid) {
 // 用途：获取用户的通知列表
 async function getNotifications(uid) {
   const notifications = await prisma.notification.findMany({
-    where: { from_uid: uid },
-    orderBy: { date: 'desc' }
+    where: { to_uid: uid },
+    orderBy: { date: 'desc' },
+    include: {
+      fromUser: {
+        select: {
+          uid: true,
+          username: true,
+          profilePictureUrl: true
+        }
+      }
+    }
   })
 
   // 转换为 NotificationItem 格式
   const notificationItems = notifications.map(notification => ({
-    nid: notification.nid,
+    mid: notification.nid,
     type: notification.type,
     text: notification.text,
-    from: {
-      uid: notification.from_uid,
-      userName: '',  // 需要关联查询用户信息（简化）
-      profilePictureUrl: ''
+    sender: {
+      uid: notification.fromUser.uid,
+      userName: notification.fromUser.username,
+      profilePictureUrl: notification.fromUser.profilePictureUrl
     },
     targetType: notification.targetType,
     targetId: notification.targetId,

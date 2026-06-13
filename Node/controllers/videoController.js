@@ -50,7 +50,8 @@ const getCarousel = async (req, res) => {
     // 调用服务层方法
     const carouselItems = await videoService.getCarouselData(number)
     
-    return sendSuccessResponse(res, carouselItems)
+    // 返回 { items: [...] } 格式以匹配前端 useData 的 data.items 解包
+    return sendSuccessResponse(res, { items: carouselItems })
     
   } catch (error) {
     return handleControllerError(res, error, '获取轮播图错误')

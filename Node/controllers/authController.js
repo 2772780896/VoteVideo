@@ -217,11 +217,19 @@ const getProfile = async (req, res) => {
       })
     }
 
-    // 返回用户信息
+    // 返回用户信息（映射字段名以匹配前端）
     return res.status(200).json({
       code: 200,
       message: '获取成功',
-      data: user
+      data: {
+        uid: user.uid,
+        userName: user.username,
+        profilePictureUrl: user.profilePictureUrl,
+        info: user.info,
+        followerCount: user.followerCount,
+        followingCount: user.followingCount,
+        date: user.date
+      }
     })
 
   } catch (error) {

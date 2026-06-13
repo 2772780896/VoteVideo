@@ -8,39 +8,49 @@ const prisma = new PrismaClient()
 // 用途：消除 if-else 链条，用配置驱动代码
 const RESOURCE_CONFIG = {
   video: {
-    model: 'video',      // Prisma 模型名
-    idField: 'vid',      // ID 字段名
-    name: '视频',        // 中文名称（用于错误信息）
-    hasLike: true,       // 是否有点赞功能
-    hasFavourite: true   // 是否有收藏功能
+    model: 'video',
+    idField: 'vid',
+    name: '视频',
+    hasLike: true,
+    hasFavourite: true,
+    hasReshare: true,
+    hasDislike: false
   },
   essay: {
     model: 'essay',
     idField: 'eid',
     name: '文章',
     hasLike: true,
-    hasFavourite: true
+    hasFavourite: true,
+    hasReshare: true,
+    hasDislike: false
   },
   post: {
     model: 'post',
     idField: 'pid',
     name: '动态',
     hasLike: true,
-    hasFavourite: true
+    hasFavourite: true,
+    hasReshare: true,
+    hasDislike: false
   },
   comment: {
     model: 'comment',
     idField: 'cid',
     name: '评论',
     hasLike: true,
-    hasFavourite: false  // 评论不支持收藏
+    hasFavourite: false,
+    hasReshare: false,
+    hasDislike: true
   },
   tag: {
     model: 'tag',
     idField: 'tid',
     name: '标签',
     hasLike: true,
-    hasFavourite: false  // 标签不支持收藏
+    hasFavourite: false,
+    hasReshare: false,
+    hasDislike: false
   }
 }
 
@@ -250,11 +260,76 @@ async function toggleFollow(uid, targetUid, method) {
   }
 }
 
+
+// --- 通用的转发/取消转发函数 ---
+async function toggleReshare(uid, type, id, method) {
+  const resource = await findResource(type, id)
+  const config = RESOURCE_CONFIG[type]
+  if (!config.hasReshare) {
+    throw new Error(`${config.name}不支持转发`)
+  }
+
+  if (method === 'POST') {
+    await prisma.userReshare.create({
+      data: { uid, type, item_id: parseInt(id) }
+    })
+    const model = prisma[config.model]
+    await model.update({
+      where: { [config.idField]: parseInt(id) },
+      data: { reshareCount: { increment: 1 } }
+    })
+    return { success: true, message: '转发成功' }
+  } else {
+    await prisma.userReshare.delete({
+      where: { uid_type_item_id: { uid, type, item_id: parseInt(id) } }
+    })
+    const model = prisma[config.model]
+    await model.update({
+      where: { [config.idField]: parseInt(id) },
+      data: { reshareCount: { decrement: 1 } }
+    })
+    return { success: true, message: '取消转发成功' }
+  }
+}
+
+// --- 通用的踩/取消踩函数 ---
+async function toggleDislike(uid, type, id, method) {
+  const resource = await findResource(type, id)
+  const config = RESOURCE_CONFIG[type]
+  if (!config.hasDislike) {
+    throw new Error(`${config.name}不支持踩`)
+  }
+
+  if (method === 'POST') {
+    await prisma.userDislike.create({
+      data: { uid, type, item_id: parseInt(id) }
+    })
+    const model = prisma[config.model]
+    const updated = await model.update({
+      where: { [config.idField]: parseInt(id) },
+      data: { dislikeCount: { increment: 1 } }
+    })
+    return updated
+  } else {
+    await prisma.userDislike.delete({
+      where: { uid_type_item_id: { uid, type, item_id: parseInt(id) } }
+    })
+    const model = prisma[config.model]
+    const updated = await model.update({
+      where: { [config.idField]: parseInt(id) },
+      data: { dislikeCount: { decrement: 1 } }
+    })
+    return updated
+  }
+}
+
 // 导出服务函数
 module.exports = {
   findResource,
   toggleLike,
   toggleFavourite,
   toggleFollow,
+  toggleReshare,
+  toggleDislike,
   RESOURCE_CONFIG
 }

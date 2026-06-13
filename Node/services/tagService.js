@@ -17,6 +17,7 @@ const transformTagData = (tag) => {
   const tagData = {
     tid: tag.tid,
     tagName: tag.tagName,
+    viewCount: tag.viewCount !== undefined ? tag.viewCount : 0,
     likeCount: formatCount(tag.likeCount),
     favouriteCount: formatCount(tag.favouriteCount),
     commentCount: formatCount(tag.commentCount)

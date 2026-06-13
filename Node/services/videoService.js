@@ -77,11 +77,15 @@ const transformVideoData = (video, options = {}) => {
     title: video.title,
     viewCount: formatCount(video.viewCount),
     commentCount: formatCount(video.commentCount),
+    likeCount: video.likeCount !== undefined ? video.likeCount : 0,
+    favouriteCount: video.favouriteCount !== undefined ? video.favouriteCount : 0,
+    reshareCount: video.reshareCount !== undefined ? video.reshareCount : 0,
     duration: video.duration,
     date: formatDate(video.date),
-    // 检查当前用户是否已点赞/收藏
+    // 检查当前用户是否已点赞/收藏/转发
     isLiked: currentUid ? video.likes?.some(like => like.uid === currentUid) || false : false,
-    isFavourited: currentUid ? video.favourites?.some(fav => fav.uid === currentUid) || false : false
+    isFavourited: currentUid ? video.favourites?.some(fav => fav.uid === currentUid) || false : false,
+    isReshared: currentUid ? video.reshares?.some(r => r.uid === currentUid) || false : false
   }
   
   // 详情页需要视频URL
@@ -94,7 +98,8 @@ const transformVideoData = (video, options = {}) => {
     videoData.uploader = {
       uid: video.uploader.uid,
       userName: video.uploader.username,
-      profilePictureUrl: video.uploader.profilePictureUrl
+      profilePictureUrl: video.uploader.profilePictureUrl,
+      isFollowing: currentUid ? video.uploader.followers?.some(f => f.uid === currentUid) || false : false
     }
   }
   

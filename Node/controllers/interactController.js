@@ -213,9 +213,69 @@ const follow = async (req, res) => {
   }
 }
 
+// --- 转发/取消转发 ---
+const reshare = async (req, res) => {
+  try {
+    const { type, id } = req.params
+    const { uid } = req.user
+    const result = await interactService.toggleReshare(uid, type, id, req.method)
+    return res.status(200).json({
+      code: 200,
+      message: result.message,
+      data: null
+    })
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ code: 400, message: '已经转发过了', data: null })
+    }
+    if (error.code === 'P2025') {
+      return res.status(400).json({ code: 400, message: '还没有转发', data: null })
+    }
+    if (error.message.includes('不存在')) {
+      return res.status(404).json({ code: 404, message: error.message, data: null })
+    }
+    if (error.message.includes('不支持')) {
+      return res.status(400).json({ code: 400, message: error.message, data: null })
+    }
+    console.error('转发操作错误:', error)
+    return res.status(500).json({ code: 500, message: '服务器内部错误', data: null })
+  }
+}
+
+// --- 踩/取消踩 ---
+const dislike = async (req, res) => {
+  try {
+    const { type, id } = req.params
+    const { uid } = req.user
+    const result = await interactService.toggleDislike(uid, type, id, req.method)
+    return res.status(200).json({
+      code: 200,
+      message: req.method === 'POST' ? '踩成功' : '取消踩成功',
+      data: { dislikeCount: result.dislikeCount }
+    })
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ code: 400, message: '已经踩过了', data: null })
+    }
+    if (error.code === 'P2025') {
+      return res.status(400).json({ code: 400, message: '还没有踩', data: null })
+    }
+    if (error.message.includes('不存在')) {
+      return res.status(404).json({ code: 404, message: error.message, data: null })
+    }
+    if (error.message.includes('不支持')) {
+      return res.status(400).json({ code: 400, message: error.message, data: null })
+    }
+    console.error('踩操作错误:', error)
+    return res.status(500).json({ code: 500, message: '服务器内部错误', data: null })
+  }
+}
+
 // 导出控制器函数
 module.exports = {
   like,
   favourite,
-  follow
+  follow,
+  reshare,
+  dislike
 }

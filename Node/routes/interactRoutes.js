@@ -36,4 +36,12 @@ router.delete('/:type/:id/favourite', needToken, interactController.favourite)
 router.post('/user/:id/follow', needToken, interactController.follow)
 router.delete('/user/:id/follow', needToken, interactController.follow)
 
+// 转发/取消转发
+router.post('/:type/:id/reshare', needToken, interactController.reshare)
+router.delete('/:type/:id/reshare', needToken, interactController.reshare)
+
+// 踩/取消踩
+router.post('/:type/:id/dislike', needToken, interactController.dislike)
+router.delete('/:type/:id/dislike', needToken, interactController.dislike)
+
 module.exports = router

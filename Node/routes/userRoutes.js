@@ -4,6 +4,7 @@ const express = require('express')
 const router = express.Router()
 
 const userController = require('../controllers/userController')
+const { needToken } = require('../middleware/authMiddleware')
 
 // --- 用户搜索 ---
 // GET /api/user?q=关键词&page=1&element=16
@@ -15,7 +16,7 @@ router.get('/profile', userController.getProfile)
 
 // --- 获取 Profile 子数据 ---
 // GET /api/user/profile/:profileType/:dataType?sort=..&page=..&element=..
-router.get('/profile/:profileType/:dataType', userController.getProfileSubdata)
+router.get('/profile/:profileType/:dataType', needToken, userController.getProfileSubdata)
 
 // --- 用户详情 ---
 // GET /api/user/:uid

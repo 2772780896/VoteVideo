@@ -21,9 +21,13 @@ const transformCommentData = (comment) => {
     type: comment.type,
     viewCount: formatCount(comment.viewCount),
     likeCount: formatCount(comment.likeCount),
+    dislikeCount: comment.dislikeCount !== undefined ? formatCount(comment.dislikeCount) : '0',
     favouriteCount: formatCount(comment.favouriteCount),
     subCommentCount: formatCount(comment.subCommentCount),
-    date: formatDate(comment.date)
+    date: formatDate(comment.date),
+    // 前端 InteractionBar/CommentCard 需要的互动状态
+    isLiked: false,
+    isDisliked: false
   }
   
   // 图片列表（type=picture时有）
@@ -31,13 +35,15 @@ const transformCommentData = (comment) => {
     commentData.pictureList = JSON.parse(comment.pictureList)
   }
   
-  // 上传者信息
+  // 上传者信息（保留原字段名 uploader，同时提供 commenter 别名）
   if (comment.uploader) {
-    commentData.uploader = {
+    const uploaderObj = {
       uid: comment.uploader.uid,
       userName: comment.uploader.username,
       profilePictureUrl: comment.uploader.profilePictureUrl
     }
+    commentData.uploader = uploaderObj
+    commentData.commenter = uploaderObj  // 前端 CommentCard 使用 commenter
   }
   
   // 回复目标（子评论才有）
@@ -49,13 +55,16 @@ const transformCommentData = (comment) => {
     }
   }
   
-  // 递归处理子评论
+  // 递归处理子评论（同时提供 subCommentList 和 subComments 别名）
   if (comment.replies && comment.replies.length > 0) {
-    commentData.subCommentList = comment.replies.map(reply => 
+    const subList = comment.replies.map(reply => 
       transformCommentData(reply)
     )
+    commentData.subCommentList = subList
+    commentData.subComments = subList  // 前端使用 subComments
   } else {
     commentData.subCommentList = []
+    commentData.subComments = []
   }
   
   return commentData

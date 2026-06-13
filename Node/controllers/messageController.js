@@ -52,15 +52,13 @@ const sendMessage = async (req, res) => {
   try {
     // 从 req.user 获取用户信息（由 needToken 中间件设置）
     const { uid } = req.user
-    const { receiverUid, text } = req.body
+    const { dialogueMid, receiverUid, text } = req.body
 
     // 调用服务层发送消息
-    // messageService.sendMessage(senderUid, receiverUid, text) 用法：
-    //   - senderUid: 发送者ID（当前用户）
-    //   - receiverUid: 接收者ID
-    //   - text: 消息内容
-    //   - 返回：{ messageId, dialogueId, pushed }
-    const result = await messageService.sendMessage(uid, receiverUid, text)
+    // 支持两种模式：
+    //   1. 通过 dialogueMid 直接发送到已有对话
+    //   2. 通过 receiverUid 查找或创建对话后发送
+    const result = await messageService.sendMessage(uid, receiverUid, text, dialogueMid)
 
     // 返回成功响应
     return res.status(201).json({
