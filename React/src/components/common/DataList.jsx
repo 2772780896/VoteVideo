@@ -58,7 +58,8 @@ const DataList = ({
   }
 
   // 正常态：从 data 中解构出列表和总数
-  const items = listData?.data ?? []
+  // 后端返回格式：{ items: [...], total: ... }
+  const items = listData?.items ?? []
   const total = listData?.total ?? 0
   const totalPages = Math.ceil(total / pageSize)
 

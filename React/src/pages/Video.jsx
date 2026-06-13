@@ -23,7 +23,7 @@ const VideoPage = () => {
 
   // videoLoading / videoError 由 VideoPlayerApp 内部使用，不再透传给子组件
   const { data: videoData, loading: videoLoading, error: videoError, refresh: refreshVideo } = useData(fetchItem, 'video', vid)
-  const video = videoData?.data
+  const video = videoData
 
   const [sort, setSort] = useState('-date')
 

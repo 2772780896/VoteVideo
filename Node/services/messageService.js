@@ -92,7 +92,7 @@ async function sendMessage(senderUid, receiverUid, text) {
       dialogueId: dialogue.mid,
       senderUid: senderUid,
       text: text,
-      createdAt: newMessage.createdAt
+      date: newMessage.date
     }
   }
 
@@ -138,7 +138,7 @@ async function getDialogues(uid) {
       },
       // 关联查询：获取消息列表
       messages: {
-        orderBy: { createdAt: 'asc' },
+        orderBy: { date: 'asc' },
         include: {
           sender: {
             select: {
@@ -173,7 +173,7 @@ async function getDialogues(uid) {
           userName: msg.sender.username,
           profilePictureUrl: msg.sender.profilePictureUrl
         },
-        date: formatDate(msg.createdAt)
+        date: formatDate(msg.date)
       })),
       lastMessage: dialogue.lastMessage,
       lastDate: formatDate(dialogue.lastDate)
@@ -190,7 +190,7 @@ async function getDialogues(uid) {
 async function getNotifications(uid) {
   const notifications = await prisma.notification.findMany({
     where: { from_uid: uid },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { date: 'desc' }
   })
 
   // 转换为 NotificationItem 格式
@@ -207,7 +207,7 @@ async function getNotifications(uid) {
     targetId: notification.targetId,
     parentType: notification.parentType,
     parentId: notification.parentId,
-    date: formatDate(notification.createdAt)
+    date: formatDate(notification.date)
   }))
 
   return notificationItems

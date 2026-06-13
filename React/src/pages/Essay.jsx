@@ -11,7 +11,7 @@ const EssayPage = () => {
   const { eid } = useParams()
   // ① useData 四状态解构：data / loading / error / refresh
   const { data: essayData, loading, error, refresh } = useData(fetchItem, 'essay', eid)
-  const essay = essayData?.data
+  const essay = essayData
 
   return (
     <div className="min-h-screen bg-white">

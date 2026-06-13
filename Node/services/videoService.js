@@ -28,9 +28,9 @@ const transformVideoData = (video, options = {}) => {
     coverUrl: video.coverUrl,
     title: video.title,
     viewCount: formatCount(video.viewCount),
-    messageCount: formatCount(video.messageCount),
+    commentCount: formatCount(video.commentCount), // 修改：messageCount -> commentCount
     duration: video.duration,
-    date: formatDate(video.createdAt)
+    date: formatDate(video.date)
   }
   
   // 详情页需要视频URL
@@ -140,7 +140,7 @@ const getVideoDetailData = async (vid) => {
 const getRelatedVideosData = async (options = {}) => {
   const {
     vid,
-    sort = '-createdAt',
+    sort = '-date',
     page = 1,
     element = 5
   } = options

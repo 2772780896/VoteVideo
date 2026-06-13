@@ -23,7 +23,7 @@ const transformCommentData = (comment) => {
     likeCount: formatCount(comment.likeCount),
     favouriteCount: formatCount(comment.favouriteCount),
     subCommentCount: formatCount(comment.subCommentCount),
-    date: formatDate(comment.createdAt)
+    date: formatDate(comment.date)
   }
   
   // 图片列表（type=picture时有）
@@ -77,13 +77,13 @@ const getCommentListData = async (options = {}) => {
   const {
     page = 1,
     element = 16,
-    sort = '-createdAt',
+    sort = '-date',
     q = '',
     vid = null
   } = options
   
   const { skip, take } = parsePagination(page, element)
-  const orderBy = parseSortParam(sort, 'createdAt')
+  const orderBy = parseSortParam(sort, 'date')
   
   // 构建查询条件
   const where = {}
@@ -93,11 +93,10 @@ const getCommentListData = async (options = {}) => {
     where.vid = parseInt(vid)
   }
   
-  // 搜索关键词
+  // 搜索关键词（SQLite 的 contains 默认大小写不敏感）
   if (q) {
     where.text = {
-      contains: q,
-      mode: 'insensitive'
+      contains: q
     }
   }
   

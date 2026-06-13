@@ -56,6 +56,6 @@ const router = createBrowserRouter([
         element: <UserPage />
     }
 ],{
-    basename: "/VoteVideo"
+    basename: "/"
 })
 export default router

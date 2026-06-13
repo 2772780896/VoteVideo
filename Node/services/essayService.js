@@ -19,7 +19,7 @@ const transformEssayData = (essay) => {
     commentCount: formatCount(essay.commentCount),
     likeCount: formatCount(essay.likeCount),
     favouriteCount: formatCount(essay.favouriteCount),
-    date: formatDate(essay.createdAt)
+    date: formatDate(essay.date)
   }
   
   // 上传者信息

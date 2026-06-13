@@ -9,7 +9,7 @@ import { fetchItem } from '@/apis/content';
 const PostPage = () => {
   const { pid } = useParams()
   const { data: postData, loading, error, refresh } = useData(fetchItem, 'post', pid)
-  const post = postData?.data
+  const post = postData
 
   return (
     <div className="min-h-screen bg-white">

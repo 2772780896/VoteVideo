@@ -25,7 +25,10 @@ const useData = (requestFunc, ...params) => {
         try {
             const response = await requestFunc(...params)
             if (currentId !== requestIdRef.current) return        // 过期，丢弃
-            setData(response.data)
+            
+            // 后端返回格式：{ code: 200, data: {...}, message: '...' }
+            // 统一取出 response.data.data 作为业务数据
+            setData(response.data.data)
         } catch (err) {
             if (currentId !== requestIdRef.current) return        // 过期，丢弃
             

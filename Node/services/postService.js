@@ -21,7 +21,7 @@ const transformPostData = (post) => {
     viewCount: formatCount(post.viewCount),
     commentCount: formatCount(post.commentCount),
     likeCount: formatCount(post.likeCount),
-    date: formatDate(post.createdAt)
+    date: formatDate(post.date)
   }
   
   // 上传者信息

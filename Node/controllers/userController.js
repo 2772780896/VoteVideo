@@ -23,7 +23,7 @@ const getUserDetail = async (req, res) => {
         info: true,
         followerCount: true,
         followingCount: true,
-        createdAt: true
+        date: true
       }
     })
 
@@ -77,10 +77,9 @@ const searchUser = async (req, res) => {
     // 构建查询条件
     const where = {}
     if (q) {
-      // 按用户名搜索
+      // 按用户名搜索（SQLite 的 contains 默认大小写不敏感）
       where.username = {
-        contains: q,
-        mode: 'insensitive'
+        contains: q
       }
     }
 
@@ -111,11 +110,13 @@ const searchUser = async (req, res) => {
       followingCount: user.followingCount
     }))
 
+    // 修改：返回前端期望的数据格式
     return res.status(200).json({
       code: 200,
-      message: '获取成功',
-      data: userItems,
-      total: total
+      data: {
+        items: userItems,
+        total: total
+      }
     })
 
   } catch (error) {
@@ -162,7 +163,7 @@ const getProfile = async (req, res) => {
         info: true,
         followerCount: true,
         followingCount: true,
-        createdAt: true
+        date: true
       }
     })
 
@@ -239,7 +240,7 @@ const getProfileSubdata = async (req, res) => {
       if (dataType === 'videos') {
         const result = await prisma.video.findMany({
           where: { uploader_uid: decoded.uid },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { date: 'desc' },
           skip: (parseInt(page) - 1) * parseInt(element),
           take: parseInt(element),
           include: {
@@ -258,9 +259,9 @@ const getProfileSubdata = async (req, res) => {
           coverUrl: video.coverUrl,
           title: video.title,
           viewCount: video.viewCount,
-          messageCount: video.messageCount,
+          commentCount: video.commentCount, // 修改：messageCount -> commentCount
           duration: video.duration,
-          date: formatDate(video.createdAt),
+          date: formatDate(video.date),
           uploader: {
             uid: video.uploader.uid,
             userName: video.uploader.username,
@@ -270,7 +271,7 @@ const getProfileSubdata = async (req, res) => {
       } else if (dataType === 'posts') {
         const result = await prisma.post.findMany({
           where: { uploader_uid: decoded.uid },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { date: 'desc' },
           skip: (parseInt(page) - 1) * parseInt(element),
           take: parseInt(element),
           include: {
@@ -297,12 +298,12 @@ const getProfileSubdata = async (req, res) => {
             userName: post.uploader.username,
             profilePictureUrl: post.uploader.profilePictureUrl
           },
-          date: formatDate(post.createdAt)
+          date: formatDate(post.date)
         }))
       } else if (dataType === 'essays') {
         const result = await prisma.essay.findMany({
           where: { uploader_uid: decoded.uid },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { date: 'desc' },
           skip: (parseInt(page) - 1) * parseInt(element),
           take: parseInt(element),
           include: {
@@ -329,7 +330,7 @@ const getProfileSubdata = async (req, res) => {
             userName: essay.uploader.username,
             profilePictureUrl: essay.uploader.profilePictureUrl
           },
-          date: formatDate(essay.createdAt)
+          date: formatDate(essay.date)
         }))
       }
     } else if (profileType === 'favourites') {
@@ -364,9 +365,10 @@ const getProfileSubdata = async (req, res) => {
 
     return res.status(200).json({
       code: 200,
-      message: '获取成功',
-      data: data,
-      total: total
+      data: {
+        items: data,
+        total: total
+      }
     })
 
   } catch (error) {

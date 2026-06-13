@@ -98,12 +98,13 @@ const LoginModal = () => {
         // === 登录 ===
         const res = await login(username, password)
 
-        if (res.data.message === 'ok') {
-          // mock 返回 { token, uid }，兜底全存进 Cookie
-          // 【面试必考】Object.entries 把对象拆成 [key, value] 对
-          for (const [key, value] of Object.entries(res.data.data)) {
-            Cookies.set(key, value)
-          }
+        // 后端返回格式：{ code: 200, message: '登录成功', data: { token, uid } }
+        if (res.data.code === 200) {
+          // 存储 token 和 uid 到 Cookie
+          const { token, uid } = res.data.data
+          Cookies.set('token', token)
+          Cookies.set('uid', uid)
+          
           setMsg({ type: 'success', text: '登录成功，正在跳转...' })
           // 延迟 800ms 让用户看到成功提示再跳
           setTimeout(() => {
@@ -112,29 +113,33 @@ const LoginModal = () => {
             navigate('/user/profile')
           }, 800)
         } else {
-          setMsg({ type: 'error', text: '用户名或密码错误' })
+          setMsg({ type: 'error', text: res.data.message || '用户名或密码错误' })
         }
       } else {
         // === 注册 ===
-        await register(username, password)
+        const res = await register(username, password)
 
-        // 注册成功 → 直接调 login() 免去手动切回登录 tab
-        const res = await login(username, password)
-        if (res.data.message === 'ok') {
-          for (const [key, value] of Object.entries(res.data.data)) {
-            Cookies.set(key, value)
-          }
-          setMsg({ type: 'success', text: '注册成功，正在登录...' })
+        // 后端返回格式：{ code: 201, message: '注册成功', data: { token, uid } }
+        if (res.data.code === 201) {
+          // 注册成功，直接存储 token 和 uid（后端已返回）
+          const { token, uid } = res.data.data
+          Cookies.set('token', token)
+          Cookies.set('uid', uid)
+          
+          setMsg({ type: 'success', text: '注册成功，正在跳转...' })
           setTimeout(() => {
             setOpen(false)
             resetForm()
             navigate('/user/profile')
           }, 800)
+        } else {
+          setMsg({ type: 'error', text: res.data.message || '注册失败' })
         }
       }
-    } catch {
-      // 网络错误或 mock 未匹配
-      setMsg({ type: 'error', text: '请求失败，请重试' })
+    } catch (err) {
+      // 网络错误或后端返回错误
+      const errorMsg = err.response?.data?.message || '请求失败，请重试'
+      setMsg({ type: 'error', text: errorMsg })
     } finally {
       setLoading(false)
     }

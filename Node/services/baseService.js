@@ -11,10 +11,10 @@ const prisma = new PrismaClient()
  * 解析排序参数
  * 将前端排序参数（如 '-date'）转换为Prisma排序对象
  * @param {string} sort - 排序参数（如 '-date', 'viewCount'）
- * @param {string} defaultField - 默认排序字段（默认'createdAt'）
+ * @param {string} defaultField - 默认排序字段（默认'date'）
  * @returns {object} Prisma排序对象
  */
-const parseSortParam = (sort = '-createdAt', defaultField = 'createdAt') => {
+const parseSortParam = (sort = '-date', defaultField = 'date') => {
   let orderBy = {}
   
   if (!sort || sort === '') {
@@ -79,7 +79,7 @@ const formatDate = (date) => {
  * @param {object} config - 配置对象
  * @param {string} config.idField - 主键字段名（如 'vid', 'eid'）
  * @param {string} config.searchField - 搜索字段名（如 'title'）
- * @param {string} config.defaultSortField - 默认排序字段（默认'createdAt'）
+ * @param {string} config.defaultSortField - 默认排序字段（默认'date'）
  * @param {object} config.includeConfig - 关联查询配置
  * @param {function} config.transformFunction - 数据转换函数
  * @returns {object} 包含通用服务方法的对象
@@ -96,7 +96,7 @@ const createService = (modelName, config = {}) => {
   const {
     idField = 'id',
     searchField = 'title',
-    defaultSortField = 'createdAt',
+    defaultSortField = 'date',
     includeConfig = {},
     transformFunction = null
   } = config
@@ -130,9 +130,9 @@ const createService = (modelName, config = {}) => {
       // 构建查询条件
       const where = { ...extraWhere }
       if (q && searchField) {
+        // SQLite 不支持 mode: 'insensitive'，但 SQLite 的 contains 默认就是大小写不敏感的
         where[searchField] = {
-          contains: q,
-          mode: 'insensitive'
+          contains: q
         }
       }
       
@@ -258,7 +258,7 @@ const MODULE_CONFIG = {
     modelName: 'video',
     idField: 'vid',
     searchField: 'title',
-    defaultSortField: 'createdAt',
+    defaultSortField: 'date',
     includeConfig: {
       uploader: {
         select: {
@@ -281,7 +281,7 @@ const MODULE_CONFIG = {
     modelName: 'essay',
     idField: 'eid',
     searchField: 'title',
-    defaultSortField: 'createdAt',
+    defaultSortField: 'date',
     includeConfig: {
       uploader: {
         select: {
@@ -299,7 +299,7 @@ const MODULE_CONFIG = {
     modelName: 'post',
     idField: 'pid',
     searchField: 'text',  // Post的搜索字段是text
-    defaultSortField: 'createdAt',
+    defaultSortField: 'date',
     includeConfig: {
       uploader: {
         select: {
@@ -317,7 +317,7 @@ const MODULE_CONFIG = {
     modelName: 'comment',
     idField: 'cid',
     searchField: 'text',
-    defaultSortField: 'createdAt',
+    defaultSortField: 'date',
     includeConfig: {
       uploader: {
         select: {

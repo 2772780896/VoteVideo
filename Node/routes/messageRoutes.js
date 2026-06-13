@@ -11,19 +11,19 @@ const { needToken } = require('../middleware/authMiddleware')
 const messageController = require('../controllers/messageController')
 
 // --- SSE 端点：获取消息流（需要认证）---
-// GET /api/message/stream
+// GET /api/user/message/stream
 router.get('/stream', needToken, messageController.getMessageStream)
 
 // --- 发送私信（需要认证）---
-// POST /api/message/send
+// POST /api/user/message/send
 router.post('/send', needToken, messageController.sendMessage)
 
 // --- 获取对话列表（需要认证）---
-// GET /api/message/dialogues
+// GET /api/user/message/dialogues
 router.get('/dialogues', needToken, messageController.getDialogues)
 
 // --- 获取通知列表（需要认证）---
-// GET /api/message/notifications
+// GET /api/user/message/notifications
 router.get('/notifications', needToken, messageController.getNotifications)
 
 // 导出路由

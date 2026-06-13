@@ -53,15 +53,15 @@ const getCommentList = async (req, res) => {
     } = req.query
     
     // 转换排序参数（兼容前端格式）
-    let sortParam = '-createdAt'  // 默认按日期降序
+    let sortParam = '-date'  // 默认按日期降序
     if (sort === '1') {
       sortParam = '-likeCount'  // 按热度降序
     } else if (sort === '-1') {
       sortParam = 'likeCount'  // 按热度升序
     } else if (sort === 'date') {
-      sortParam = 'createdAt'
+      sortParam = 'date'
     } else if (sort === '-date') {
-      sortParam = '-createdAt'
+      sortParam = '-date'
     }
     
     // 调用服务层方法
@@ -72,11 +72,13 @@ const getCommentList = async (req, res) => {
       vid
     })
     
+    // 修改：返回前端期望的数据格式
     return res.status(200).json({
       code: 200,
-      message: '获取成功',
-      data: result.data,
-      total: result.total
+      data: {
+        items: result.data,
+        total: result.total
+      }
     })
     
   } catch (error) {

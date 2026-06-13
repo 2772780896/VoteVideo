@@ -10,7 +10,7 @@ import { fetchItem, fetchItemList } from '@/apis/content';
 const TagPage = () => {
   const { tid } = useParams()
   const { data: tagData, loading, error, refresh } = useData(fetchItem, 'tag', tid)
-  const tag = tagData?.data
+  const tag = tagData
 
   return (
     <div className="min-h-screen bg-white">

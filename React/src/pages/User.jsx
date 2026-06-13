@@ -15,7 +15,7 @@ const UserPage = () => {
   const { uid } = useParams()
   const navigate = useNavigate()
   const { data: userData, loading, error, refresh } = useData(fetchItem, 'user', uid)
-  const user = userData?.data
+  const user = userData
 
   const [active, setActive] = useState(0)
   const [isFollowing, setIsFollowing] = useState(false)

@@ -205,7 +205,7 @@ const getProfile = async (req, res) => {
         info: true,
         followerCount: true,
         followingCount: true,
-        createdAt: true
+        date: true
       }
     })
 

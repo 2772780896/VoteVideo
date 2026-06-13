@@ -38,7 +38,7 @@ const tabs = [
 
 const ProfilePage = () => {
   const { data: profileData, loading, error, refresh } = useData(getMyProfile)
-  const profile = profileData?.data
+  const profile = profileData
 
   const navigate = useNavigate()
   const location = useLocation()

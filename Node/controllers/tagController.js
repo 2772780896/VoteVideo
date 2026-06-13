@@ -59,11 +59,13 @@ const getTagList = async (req, res) => {
       q: ''  // Tag的搜索字段是tagName，但这里不需要搜索
     })
     
+    // 修改：返回前端期望的数据格式
     return res.status(200).json({
       code: 200,
-      message: '获取成功',
-      data: result.data,
-      total: result.total
+      data: {
+        items: result.data,
+        total: result.total
+      }
     })
     
   } catch (error) {

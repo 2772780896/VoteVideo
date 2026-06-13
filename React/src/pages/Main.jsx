@@ -79,8 +79,8 @@ const HomePage = () => {
     []
   )
 
-  const carouselUrlList = carouselData?.data
-  const mainVideoList = mainVideoData?.data
+  const carouselUrlList = carouselData?.items
+  const mainVideoList = mainVideoData?.items
 
   return (
     <div className="min-h-screen bg-white">
