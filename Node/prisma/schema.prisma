@@ -34,6 +34,7 @@ model User {
   dialogues1            Dialogue[]      @relation("DialogueParticipant1") // 作为参与者1的对话
   dialogues2            Dialogue[]      @relation("DialogueParticipant2") // 作为参与者2的对话
   favourites            UserFavourite[] // 收藏
+  likes                 UserLike[] // 点赞
   history               UserHistory[] // 历史记录
   following             UserFollowing[] @relation("Following") // 关注的人
   followers             UserFollowing[] @relation("Follower") // 粉丝
@@ -145,6 +146,17 @@ model Comment {
 model UserFavourite {
   uid     Int
   type    String // 'video', 'essay', 'post'
+  item_id Int
+  addDate DateTime @default(now())
+  user    User     @relation(fields: [uid], references: [uid])
+
+  @@id([uid, type, item_id])
+}
+
+// --- 用户点赞中间表 ---
+model UserLike {
+  uid     Int
+  type    String // 'video', 'essay', 'post', 'comment', 'tag'
   item_id Int
   addDate DateTime @default(now())
   user    User     @relation(fields: [uid], references: [uid])

@@ -1,0 +1,255 @@
+# TopMenu 及子组件修改总结
+
+## 修改背景
+
+项目前端需要支持用户登录状态判断，并根据登录状态在顶部菜单栏显示不同内容：
+- **未登录**：显示"登录"按钮
+- **已登录**：显示用户头像和下拉菜单（包含个人中心链接、退出登录等）
+
+## 修改方案
+
+采用 **Cookie + 回调通知** 的方案（暂不引入 React Context）：
+1. **Cookie 存储**：登录成功后，将 `token` 和 `uid` 存入 Cookie
+2. **状态判断**：TopMenu 组件根据 Cookie 中是否存在 `token` 判断登录状态
+3. **回调通知**：LoginModal 登录成功后，通过回调通知 TopMenu 更新状态
+
+## 修改内容
+
+### 1. 创建 `UserMenu.jsx`（新文件）
+
+**文件路径**：`React/src/components/common/UserMenu.jsx`
+
+**功能**：
+- 显示用户头像（从后端获取或占位图）
+- 点击头像打开下拉菜单
+- 下拉菜单包含：
+  - 用户名
+  - 粉丝数
+  - "个人中心"链接（跳转到 `/user/profile`）
+  - "退出登录"按钮（清除 Cookie 并刷新页面）
+
+**关键实现**：
+- 使用 `useData(getMyProfile)` 获取当前用户信息
+- 使用 `Cookies.get('uid')` 获取当前用户 ID
+- 退出登录时清除 `token` 和 `uid` Cookie，并调用 `window.location.reload()`
+
+**代码示例**：
+```jsx
+import { Link, useNavigate } from 'react-router-dom'
+import Cookies from 'js-cookie'
+import { getMyProfile } from '@/apis/account'
+import { useData } from '@/hooks/useData'
+
+const UserMenu = () => {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const { data: profile } = useData(getMyProfile)
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    Cookies.remove('token')
+    Cookies.remove('uid')
+    window.location.reload()
+  }
+
+  return (
+    <div className="relative">
+      {/* 头像按钮 */}
+      <img src={profile?.profilePictureUrl || 'https://picsum.photos/seed/avatar/200'} />
+      
+      {/* 下拉菜单 */}
+      {menuOpen && (
+        <div className="absolute right-0 top-10 w-48 bg-gray-800 rounded-lg shadow-xl py-2 z-50">
+          <Link to="/user/profile">个人中心</Link>
+          <button onClick={handleLogout}>退出登录</button>
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+---
+
+### 2. 修改 `TopMenu.jsx`
+
+**文件路径**：`React/src/components/common/TopMenu.jsx`
+
+**修改内容**：
+
+#### 2.1 添加状态和方法
+```jsx
+import Cookies from 'js-cookie'
+import UserMenu from './UserMenu'
+
+// 根据 Cookie 中的 token 判断登录状态
+const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get('token'))
+
+// 登录成功回调
+const handleLoginSuccess = () => {
+  setIsLoggedIn(true)
+}
+```
+
+#### 2.2 修改渲染逻辑
+```jsx
+{/* 根据登录状态显示不同内容 */}
+{isLoggedIn ? <UserMenu /> : <LoginModalApp onLoginSuccess={handleLoginSuccess} />}
+```
+
+**效果**：
+- `isLoggedIn` 为 `true` → 显示 `UserMenu` 组件
+- `isLoggedIn` 为 `false` → 显示 `LoginModal` 组件
+
+---
+
+### 3. 修改 `LoginModal.jsx`
+
+**文件路径**：`React/src/components/common/LoginModal.jsx`
+
+**修改内容**：
+
+#### 3.1 添加属性
+```jsx
+const LoginModal = ({ onLoginSuccess }) => {
+  // ...
+}
+```
+
+#### 3.2 登录/注册成功后调用回调
+```jsx
+// 登录成功
+if (res.data.code === 200) {
+  const { token, uid } = res.data.data
+  Cookies.set('token', token)
+  Cookies.set('uid', uid)
+  
+  setMsg({ type: 'success', text: '登录成功，正在跳转...' })
+  setTimeout(() => {
+    setOpen(false)
+    resetForm()
+    // 通知父组件登录成功
+    if (onLoginSuccess) onLoginSuccess()
+    navigate('/user/profile')
+  }, 800)
+}
+
+// 注册成功
+if (res.data.code === 201) {
+  const { token, uid } = res.data.data
+  Cookies.set('token', token)
+  Cookies.set('uid', uid)
+  
+  setMsg({ type: 'success', text: '注册成功，正在跳转...' })
+  setTimeout(() => {
+    setOpen(false)
+    resetForm()
+    // 通知父组件登录成功
+    if (onLoginSuccess) onLoginSuccess()
+    navigate('/user/profile')
+  }, 800)
+}
+```
+
+---
+
+## 文件清单
+
+| 文件 | 操作 | 说明 |
+|------|------|------|
+| `React/src/components/common/UserMenu.jsx` | 新建 | 用户头像菜单组件 |
+| `React/src/components/common/TopMenu.jsx` | 修改 | 根据登录状态显示不同内容 |
+| `React/src/components/common/LoginModal.jsx` | 修改 | 添加 `onLoginSuccess` 回调 |
+
+---
+
+## 数据流
+
+```
+1. 用户点击"登录"按钮 → 打开 LoginModal
+2. 用户输入账号密码 → 点击"登录"
+3. 后端验证成功 → 返回 token 和 uid
+4. 前端存储 token 和 uid 到 Cookie
+5. 调用 onLoginSuccess() 回调 → TopMenu 更新 isLoggedIn 状态
+6. TopMenu 重新渲染 → 显示 UserMenu
+7. UserMenu 加载用户信息 → 显示头像和下拉菜单
+```
+
+---
+
+## 测试步骤
+
+### 1. 启动项目
+```bash
+# 启动后端
+cd Node
+node index.js
+
+# 启动前端
+cd React
+npm run dev
+```
+
+### 2. 测试未登录状态
+- 打开首页
+- **预期**：TopMenu 右侧显示"登录"按钮
+
+### 3. 测试登录功能
+- 点击"登录"按钮
+- 输入测试账号：`testuser` / `123456`
+- 点击"登录"
+- **预期**：
+  1. 弹窗显示"登录成功，正在跳转..."
+  2. 800ms 后弹窗关闭
+  3. TopMenu 右侧显示用户头像（而非"登录"按钮）
+
+### 4. 测试用户菜单
+- 点击用户头像
+- **预期**：下拉菜单打开，显示用户名、粉丝数、"个人中心"链接、"退出登录"按钮
+
+### 5. 测试个人中心链接
+- 点击"个人中心"
+- **预期**：跳转到 `/user/profile` 页面
+
+### 6. 测试退出登录
+- 点击"退出登录"
+- **预期**：
+  1. Cookie 中的 `token` 和 `uid` 被清除
+  2. 页面刷新
+  3. TopMenu 右侧显示"登录"按钮
+
+---
+
+## 注意事项
+
+### 1. 依赖安装
+确保前端项目已安装 `js-cookie`：
+```bash
+cd React
+npm install js-cookie
+```
+
+### 2. 后端接口
+`UserMenu` 组件依赖后端接口 `GET /api/user/profile`，确保该接口正常工作。
+
+### 3. 样式调整
+当前 `UserMenu` 使用基础样式，后续可根据设计需求调整：
+- 头像大小和形状
+- 下拉菜单的动画效果
+- 菜单项的 hover 效果
+
+### 4. 后续优化建议
+- **引入 React Context**：避免 Cookie 读取和回调传递，提升状态管理效率
+- **用户信息缓存**：避免每次刷新都请求用户信息
+- **路由守卫**：未登录用户访问需要登录的页面时，自动跳转登录页
+
+---
+
+## 相关文档
+
+- [测试数据生成说明](../../Node/记录/测试数据生成说明.md)
+- [前端 API 封装说明](./前端API封装说明.md)（待创建）
+
+---
+
+**修改时间**：2026-06-13
+**修改人**：AI Assistant

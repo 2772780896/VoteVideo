@@ -13,8 +13,11 @@ const like = async (req, res) => {
     // 从路由参数获取资源类型和 ID
     const { type, id } = req.params
 
-    // 调用服务层
-    const result = await interactService.toggleLike(type, id, req.method)
+    // 从 req.user 获取用户信息（由 needToken 中间件设置）
+    const { uid } = req.user
+
+    // 调用服务层（传递 uid）
+    const result = await interactService.toggleLike(uid, type, id, req.method)
 
     // 返回成功响应
     return res.status(200).json({
@@ -24,6 +27,24 @@ const like = async (req, res) => {
     })
 
   } catch (error) {
+    // Prisma 错误：记录已存在（点赞时）
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        code: 400,
+        message: '已经点赞过了',
+        data: null
+      })
+    }
+
+    // Prisma 错误：记录不存在（取消点赞时）
+    if (error.code === 'P2025') {
+      return res.status(400).json({
+        code: 400,
+        message: '还没有点赞',
+        data: null
+      })
+    }
+
     // 资源不存在
     if (error.message.includes('不存在')) {
       return res.status(404).json({

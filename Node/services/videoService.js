@@ -9,17 +9,65 @@ const prisma = new PrismaClient()
 // ==================== 数据格式转换函数 ====================
 
 /**
+ * 查询用户对视频列表的交互状态
+ * @param {Array} videoIds - 视频ID数组
+ * @param {number} currentUid - 当前用户ID
+ * @returns {Promise<object>} 交互状态映射 { vid: { isLiked: boolean, isFavourited: boolean } }
+ */
+const checkVideoInteractions = async (videoIds, currentUid) => {
+  if (!currentUid || !videoIds || videoIds.length === 0) {
+    return {}
+  }
+  
+  // 查询用户的点赞记录
+  const likes = await prisma.userLike.findMany({
+    where: {
+      uid: currentUid,
+      type: 'video',
+      item_id: { in: videoIds }
+    },
+    select: { item_id: true }
+  })
+  
+  // 查询用户的收藏记录
+  const favourites = await prisma.userFavourite.findMany({
+    where: {
+      uid: currentUid,
+      type: 'video',
+      item_id: { in: videoIds }
+    },
+    select: { item_id: true }
+  })
+  
+  // 构建交互状态映射
+  const likeSet = new Set(likes.map(like => like.item_id))
+  const favouritesSet = new Set(favourites.map(fav => fav.item_id))
+  
+  const interactionMap = {}
+  videoIds.forEach(vid => {
+    interactionMap[vid] = {
+      isLiked: likeSet.has(vid),
+      isFavourited: favouritesSet.has(vid)
+    }
+  })
+  
+  return interactionMap
+}
+
+/**
  * 转换视频数据为前端格式
  * @param {object} video - 数据库视频对象
  * @param {object} options - 转换选项
  * @param {boolean} options.includeVideoUrl - 是否包含视频URL
  * @param {boolean} options.includeTags - 是否包含标签列表
+ * @param {number} options.currentUid - 当前用户ID（用于检查是否已点赞/收藏）
  * @returns {object} 前端需要的视频对象格式
  */
 const transformVideoData = (video, options = {}) => {
   const {
     includeVideoUrl = false,
-    includeTags = true
+    includeTags = true,
+    currentUid = null
   } = options
   
   // 基础视频信息
@@ -28,9 +76,12 @@ const transformVideoData = (video, options = {}) => {
     coverUrl: video.coverUrl,
     title: video.title,
     viewCount: formatCount(video.viewCount),
-    commentCount: formatCount(video.commentCount), // 修改：messageCount -> commentCount
+    commentCount: formatCount(video.commentCount),
     duration: video.duration,
-    date: formatDate(video.date)
+    date: formatDate(video.date),
+    // 检查当前用户是否已点赞/收藏
+    isLiked: currentUid ? video.likes?.some(like => like.uid === currentUid) || false : false,
+    isFavourited: currentUid ? video.favourites?.some(fav => fav.uid === currentUid) || false : false
   }
   
   // 详情页需要视频URL
@@ -105,25 +156,35 @@ const getCarouselData = async (number = 5) => {
 /**
  * 获取视频详情数据（增加播放量逻辑）
  * @param {number} vid - 视频ID
+ * @param {number} currentUid - 当前用户ID（用于检查是否已点赞/收藏）
  * @returns {Promise<object>} 视频详情数据
  */
-const getVideoDetailData = async (vid) => {
-  const video = await baseService.getItemData(vid, { throwIfNotFound: true })
-  
-  // 增加播放量
+const getVideoDetailData = async (vid, currentUid = null) => {
+  // 增加播放量（使用 increment 原子操作，避免读取格式化后的 viewCount）
   await prisma.video.update({
     where: { vid: parseInt(vid) },
-    data: { viewCount: video.viewCount + 1 }
+    data: { viewCount: { increment: 1 } }
+  })
+  
+  // 重新读取更新后的视频数据
+  const video = await baseService.getItemData(vid, { 
+    throwIfNotFound: true
   })
   
   // 转换数据（详情页需要videoUrl）
   const videoItem = transformVideoData(video, { 
     includeVideoUrl: true, 
-    includeTags: true 
+    includeTags: true
   })
   
-  // 注意：播放量已经+1，需要重新格式化
-  videoItem.viewCount = formatCount(video.viewCount + 1)
+  // 如果已登录，查询交互状态并添加到返回数据
+  if (currentUid) {
+    const interactionMap = await checkVideoInteractions([parseInt(vid)], currentUid)
+    if (interactionMap[vid]) {
+      videoItem.isLiked = interactionMap[vid].isLiked
+      videoItem.isFavourited = interactionMap[vid].isFavourited
+    }
+  }
   
   return videoItem
 }
@@ -135,6 +196,7 @@ const getVideoDetailData = async (vid) => {
  * @param {string} options.sort - 排序参数
  * @param {number} options.page - 页码
  * @param {number} options.element - 每页数量
+ * @param {number} options.currentUid - 当前用户ID（用于检查是否已点赞/收藏）
  * @returns {Promise<object>} 包含相关视频列表和总数的对象
  */
 const getRelatedVideosData = async (options = {}) => {
@@ -142,7 +204,8 @@ const getRelatedVideosData = async (options = {}) => {
     vid,
     sort = '-date',
     page = 1,
-    element = 5
+    element = 5,
+    currentUid = null
   } = options
   
   const { skip, take } = parsePagination(page, element)
@@ -167,6 +230,16 @@ const getRelatedVideosData = async (options = {}) => {
             username: true,
             profilePictureUrl: true
           }
+        },
+        likes: {
+          select: {
+            uid: true
+          }
+        },
+        favourites: {
+          select: {
+            uid: true
+          }
         }
       }
     }),
@@ -174,7 +247,7 @@ const getRelatedVideosData = async (options = {}) => {
   ])
   
   const videoItems = videos.map(video => 
-    transformVideoData(video, { includeTags: false })
+    transformVideoData(video, { includeTags: false, currentUid })
   )
   
   return {
@@ -197,5 +270,8 @@ module.exports = {
   
   // 数据格式转换函数
   transformVideoData,
-  transformToCarouselItems
+  transformToCarouselItems,
+  
+  // 交互状态查询函数
+  checkVideoInteractions
 }

@@ -70,6 +70,9 @@ const getVideoList = async (req, res) => {
       q = ''
     } = req.query
     
+    // 获取当前用户ID（如果已登录）
+    const currentUid = req.user?.uid || null
+    
     // 调用服务层方法
     const result = await videoService.getVideoListData({
       page,
@@ -77,6 +80,19 @@ const getVideoList = async (req, res) => {
       sort,
       q
     })
+    
+    // 如果已登录，查询交互状态并添加到返回数据
+    if (currentUid && result.data && result.data.length > 0) {
+      const videoIds = result.data.map(video => video.vid)
+      const interactionMap = await videoService.checkVideoInteractions(videoIds, currentUid)
+      
+      // 将交互状态添加到视频数据
+      result.data = result.data.map(video => ({
+        ...video,
+        isLiked: interactionMap[video.vid]?.isLiked || false,
+        isFavourited: interactionMap[video.vid]?.isFavourited || false
+      }))
+    }
     
     // 修改：返回前端期望的数据格式
     return res.status(200).json({
@@ -100,8 +116,11 @@ const getVideoDetail = async (req, res) => {
   try {
     const vid = parseInt(req.params.vid)
     
+    // 获取当前用户ID（如果已登录）
+    const currentUid = req.user?.uid || null
+    
     // 调用服务层方法
-    const videoItem = await videoService.getVideoDetailData(vid)
+    const videoItem = await videoService.getVideoDetailData(vid, currentUid)
     
     return sendSuccessResponse(res, videoItem)
     
@@ -132,6 +151,9 @@ const getRelatedVideos = async (req, res) => {
       element = 5
     } = req.query
     
+    // 获取当前用户ID（如果已登录）
+    const currentUid = req.user?.uid || null
+    
     // 调用服务层方法
     const result = await videoService.getRelatedVideosData({
       vid,
@@ -139,6 +161,19 @@ const getRelatedVideos = async (req, res) => {
       page,
       element
     })
+    
+    // 如果已登录，查询交互状态并添加到返回数据
+    if (currentUid && result.data && result.data.length > 0) {
+      const videoIds = result.data.map(video => video.vid)
+      const interactionMap = await videoService.checkVideoInteractions(videoIds, currentUid)
+      
+      // 将交互状态添加到视频数据
+      result.data = result.data.map(video => ({
+        ...video,
+        isLiked: interactionMap[video.vid]?.isLiked || false,
+        isFavourited: interactionMap[video.vid]?.isFavourited || false
+      }))
+    }
     
     // 修改：返回前端期望的数据格式
     return res.status(200).json({

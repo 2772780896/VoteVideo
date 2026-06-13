@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import LoginModalApp from '@/components/common/LoginModal'
+import UserMenu from '@/components/common/UserMenu'
+import Cookies from 'js-cookie'
 
 const navLinks = [
   { to: '/',    label: '首页' },
@@ -20,6 +22,14 @@ const App = () => {
     if (q) navigate(`/search?q=${encodeURIComponent(q)}&tab=videos`)
     else navigate('/search')
     setKeyword('')
+  }
+
+  // 根据 Cookie 中的 token 判断登录状态
+  const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get('token'))
+
+  // 登录成功回调
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true)
   }
 
   return (
@@ -47,7 +57,7 @@ const App = () => {
           ))}
         </div>
 
-        {/* 右侧：搜索 + 登录 */}
+        {/* 右侧：搜索 + 登录/用户菜单 */}
         <div className="flex items-center gap-3">
           {/* 搜索输入框 — 手输回车跳转 Search 页 */}
           <input
@@ -60,7 +70,8 @@ const App = () => {
               text-gray-200 placeholder-gray-500
               focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           />
-          <LoginModalApp />
+          {/* 根据登录状态显示不同内容 */}
+          {isLoggedIn ? <UserMenu /> : <LoginModalApp onLoginSuccess={handleLoginSuccess} />}
         </div>
       </div>
     </nav>

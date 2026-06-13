@@ -58,7 +58,7 @@ import Cookies from 'js-cookie'
  *   loading  — 提交中禁用按钮 + 显示"处理中..."
  * ==================================================================== */
 
-const LoginModal = () => {
+const LoginModal = ({ onLoginSuccess }) => {
   // ── 弹窗开关 ──
   const [open, setOpen] = useState(false)
 
@@ -110,6 +110,8 @@ const LoginModal = () => {
           setTimeout(() => {
             setOpen(false)
             resetForm()
+            // 通知父组件登录成功
+            if (onLoginSuccess) onLoginSuccess()
             navigate('/user/profile')
           }, 800)
         } else {
@@ -130,6 +132,8 @@ const LoginModal = () => {
           setTimeout(() => {
             setOpen(false)
             resetForm()
+            // 通知父组件登录成功
+            if (onLoginSuccess) onLoginSuccess()
             navigate('/user/profile')
           }, 800)
         } else {

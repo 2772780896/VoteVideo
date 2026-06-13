@@ -112,6 +112,7 @@ const createService = (modelName, config = {}) => {
      * @param {string} options.q - 搜索关键词
      * @param {object} options.where - 额外查询条件
      * @param {object} options.include - 关联查询配置（覆盖默认配置）
+     * @param {number} options.currentUid - 当前用户ID（用于检查是否已点赞/收藏）
      * @returns {Promise<object>} 包含数据和总数的对象
      */
     async getListData(options = {}) {
@@ -121,7 +122,8 @@ const createService = (modelName, config = {}) => {
         sort = `-${defaultSortField}`,
         q = '',
         where: extraWhere = {},
-        include: overrideInclude = null
+        include: overrideInclude = null,
+        currentUid = null
       } = options
       
       const { skip, take } = parsePagination(page, element)
@@ -154,7 +156,14 @@ const createService = (modelName, config = {}) => {
       // 数据转换
       let transformedItems = items
       if (transformFunction) {
-        transformedItems = items.map(item => transformFunction(item))
+        // 如果 transformFunction 接受第二个参数（options），则传递 currentUid
+        transformedItems = items.map(item => {
+          if (transformFunction.length >= 2) {
+            return transformFunction(item, { currentUid })
+          } else {
+            return transformFunction(item)
+          }
+        })
       }
       
       return {
@@ -169,12 +178,14 @@ const createService = (modelName, config = {}) => {
      * @param {object} options - 查询选项
      * @param {object} options.include - 关联查询配置（覆盖默认配置）
      * @param {boolean} options.throwIfNotFound - 不存在时是否抛出异常
+     * @param {number} options.currentUid - 当前用户ID（用于检查是否已点赞/收藏）
      * @returns {Promise<object|null>} 数据对象或null
      */
     async getItemData(id, options = {}) {
       const {
         include: overrideInclude = null,
-        throwIfNotFound = false
+        throwIfNotFound = false,
+        currentUid = null
       } = options
       
       // 确定关联查询配置
@@ -193,7 +204,12 @@ const createService = (modelName, config = {}) => {
       
       // 数据转换
       if (item && transformFunction) {
-        return transformFunction(item)
+        // 如果 transformFunction 接受第二个参数（options），则传递 currentUid
+        if (transformFunction.length >= 2) {
+          return transformFunction(item, { currentUid })
+        } else {
+          return transformFunction(item)
+        }
       }
       
       return item

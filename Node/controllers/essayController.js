@@ -52,6 +52,9 @@ const getEssayList = async (req, res) => {
       q = ''
     } = req.query
     
+    // 获取当前用户ID（如果已登录）
+    const currentUid = req.user?.uid || null
+    
     // 调用服务层方法
     const result = await essayService.getEssayListData({
       page,
@@ -59,6 +62,19 @@ const getEssayList = async (req, res) => {
       sort,
       q
     })
+    
+    // 如果已登录，查询交互状态并添加到返回数据
+    if (currentUid && result.data && result.data.length > 0) {
+      const essayIds = result.data.map(essay => essay.eid)
+      const interactionMap = await essayService.checkEssayInteractions(essayIds, currentUid)
+      
+      // 将交互状态添加到文章数据
+      result.data = result.data.map(essay => ({
+        ...essay,
+        isLiked: interactionMap[essay.eid]?.isLiked || false,
+        isFavourited: interactionMap[essay.eid]?.isFavourited || false
+      }))
+    }
     
     // 修改：返回前端期望的数据格式
     return res.status(200).json({
@@ -82,8 +98,11 @@ const getEssayDetail = async (req, res) => {
   try {
     const eid = parseInt(req.params.eid)
     
+    // 获取当前用户ID（如果已登录）
+    const currentUid = req.user?.uid || null
+    
     // 调用服务层方法
-    const essayItem = await essayService.getEssayDetailData(eid)
+    const essayItem = await essayService.getEssayDetailData(eid, currentUid)
     
     return sendSuccessResponse(res, essayItem)
     

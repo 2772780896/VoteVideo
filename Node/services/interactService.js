@@ -70,10 +70,10 @@ async function findResource(type, id) {
 }
 
 // --- 通用的点赞/取消点赞函数 ---
-// 参数：type (资源类型), id (资源ID), method (HTTP方法: 'POST' 或 'DELETE')
+// 参数：uid (用户ID), type (资源类型), id (资源ID), method (HTTP方法: 'POST' 或 'DELETE')
 // 返回：更新后的资源对象
-// 用途：更新资源的 likeCount 字段
-async function toggleLike(type, id, method) {
+// 用途：更新资源的 likeCount 字段，并记录用户点赞记录到 UserLike 表
+async function toggleLike(uid, type, id, method) {
   // 1. 查询资源是否存在
   const resource = await findResource(type, id)
 
@@ -83,17 +83,46 @@ async function toggleLike(type, id, method) {
     throw new Error(`${config.name}不支持点赞`)
   }
 
-  // 3. 计算增量（POST = 点赞 = +1, DELETE = 取消点赞 = -1）
-  const increment = method === 'POST' ? 1 : -1
+  // 3. 根据 HTTP 方法执行点赞或取消点赞
+  if (method === 'POST') {
+    // 点赞：插入记录到 UserLike 表
+    await prisma.userLike.create({
+      data: {
+        uid: uid,
+        type: type,
+        item_id: parseInt(id)
+      }
+    })
 
-  // 4. 更新点赞数
-  const model = prisma[config.model]
-  const updated = await model.update({
-    where: { [config.idField]: parseInt(id) },
-    data: { likeCount: { increment: increment } }
-  })
+    // 更新资源的 likeCount
+    const model = prisma[config.model]
+    const updated = await model.update({
+      where: { [config.idField]: parseInt(id) },
+      data: { likeCount: { increment: 1 } }
+    })
 
-  return updated
+    return updated
+  } else {
+    // 取消点赞：删除记录从 UserLike 表
+    await prisma.userLike.delete({
+      where: {
+        uid_type_item_id: {
+          uid: uid,
+          type: type,
+          item_id: parseInt(id)
+        }
+      }
+    })
+
+    // 更新资源的 likeCount
+    const model = prisma[config.model]
+    const updated = await model.update({
+      where: { [config.idField]: parseInt(id) },
+      data: { likeCount: { decrement: 1 } }
+    })
+
+    return updated
+  }
 }
 
 // --- 通用的收藏/取消收藏函数 ---
