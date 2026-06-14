@@ -132,13 +132,11 @@ const searchUser = async (req, res) => {
 
 // --- 获取当前用户 Profile ---
 // GET /api/user/profile
-// 需要认证（Token）
+// 需要认证（Token）— 由 optionalAuth 中间件设置 req.user
 const getProfile = async (req, res) => {
   try {
-    // 从 Authorization Header 读取 Token
-    const authHeader = req.headers.authorization
-
-    if (!authHeader) {
+    // optionalAuth 已解析 Token 并设置 req.user
+    if (!req.user) {
       return res.status(401).json({
         code: 401,
         message: '请先登录',
@@ -146,17 +144,9 @@ const getProfile = async (req, res) => {
       })
     }
 
-    // 去掉 "Bearer " 前缀
-    const token = authHeader.split(' ')[1]
-
-    // 验证 Token
-    const jwt = require('jsonwebtoken')
-    const JWT_SECRET = process.env.JWT_SECRET
-    const decoded = jwt.verify(token, JWT_SECRET)
-
     // 根据 Token 中的 uid 查询用户
     const user = await prisma.user.findUnique({
-      where: { uid: decoded.uid },
+      where: { uid: req.user.uid },
       select: {
         uid: true,
         username: true,
@@ -176,22 +166,22 @@ const getProfile = async (req, res) => {
       })
     }
 
+    // 返回前端期望的格式（注意：username → userName）
     return res.status(200).json({
       code: 200,
       message: '获取成功',
-      data: user
+      data: {
+        uid: user.uid,
+        userName: user.username,
+        profilePictureUrl: user.profilePictureUrl,
+        info: user.info,
+        followerCount: user.followerCount,
+        followingCount: user.followingCount,
+        date: user.date
+      }
     })
 
   } catch (error) {
-    // Token 无效或过期
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        code: 401,
-        message: 'Token 无效或已过期',
-        data: null
-      })
-    }
-
     console.error('获取用户信息错误:', error)
     return res.status(500).json({
       code: 500,
@@ -203,8 +193,8 @@ const getProfile = async (req, res) => {
 
 // --- 获取 Profile 子数据 ---
 // GET /api/user/profile/:profileType/:dataType?sort=..&page=..&element=..
-// profileType: uploads（投稿）/ favourites（收藏）/ history（历史）
-// dataType: videos / posts / essays
+// profileType: uploads（投稿）/ favourites（收藏）/ history（历史）/ follow / message
+// dataType: videos / posts / essays / followingList / dialogueList / notificationList
 const getProfileSubdata = async (req, res) => {
   try {
     // 从路由参数获取 profileType 和 dataType
@@ -217,20 +207,20 @@ const getProfileSubdata = async (req, res) => {
       sort = '-date'
     } = req.query
 
-    // 验证 Token
-    const authHeader = req.headers.authorization
-    if (!authHeader) {
+    // needToken 中间件已验证 Token 并设置 req.user
+    if (!req.user) {
       return res.status(401).json({
         code: 401,
         message: '请先登录',
         data: null
       })
     }
+    const currentUid = req.user.uid
 
-    const token = authHeader.split(' ')[1]
-    const jwt = require('jsonwebtoken')
-    const JWT_SECRET = process.env.JWT_SECRET
-    const decoded = jwt.verify(token, JWT_SECRET)
+    // 前端传 dataType 为复数形式（videos/posts/essays），
+    // 但数据库中 type 字段存储的是单数形式（video/post/essay）
+    const typeMap = { videos: 'video', posts: 'post', essays: 'essay' }
+    const dbType = typeMap[dataType] || dataType
 
     // 根据 profileType 和 dataType 查询数据
     let data = []
@@ -240,7 +230,7 @@ const getProfileSubdata = async (req, res) => {
       // 用户投稿
       if (dataType === 'videos') {
         const result = await prisma.video.findMany({
-          where: { uploader_uid: decoded.uid },
+          where: { uploader_uid: currentUid },
           orderBy: { date: 'desc' },
           skip: (parseInt(page) - 1) * parseInt(element),
           take: parseInt(element),
@@ -254,7 +244,7 @@ const getProfileSubdata = async (req, res) => {
             }
           }
         })
-        total = await prisma.video.count({ where: { uploader_uid: decoded.uid } })
+        total = await prisma.video.count({ where: { uploader_uid: currentUid } })
         data = result.map(video => ({
           vid: video.vid,
           coverUrl: video.coverUrl,
@@ -271,7 +261,7 @@ const getProfileSubdata = async (req, res) => {
         }))
       } else if (dataType === 'posts') {
         const result = await prisma.post.findMany({
-          where: { uploader_uid: decoded.uid },
+          where: { uploader_uid: currentUid },
           orderBy: { date: 'desc' },
           skip: (parseInt(page) - 1) * parseInt(element),
           take: parseInt(element),
@@ -285,7 +275,7 @@ const getProfileSubdata = async (req, res) => {
             }
           }
         })
-        total = await prisma.post.count({ where: { uploader_uid: decoded.uid } })
+        total = await prisma.post.count({ where: { uploader_uid: currentUid } })
         data = result.map(post => ({
           pid: post.pid,
           text: post.text,
@@ -303,7 +293,7 @@ const getProfileSubdata = async (req, res) => {
         }))
       } else if (dataType === 'essays') {
         const result = await prisma.essay.findMany({
-          where: { uploader_uid: decoded.uid },
+          where: { uploader_uid: currentUid },
           orderBy: { date: 'desc' },
           skip: (parseInt(page) - 1) * parseInt(element),
           take: parseInt(element),
@@ -317,7 +307,7 @@ const getProfileSubdata = async (req, res) => {
             }
           }
         })
-        total = await prisma.essay.count({ where: { uploader_uid: decoded.uid } })
+        total = await prisma.essay.count({ where: { uploader_uid: currentUid } })
         data = result.map(essay => ({
           eid: essay.eid,
           title: essay.title,
@@ -336,14 +326,15 @@ const getProfileSubdata = async (req, res) => {
       }
     } else if (profileType === 'favourites') {
       // 用户收藏 - 关联查询实际内容数据
+      // 注意：dbType 是单数形式（video/post/essay），匹配数据库存储格式
       const favourites = await prisma.userFavourite.findMany({
-        where: { uid: decoded.uid, type: dataType },
+        where: { uid: currentUid, type: dbType },
         orderBy: { addDate: 'desc' },
         skip: (parseInt(page) - 1) * parseInt(element),
         take: parseInt(element)
       })
       total = await prisma.userFavourite.count({
-        where: { uid: decoded.uid, type: dataType }
+        where: { uid: currentUid, type: dbType }
       })
       const itemIds = favourites.map(f => f.item_id)
       if (itemIds.length > 0) {
@@ -388,14 +379,15 @@ const getProfileSubdata = async (req, res) => {
       }
     } else if (profileType === 'history') {
       // 用户历史 - 关联查询实际内容数据
+      // 注意：dbType 是单数形式（video/post/essay），匹配数据库存储格式
       const histories = await prisma.userHistory.findMany({
-        where: { uid: decoded.uid, type: dataType },
+        where: { uid: currentUid, type: dbType },
         orderBy: { addDate: 'desc' },
         skip: (parseInt(page) - 1) * parseInt(element),
         take: parseInt(element)
       })
       total = await prisma.userHistory.count({
-        where: { uid: decoded.uid, type: dataType }
+        where: { uid: currentUid, type: dbType }
       })
       const itemIds = histories.map(h => h.item_id)
       if (itemIds.length > 0) {
@@ -442,7 +434,7 @@ const getProfileSubdata = async (req, res) => {
       // 关注列表
       if (dataType === 'followingList') {
         const followings = await prisma.userFollowing.findMany({
-          where: { uid: decoded.uid },
+          where: { uid: currentUid },
           skip: (parseInt(page) - 1) * parseInt(element),
           take: parseInt(element),
           include: {
@@ -457,7 +449,7 @@ const getProfileSubdata = async (req, res) => {
           }
         })
         total = await prisma.userFollowing.count({
-          where: { uid: decoded.uid }
+          where: { uid: currentUid }
         })
         data = followings.map(f => ({
           uid: f.following.uid,
@@ -470,10 +462,10 @@ const getProfileSubdata = async (req, res) => {
       // 消息相关 - 委托给 messageService
       const messageService = require('../services/messageService')
       if (dataType === 'dialogueList') {
-        data = await messageService.getDialogues(decoded.uid)
+        data = await messageService.getDialogues(currentUid)
         total = data.length
       } else if (dataType === 'notificationList') {
-        data = await messageService.getNotifications(decoded.uid)
+        data = await messageService.getNotifications(currentUid)
         total = data.length
       }
     }

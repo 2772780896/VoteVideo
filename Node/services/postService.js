@@ -62,8 +62,8 @@ const transformPostData = (post, options = {}) => {
     favouriteCount: post.favouriteCount !== undefined ? post.favouriteCount : 0,
     reshareCount: post.reshareCount !== undefined ? post.reshareCount : 0,
     date: formatDate(post.date),
-    // 检查当前用户是否已点赞
-    isLiked: currentUid ? post.likes?.some(like => like.uid === currentUid) || false : false,
+    // 交互状态默认为 false，由 checkPostInteractions 单独查询后覆盖
+    isLiked: false,
     isFavourited: false,
     isReshared: false
   }

@@ -130,7 +130,7 @@ const ProfileMessage = ({ targetUser }) => {
     setChatMessages(prev => [...prev, msg])
     // ② 后台发请求
     try {
-      await sendMessage(chatDialogue.mid, text)
+      await sendMessage(chatDialogue.mid, text, chatDialogue.opponent?.uid)
     } catch {
       // TODO: 失败标记（当前静默）
     }

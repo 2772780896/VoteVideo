@@ -43,6 +43,9 @@ async function sendMessage(senderUid, receiverUid, text, dialogueMid = null) {
   if (!text) {
     throw new Error('消息内容不能为空')
   }
+  if (!dialogueMid && !receiverUid) {
+    throw new Error('必须指定对话ID或接收者ID')
+  }
 
   // 1. 查找或创建对话
   let dialogue = null

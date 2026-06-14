@@ -4,6 +4,10 @@ const express = require('express')
 const router = express.Router()
 
 const videoController = require('../controllers/videoController')
+const { optionalAuth } = require('../middleware/authMiddleware')
+
+// 可选认证：解码 JWT（如果存在），使已登录用户获得交互状态
+router.use(optionalAuth)
 
 // --- 视频列表（默认） ---
 // GET /api/video?page=1&element=16&sort=-date&q=搜索词

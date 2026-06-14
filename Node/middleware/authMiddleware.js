@@ -73,6 +73,34 @@ const needToken = (req, res, next) => {
   }
 }
 
+// 可选认证中间件
+// 用法：在内容浏览类路由上使用 router.use(optionalAuth)
+// 如果请求携带有效 Token，则解析并将用户信息放到 req.user 中
+// 如果没有 Token 或 Token 无效，则静默跳过（不阻断请求）
+// 这样内容路由对匿名访客和登录用户都能正常响应
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization
+
+  if (!authHeader) {
+    return next()
+  }
+
+  const token = authHeader.split(' ')[1]
+  if (!token) {
+    return next()
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET)
+    req.user = decoded
+  } catch (error) {
+    // Token 无效或过期 → 静默忽略，当作未登录处理
+  }
+
+  next()
+}
+
 module.exports = {
-  needToken
+  needToken,
+  optionalAuth
 }

@@ -60,7 +60,8 @@ const getEssayList = async (req, res) => {
       page,
       element,
       sort,
-      q
+      q,
+      currentUid
     })
     
     // 如果已登录，查询交互状态并添加到返回数据

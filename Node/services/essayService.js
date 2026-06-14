@@ -2,6 +2,8 @@
 // 职责：封装数据库操作、业务逻辑、数据格式转换
 
 const { createService, MODULE_CONFIG, formatCount, formatDate } = require('./baseService')
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
 // ==================== 数据格式转换函数 ====================
 
@@ -71,9 +73,9 @@ const transformEssayData = (essay, options = {}) => {
     favouriteCount: essay.favouriteCount !== undefined ? essay.favouriteCount : 0,
     reshareCount: essay.reshareCount !== undefined ? essay.reshareCount : 0,
     date: formatDate(essay.date),
-    // 检查当前用户是否已点赞/收藏
-    isLiked: currentUid ? essay.likes?.some(like => like.uid === currentUid) || false : false,
-    isFavourited: currentUid ? essay.favourites?.some(fav => fav.uid === currentUid) || false : false,
+    // 交互状态默认为 false，由 checkEssayInteractions 单独查询后覆盖
+    isLiked: false,
+    isFavourited: false,
     isReshared: false
   }
   

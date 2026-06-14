@@ -4,7 +4,10 @@ const express = require('express')
 const router = express.Router()
 
 const userController = require('../controllers/userController')
-const { needToken } = require('../middleware/authMiddleware')
+const { needToken, optionalAuth } = require('../middleware/authMiddleware')
+
+// 可选认证：对公开路由解码 JWT（如果存在），方便已登录用户获取交互状态
+router.use(optionalAuth)
 
 // --- 用户搜索 ---
 // GET /api/user?q=关键词&page=1&element=16

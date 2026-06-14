@@ -4,6 +4,10 @@ const express = require('express')
 const router = express.Router()
 
 const commentController = require('../controllers/commentController')
+const { optionalAuth } = require('../middleware/authMiddleware')
+
+// 可选认证：解码 JWT（如果存在），使已登录用户获得交互状态
+router.use(optionalAuth)
 
 // --- 评论列表 ---
 // GET /api/comment?sort=1&page=1&element=16&vid=123

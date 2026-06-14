@@ -4,6 +4,10 @@ const express = require('express')
 const router = express.Router()
 
 const postController = require('../controllers/postController')
+const { optionalAuth } = require('../middleware/authMiddleware')
+
+// 可选认证：解码 JWT（如果存在），使已登录用户获得交互状态
+router.use(optionalAuth)
 
 // --- 动态列表 ---
 // GET /api/post?sort=-date&page=1&element=16

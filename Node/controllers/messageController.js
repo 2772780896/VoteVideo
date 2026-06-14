@@ -73,7 +73,7 @@ const sendMessage = async (req, res) => {
 
   } catch (error) {
     // 参数错误
-    if (error.message === '消息内容不能为空') {
+    if (error.message === '消息内容不能为空' || error.message === '必须指定对话ID或接收者ID') {
       return res.status(400).json({
         code: 400,
         message: error.message,

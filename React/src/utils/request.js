@@ -7,14 +7,14 @@ const request = axios.create({
 })
 
 // 请求拦截器：统一添加认证 Token
+// 策略：只要本地存在 Token，就自动附加到 Authorization Header
+// 这样内容浏览请求（视频列表、详情等）也能让后端识别登录用户，
+// 从而返回 isLiked / isFavourited 等交互状态
 request.interceptors.request.use((config) => {
-    if (config.needToken) {
-        const token = Cookies.get('token')
-        if (token) {
-            // 标准做法：Token 放在 Authorization Header（Bearer 方案）
-            // 替代旧方案：将 token 放在请求体 body.authorization 中
-            config.headers.Authorization = `Bearer ${token}`
-        }
+    const token = Cookies.get('token')
+    if (token) {
+        // 标准做法：Token 放在 Authorization Header（Bearer 方案）
+        config.headers.Authorization = `Bearer ${token}`
     }
     return config
 })

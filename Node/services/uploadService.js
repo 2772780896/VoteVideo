@@ -25,7 +25,7 @@ async function uploadVideo(uid, { title, description, cover, videoUrl }) {
       videoUrl: videoUrl,
       duration: null,  // 需要后续处理视频获取时长
       viewCount: 0,
-      messageCount: 0,
+      commentCount: 0,
       likeCount: 0,
       favouriteCount: 0,
       uploader_uid: uid  // 上传者ID

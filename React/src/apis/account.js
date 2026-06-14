@@ -30,8 +30,8 @@ export const getProfileSubdata = (sort, page = 1, element = 16, profileType, dat
 };
 
 // 发送私信消息
-export const sendMessage = (dialogueMid, text) =>
-    request.post('/api/user/message/send', { dialogueMid, text }, { needToken: true });
+export const sendMessage = (dialogueMid, text, receiverUid) =>
+    request.post('/api/user/message/send', { dialogueMid, text, receiverUid }, { needToken: true });
 
 // ==================== 用户级交互 API ====================
 // 统一走 content.js 的 interact，不再单独维护
