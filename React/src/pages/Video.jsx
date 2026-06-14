@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, Link } from 'react-router-dom'
 import TopMenuApp from '@/components/common/TopMenu'
 import VideoPlayerApp from '@/components/common/VideoPlayer'
 import InteractionBar from '@/components/common/InteractionBar'
@@ -8,7 +8,6 @@ import CommentCard from '@/components/common/DataCard/CommentCard'
 import { fetchItem, fetchItemList } from '@/apis/content'
 import UploadCardApp from '@/components/common/UploaderCard'
 import VideoCard from '@/components/common/DataCard/VideoCard'
-import TagRow from '@/components/common/TagRow'
 import useData from '@/hooks/useData'
 import SortDropdown from '@/components/common/SortDropdown'
 
@@ -77,7 +76,17 @@ const VideoPage = () => {
 
             {/* 标签行 */}
             <div className="mb-4">
-              <TagRow tagList={video?.tagList} />
+              <div className="flex flex-wrap gap-2">
+                {video?.tagList?.map(tag => (
+                  <Link
+                    key={tag.tid}
+                    to={`/tag/${tag.tid}`}
+                    className="inline-block px-3 py-1 text-sm text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors no-underline hover:no-underline"
+                  >
+                    {tag.tagName}
+                  </Link>
+                ))}
+              </div>
             </div>
 
             {/* 互动按钮（状态自有，不污染 VideoPage） */}

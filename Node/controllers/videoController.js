@@ -68,7 +68,8 @@ const getVideoList = async (req, res) => {
       page = 1,
       element = 16,
       sort = '-date',
-      q = ''
+      q = '',
+      uid
     } = req.query
     
     // 获取当前用户ID（如果已登录）
@@ -80,6 +81,7 @@ const getVideoList = async (req, res) => {
       element,
       sort,
       q,
+      uid,
       currentUid
     })
     

@@ -1,42 +1,48 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Flex, Typography } from 'antd';
-import { PlayCircleOutlined, AlignLeftOutlined } from '@ant-design/icons'
 
-const { Text } = Typography
-const App = ({post}) => {
-  const link = `/post/${post.pid}`
-  const video = post.videoList?.[0]
-  const picture = post.pictureList?.[0]
+const PostCard = ({ post }) => {
+  const link = `/post/${post.pid}`;
+  const video = post.videoList?.[0];
+  const picture = post.pictureList?.[0];
+
   return (
-    <Link to={link} style={{ color: 'inherit', textDecoration: 'none' }}>
-      <Flex justify="space-between" style={{minWidth:'250px', maxWidth:'450px'}}>
+    <Link
+      to={link}
+      className="block no-underline text-inherit hover:no-underline"
+    >
+      <div className="flex justify-between" style={{ minWidth: '250px', maxWidth: '450px' }}>
         {video && (
-          <div style={{position:'relative', width:'30%'}}>
-            <img 
-              alt="example"
+          <div className="relative w-[30%]">
+            <img
+              alt={post.title}
               src={video.coverUrl}
-              style={{ width:'100%', aspectRatio:'16/9' }}>
-            </img>
-            <div style={{
-              position:'absolute',
-              right:'0px',
-              bottom:'0px'
-            }}>{video.duration}</div>
+              className="w-full aspect-video object-cover rounded"
+            />
+            <div className="absolute right-0 bottom-0 bg-black/70 text-white text-xs px-1 py-0.5 rounded">
+              {video.duration}
+            </div>
           </div>
         )}
-        {picture && <img src={picture} style={{position:'relative', width:'30%', aspectRatio:'16/9'}} />}
-        <Flex vertical justify="start" style={{ width:'70%' }}>
-          <Text strong>{post.title}</Text>
-          <Flex justify="start" gap={'middle'}>
+        {picture && (
+          <img
+            src={picture}
+            alt={post.title}
+            className="relative w-[30%] aspect-video object-cover rounded"
+          />
+        )}
+        <div className="flex flex-col justify-start w-[70%] pl-3">
+          <span className="font-bold text-sm text-gray-900">{post.title}</span>
+          <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
             <span>{post.uploader.userName}</span>
-            <span><PlayCircleOutlined />{post.viewCount}</span>
-            <span><AlignLeftOutlined />{post.commentCount}</span>
-          </Flex>
-          <span>{post.date}</span>
-        </Flex>
-      </Flex>
+            <span className="flex items-center gap-1">▶ {post.viewCount}</span>
+            <span className="flex items-center gap-1">💬 {post.commentCount}</span>
+          </div>
+          <span className="text-xs text-gray-400 mt-1">{post.date}</span>
+        </div>
+      </div>
     </Link>
-  )
-}
-export default App;
+  );
+};
+
+export default PostCard;

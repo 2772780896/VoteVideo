@@ -6,10 +6,10 @@ import Cookies from 'js-cookie'
 
 const navLinks = [
   { to: '/',    label: '首页' },
-  { to: '/',    label: '视频' },
-  { to: '/',    label: '文章' },
-  { to: '/',    label: '动态' },
-  { to: '/',    label: '标签' },
+  { to: '/search?tab=videos',    label: '视频' },
+  { to: '/search?tab=essays',    label: '文章' },
+  { to: '/search?tab=posts',    label: '动态' },
+  { to: '/search?tab=tags',    label: '标签' },
 ]
 
 const App = () => {

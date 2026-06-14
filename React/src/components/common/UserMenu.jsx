@@ -69,6 +69,22 @@ const UserMenu = () => {
               个人中心
             </Link>
 
+            <Link
+              to="/upload"
+              onClick={() => setDropdownOpen(false)}
+              className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+            >
+              上传视频
+            </Link>
+
+            <Link
+              to="/dynamic"
+              onClick={() => setDropdownOpen(false)}
+              className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+            >
+              动态
+            </Link>
+
             <button
               onClick={handleLogout}
               className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 transition-colors cursor-pointer"
