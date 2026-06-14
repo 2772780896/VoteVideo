@@ -5,6 +5,7 @@ import DataList from '@/components/common/DataList'
 import VideoCard from '@/components/common/DataCard/VideoCard'
 import PostCard from '@/components/common/DataCard/PostCard'
 import EssayCard from '@/components/common/DataCard/EssayCard'
+import CommentCard from '@/components/common/DataCard/CommentCard'
 
 /**
  * 【面试必考】DATA_MAP 映射表 — 三个旧组件合并为一个
@@ -17,6 +18,7 @@ import EssayCard from '@/components/common/DataCard/EssayCard'
  *     videos: { label:'视频', Card:VideoCard, idKey:'vid', propName:'video' },   → ['videos', { label:'视频', ... }]
  *     posts:  { label:'动态', Card:PostCard,  idKey:'pid', propName:'post' },    → ['posts',  { label:'动态', ... }]
  *     essays: { label:'文章', Card:EssayCard, idKey:'eid', propName:'essay' },   → ['essays', { label:'文章', ... }]
+ *     comments: { label:'评论', Card:CommentCard, idKey:'cid', propName:'comment' }, → ['comments', { label:'评论', ... }]
  *   }
  *
  * Object.entries({ a:1, b:2 })  →  [ ['a', 1], ['b', 2] ]
@@ -26,6 +28,7 @@ const DATA_MAP = {
   videos: { label: '视频', Card: VideoCard, idKey: 'vid', propName: 'video' },
   posts:  { label: '动态', Card: PostCard,  idKey: 'pid', propName: 'post' },
   essays: { label: '文章', Card: EssayCard, idKey: 'eid', propName: 'essay' },
+  comments: { label: '评论', Card: CommentCard, idKey: 'cid', propName: 'comment' },
 }
 
 // tabs = [ ['videos',{label:'视频',...}], ['posts',{label:'动态',...}], ['essays',{label:'文章',...}] ]

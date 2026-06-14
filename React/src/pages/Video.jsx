@@ -1,21 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
-import TopMenuApp from '@/components/common/TopMenu'
-import VideoPlayerApp from '@/components/common/VideoPlayer'
+import TopMenu from '@/components/common/TopMenu'
+import VideoPlayer from '@/components/common/VideoPlayer'
 import InteractionBar from '@/components/common/InteractionBar'
-import DataList from '@/components/common/DataList'
-import CommentCard from '@/components/common/DataCard/CommentCard'
-import { fetchItem, fetchItemList } from '@/apis/content'
-import UploadCardApp from '@/components/common/UploaderCard'
-import VideoCard from '@/components/common/DataCard/VideoCard'
+import CommentSection from '@/components/common/CommentSection'
+import RelatedSidebar from '@/components/common/RelatedSidebar'
+import { fetchItem, interact } from '@/apis/content'
 import useData from '@/hooks/useData'
-import SortDropdown from '@/components/common/SortDropdown'
-
-// 评论区排序选项
-const commentSortList = [
-  { label: '最新评论', key: '-date' },
-  { label: '最早评论', key: 'date' },
-]
 
 const VideoPage = () => {
   const { vid } = useParams()
@@ -24,14 +15,12 @@ const VideoPage = () => {
   const { data: videoData, loading: videoLoading, error: videoError, refresh: refreshVideo } = useData(fetchItem, 'video', vid)
   const video = videoData
 
-  const [sort, setSort] = useState('-date')
-
   // 通知跳转：URL 带 ?comment=cid → 评论区加载完后滚到对应评论
   const [searchParams] = useSearchParams()
   const targetCommentId = searchParams.get('comment')
   useEffect(() => {
     if (!videoLoading && targetCommentId) {
-      // 等一会让 DataList 渲染完
+      // 等一会让评论区渲染完
       setTimeout(() => {
         const el = document.getElementById(`comment-${targetCommentId}`)
         el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -39,10 +28,20 @@ const VideoPage = () => {
     }
   }, [videoLoading, targetCommentId])
 
+  // 历史记录：视频加载完成后自动记录到历史
+  useEffect(() => {
+    if (video && !videoLoading) {
+      // 调用历史记录接口（静默失败，不影响用户体验）
+      interact('video', 'history', vid).catch(() => {
+        // 历史记录失败不影响主要功能
+      })
+    }
+  }, [video, videoLoading, vid])
+
   return (
     <div className="min-h-screen bg-white">
       {/* 顶部导航 */}
-      <TopMenuApp />
+      <TopMenu />
 
       {/* 主体 */}
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -66,7 +65,7 @@ const VideoPage = () => {
 
             {/* 播放器（骨架屏 + 错误态 + 正常态由组件内部处理） */}
             <div className="mb-4">
-              <VideoPlayerApp
+              <VideoPlayer
                 playVideo={video}
                 loading={videoLoading}
                 error={videoError}
@@ -92,50 +91,13 @@ const VideoPage = () => {
             {/* 互动按钮（状态自有，不污染 VideoPage） */}
             <InteractionBar mediaType="video" item={video} />
 
-            {/* 评论区排序 + 评论列表 */}
-            <div className="mb-6">
-              {/* sortList 显式传入，组件不再有隐式默认值 */}
-              <SortDropdown pushSort={setSort} defaultSort="-date" sortList={commentSortList} />
-            </div>
-            <DataList
-              request={(sort, page, element) =>
-                fetchItemList('comment', { sort, page, element, vid: video?.vid })
-              }
-              sort={sort}
-              params={[video?.vid]}
-              pageSize={16}
-              renderItem={(item) => (
-                <CommentCard
-                  key={item.cid}
-                  comment={item}
-                />
-              )}
-            />
+            {/* 评论区（通用组件，内置排序 + 分页） */}
+            <CommentSection parentId={video?.vid} parentType="video" />
 
           </div>
 
           {/* ===== 右侧：上传者信息 + 相关视频 ===== */}
-          <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6">
-
-            {/* 上传者信息卡 */}
-            <UploadCardApp playVideo={video} />
-
-            {/* 相关视频推荐 */}
-            <h2 className="text-base font-semibold text-gray-800 mb-3">视频推荐</h2>
-            {video && (
-              <DataList
-                request={(sort, page, element) =>
-                  fetchItemList('video', { subType: 'related', vid: video?.vid, sort, page, element })
-                }
-                sort={null}
-                params={[video?.vid]}
-                pageSize={5}
-                renderItem={(v) => <VideoCard key={v.vid} video={v} />}
-                gridClassName="flex flex-col gap-3"
-              />
-            )}
-
-          </div>
+          <RelatedSidebar item={video} mediaType="video" />
 
         </div>
       </main>
@@ -143,4 +105,4 @@ const VideoPage = () => {
   )
 }
 
-export default VideoPage  
+export default VideoPage

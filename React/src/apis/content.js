@@ -37,16 +37,18 @@ const uploadContent = (type, data) =>
 // 新增资源类型/动作只需在 ACTION_MAP 追加，无需加新函数
 
 const ACTION_MAP = {
-  // 视频 & 通用
+  // 通用交互（所有媒体类型都支持）
   like:       { method: 'post',   path: ':mediaType/:mediaId/like' },
   unlike:     { method: 'delete', path: ':mediaType/:mediaId/like' },
+  dislike:    { method: 'post',   path: ':mediaType/:mediaId/dislike' },
+  undislike:  { method: 'delete', path: ':mediaType/:mediaId/dislike' },
   favourite:  { method: 'post',   path: ':mediaType/:mediaId/favourite' },
   unfavourite:{ method: 'delete', path: ':mediaType/:mediaId/favourite' },
   reshare:    { method: 'post',   path: ':mediaType/:mediaId/reshare' },
   unreshare:  { method: 'delete', path: ':mediaType/:mediaId/reshare' },
-  // 评论专用
-  dislike:    { method: 'post',   path: ':mediaType/:mediaId/dislike' },
-  undislike:  { method: 'delete', path: ':mediaType/:mediaId/dislike' },
+  reply:      { method: 'post',   path: ':mediaType/:mediaId/reply' },
+  // 历史记录（所有媒体类型都支持，除了 comment）
+  history:    { method: 'post',   path: ':mediaType/:mediaId/history' },
   // 用户专用
   follow:     { method: 'post',   path: ':mediaType/:mediaId/follow' },
   unfollow:   { method: 'delete', path: ':mediaType/:mediaId/follow' },
@@ -57,8 +59,9 @@ const ACTION_MAP = {
  * @param {string} mediaType - 'video' | 'comment' | 'user'
  * @param {string} action - 'like' | 'unlike' | 'favourite' | 'unfavourite' | ...
  * @param {string|number} mediaId - 资源 ID
+ * @param {object} [data={}] - 可选的请求数据（如回复内容）
  */
-const interact = (mediaType, action, mediaId) => {
+const interact = (mediaType, action, mediaId, data = {}) => {
   const config = ACTION_MAP[action];
   if (!config) throw new Error(`Unknown action: ${action}`);
 
@@ -69,7 +72,7 @@ const interact = (mediaType, action, mediaId) => {
   return request({
     url: `/api/${path}`,
     method: config.method,
-    data: {},
+    data: data,
     needToken: true,
   });
 };

@@ -1,50 +1,12 @@
 import React, { useState } from 'react';
-import interact from '@/apis/content';
+import InteractionBar from '@/components/common/InteractionBar';
 
 /**
- * 评论卡片：自身管理点赞/点踩状态，不污染父组件
+ * 评论卡片：使用 InteractionBar 处理点赞/点踩
  * 每个卡片独立状态，操作只重渲染自己
  */
 const App = ({ comment, depth = 0, maxDepth = 2 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // ===== 点赞/点踩状态（自身持有） =====
-  const [isLiked, setIsLiked] = useState(comment.isLiked ?? false);
-  const [likeCount, setLikeCount] = useState(comment.likeCount ?? 0);
-  const [isDisliked, setIsDisliked] = useState(comment.isDisliked ?? false);
-
-  // 点赞
-  const handleLike = async () => {
-    const prev = isLiked
-    const prevCount = likeCount
-    setIsLiked(!prev)
-    setLikeCount(prev ? prevCount - 1 : prevCount + 1)
-    try {
-      if (prev) {
-        await interact('comment', 'unlike', comment.cid)
-      } else {
-        await interact('comment', 'like', comment.cid)
-      }
-    } catch {
-      setIsLiked(prev)
-      setLikeCount(prevCount)
-    }
-  }
-
-  // 点踩
-  const handleDislike = async () => {
-    const prev = isDisliked
-    setIsDisliked(!prev)
-    try {
-      if (prev) {
-        await interact('comment', 'undislike', comment.cid)
-      } else {
-        await interact('comment', 'dislike', comment.cid)
-      }
-    } catch {
-      setIsDisliked(prev)
-    }
-  }
 
   const hasSubComments = comment.subCommentCount > 0 && comment.subCommentList?.length > 0;
   const canExpand = depth < maxDepth && hasSubComments;
@@ -88,28 +50,8 @@ const App = ({ comment, depth = 0, maxDepth = 2 }) => {
 
       <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
         <span>{comment.date}</span>
-        <button
-          onClick={handleLike}
-          className={`transition-colors cursor-pointer ${
-            isLiked ? 'text-blue-500' : 'hover:text-blue-500'
-          }`}
-        >
-          👍 {likeCount}
-        </button>
-        <button
-          onClick={handleDislike}
-          className={`transition-colors cursor-pointer ${
-            isDisliked ? 'text-red-400' : 'hover:text-gray-700'
-          }`}
-        >
-          👎 点踩
-        </button>
-        <button
-          onClick={() => console.log('回复:', comment.cid)}
-          className="hover:text-gray-700 transition-colors cursor-pointer"
-        >
-          💬 回复
-        </button>
+        {/* 使用 InteractionBar 处理点赞/点踩/回复 */}
+        <InteractionBar mediaType="comment" item={comment} />
       </div>
 
       {canExpand && (

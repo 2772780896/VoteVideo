@@ -1,23 +1,46 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Cookies from 'js-cookie'
 import { getMyProfile } from '@/apis/account'
 import useData from '@/hooks/useData'
+import useAuthStore from '@/stores/authStore'
+
+/**
+ * 用户菜单组件
+ * 
+ * 使用 Zustand 处理登出，不再需要刷新页面
+ */
 
 const UserMenu = () => {
   const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
+  // 获取退出登录的方法
+  const logout = useAuthStore(state => state.logout)
+
   const { data: profileData, loading } = useData(getMyProfile)
   const profile = profileData
 
+  /**
+   * 处理退出登录
+   * 
+   * 之前：
+   *   - Cookies.remove('token')
+   *   - Cookies.remove('uid')
+   *   - window.location.reload()
+   * 
+   * 现在：
+   *   - 调用 logout() 统一处理
+   *   - 不需要刷新页面，Zustand 状态更新后组件会自动重新渲染
+   */
   const handleLogout = () => {
-    Cookies.remove('token')
-    Cookies.remove('uid')
+    // 调用 Zustand 的 logout 方法
+    logout()
+    
+    // 关闭下拉菜单
     setDropdownOpen(false)
-    navigate('/main')
-    // 刷新页面以重置状态
-    window.location.reload()
+    
+    // 跳转到首页
+    navigate('/')
   }
 
   if (loading) {

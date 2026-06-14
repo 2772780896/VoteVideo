@@ -9,6 +9,17 @@ import TagPage from '@/pages/Tag'
 import UploadPage from '@/pages/Upload'
 import PostPage from '@/pages/Post'
 import UserPage from '@/pages/User'
+import CommentPage from '@/pages/Comment'
+import RequireAuth from '@/components/common/RequireAuth'
+
+/**
+ * 路由配置
+ * 
+ * 受保护的路由（需要登录）：
+ * - /upload：上传页面
+ * - /user/profile：个人中心
+ * - /dynamic：动态页面
+ */
 
 const router = createBrowserRouter([
     {
@@ -21,40 +32,56 @@ const router = createBrowserRouter([
     },
     {
         path: '/video/:vid',
-        element: <VideoPage />
+        element: <VideoPage />,
     },
     {
         path: '/dynamic',
-        element: <DynamicPage />
+        element: (
+            <RequireAuth>
+                <DynamicPage />
+            </RequireAuth>
+        ),
     },
     {
         path: '/search',
-        element: <SearchPage />
+        element: <SearchPage />,
     },
     {
         path: '/essay/:eid',
-        element: <EssayPage />
+        element: <EssayPage />,
     },
     {
         path: '/tag/:tid',
-        element: <TagPage />
+        element: <TagPage />,
     },
     {
         path: '/upload',
-        element: <UploadPage />
+        element: (
+            <RequireAuth>
+                <UploadPage />
+            </RequireAuth>
+        ),
     },
     {
         path: '/post/:pid',
-        element: <PostPage />
+        element: <PostPage />,
     },
     {
         path: '/user/profile',
-        element: <ProfilePage />
+        element: (
+            <RequireAuth>
+                <ProfilePage />
+            </RequireAuth>
+        ),
     },
     {
         path: '/user/:uid',
-        element: <UserPage />
-    }
+        element: <UserPage />,
+    },
+    {
+        path: '/comment/:cid',
+        element: <CommentPage />,
+    },
 ],{
     basename: "/"
 })

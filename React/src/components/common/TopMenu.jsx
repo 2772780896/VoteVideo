@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import LoginModalApp from '@/components/common/LoginModal'
 import UserMenu from '@/components/common/UserMenu'
-import Cookies from 'js-cookie'
+import useAuthStore from '@/stores/authStore'
 
 const navLinks = [
   { to: '/',    label: '首页' },
@@ -17,19 +17,17 @@ const App = () => {
   const navigate = useNavigate()
   const [keyword, setKeyword] = useState('')
 
+  /**
+   * 订阅全局登录状态
+   * 使用 selector 避免不必要的重渲染
+   */
+  const isLoggedIn = useAuthStore(state => state.isLoggedIn)
+
   const handleSearch = () => {
     const q = keyword.trim()
     if (q) navigate(`/search?q=${encodeURIComponent(q)}&tab=videos`)
     else navigate('/search')
     setKeyword('')
-  }
-
-  // 根据 Cookie 中的 token 判断登录状态
-  const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get('token'))
-
-  // 登录成功回调
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true)
   }
 
   return (
@@ -70,8 +68,12 @@ const App = () => {
               text-gray-200 placeholder-gray-500
               focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           />
-          {/* 根据登录状态显示不同内容 */}
-          {isLoggedIn ? <UserMenu /> : <LoginModalApp onLoginSuccess={handleLoginSuccess} />}
+          {/*
+            根据全局登录状态显示不同内容
+            - 已登录：显示用户菜单
+            - 未登录：显示登录按钮（点击打开登录弹窗）
+          */}
+          {isLoggedIn ? <UserMenu /> : <LoginModalApp />}
         </div>
       </div>
     </nav>

@@ -8,6 +8,7 @@ import DataList from '@/components/common/DataList';
 import VideoCard from '@/components/common/DataCard/VideoCard';
 import PostCard from '@/components/common/DataCard/PostCard';
 import EssayCard from '@/components/common/DataCard/EssayCard';
+import useAuthStore from '@/stores/authStore'
 
 const tabs = ['视频', '动态', '文章']
 
@@ -20,7 +21,26 @@ const UserPage = () => {
   const [active, setActive] = useState(0)
   const [isFollowing, setIsFollowing] = useState(false)
 
+  // 【Zustand】获取登录状态和打开登录弹窗的方法
+  const isLoggedIn = useAuthStore(state => state.isLoggedIn)
+  const openLoginModal = useAuthStore(state => state.openLoginModal)
+
+  /**
+   * 检查登录状态
+   * 如果未登录，打开登录弹窗并返回 false
+   */
+  const checkLogin = () => {
+    if (!isLoggedIn) {
+      openLoginModal()  // 打开登录弹窗
+      return false
+    }
+    return true
+  }
+
   const handleFollow = async () => {
+    // 【登录检查】未登录则打开登录弹窗
+    if (!checkLogin()) return
+
     const next = !isFollowing
     try {
       await interact('user', next ? 'follow' : 'unfollow', user.uid)
@@ -29,6 +49,9 @@ const UserPage = () => {
   }
 
   const handleMessage = () => {
+    // 【登录检查】未登录则打开登录弹窗
+    if (!checkLogin()) return
+
     navigate('/user/profile?tab=message', {
       state: { targetUser: { uid: user.uid, userName: user.userName, profilePictureUrl: user.profilePictureUrl } }
     })

@@ -9,6 +9,10 @@ import PostCard from '@/components/common/DataCard/PostCard'
 import EssayCard from '@/components/common/DataCard/EssayCard'
 import UserCard from '@/components/common/DataCard/UserCard'
 import TagCard from '@/components/common/DataCard/TagCard'
+import CommentCard from '@/components/common/DataCard/CommentCard'
+
+// 默认推荐排序（q 为空时使用）
+const DEFAULT_SORT = '-viewCount'
 
 /**
  * 【面试必考】搜索类型映射表
@@ -17,11 +21,12 @@ import TagCard from '@/components/common/DataCard/TagCard'
  *   Card / idKey / propName → 跟 ProfileTabContent 一样的卡片渲染模式
  */
 const SEARCH_MAP = {
-  videos: { label: '视频', type: 'video', Card: VideoCard, idKey: 'vid', propName: 'video' },
-  essays: { label: '文章', type: 'essay', Card: EssayCard, idKey: 'eid', propName: 'essay' },
-  posts:  { label: '动态', type: 'post',  Card: PostCard,  idKey: 'pid', propName: 'post' },
-  users:  { label: '用户', type: 'user',  Card: UserCard,  idKey: 'uid', propName: 'user' },
-  tags:   { label: '标签', type: 'tag',   Card: TagCard,  idKey: 'tid', propName: 'tag' },
+  videos:   { label: '视频',   type: 'video',   Card: VideoCard,   idKey: 'vid', propName: 'video' },
+  essays:   { label: '文章',   type: 'essay',   Card: EssayCard,   idKey: 'eid', propName: 'essay' },
+  posts:    { label: '动态',   type: 'post',    Card: PostCard,    idKey: 'pid', propName: 'post' },
+  comments: { label: '评论',   type: 'comment', Card: CommentCard, idKey: 'cid', propName: 'comment' },
+  users:    { label: '用户',   type: 'user',    Card: UserCard,    idKey: 'uid', propName: 'user' },
+  tags:     { label: '标签',   type: 'tag',     Card: TagCard,    idKey: 'tid', propName: 'tag' },
 }
 
 const SearchPage = () => {
@@ -33,6 +38,9 @@ const SearchPage = () => {
   const activeKey = searchParams.get('tab') || 'videos'
 
   const [sort, setSort] = useState()
+
+  // q 为空时使用默认热度排序，否则使用用户选择的排序
+  const effectiveSort = keyword ? sort : (sort || DEFAULT_SORT)
 
   // 搜索输入框 → 更新 URL，保留当前 tab
   const [input, setInput] = useState(keyword)
@@ -74,52 +82,41 @@ const SearchPage = () => {
           </button>
         </div>
 
-        {/* 搜索结果（有搜索词时才显示下方内容，避免空搜索展示全量数据） */}
-        {keyword ? (
-          <>
-            {/* Tab 切换 */}
-            <div className="flex border-b border-gray-200 mb-4">
-              {Object.entries(SEARCH_MAP).map(([key, { label }]) => (
-                <button
-                  key={key}
-                  onClick={() => handleTab(key)}
-                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
-                    key === activeKey
-                      ? 'text-blue-600 border-blue-600'
-                      : 'text-gray-500 border-transparent hover:text-gray-700'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+        {/* Tab 切换（无论有无搜索词都显示，允许切换浏览热门内容） */}
+        <div className="flex border-b border-gray-200 mb-4">
+          {Object.entries(SEARCH_MAP).map(([key, { label }]) => (
+            <button
+              key={key}
+              onClick={() => handleTab(key)}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
+                key === activeKey
+                  ? 'text-blue-600 border-blue-600'
+                  : 'text-gray-500 border-transparent hover:text-gray-700'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-            {/* 排序 */}
-            <div className="mb-4">
-              <SortDropdown pushSort={setSort} />
-            </div>
+        {/* 排序 */}
+        <div className="mb-4">
+          <SortDropdown pushSort={setSort} defaultSort={keyword ? undefined : DEFAULT_SORT} />
+        </div>
 
-            {/* 搜索结果列表 */}
-            <DataList
-              key={activeKey}
-              request={(s, p, e) => fetchItemList(type, { sort: s, page: p, element: e, q: keyword })}
-              sort={sort}
-              params={[type, keyword]}
-              pageSize={16}
-              renderItem={(item) => {
-                const props = { [propName]: item }
-                return <Card key={item[idKey]} {...props} />
-              }}
-              gridClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
-            />
-          </>
-        ) : (
-          /* 无搜索词 → 空白提示 */
-          <div className="text-center py-20 text-gray-400">
-            <div className="text-5xl mb-4">🔍</div>
-            <div className="text-lg">输入关键词开始搜索</div>
-          </div>
-        )}
+        {/* 列表：有搜索词时按关键词搜索，无搜索词时按热度展示默认推荐 */}
+        <DataList
+          key={activeKey + keyword}
+          request={(s, p, e) => fetchItemList(type, { sort: s, page: p, element: e, q: keyword || undefined })}
+          sort={effectiveSort}
+          params={[type, keyword]}
+          pageSize={16}
+          renderItem={(item) => {
+            const props = { [propName]: item }
+            return <Card key={item[idKey]} {...props} />
+          }}
+          gridClassName={type === 'comment' ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}
+        />
       </main>
     </div>
   )
