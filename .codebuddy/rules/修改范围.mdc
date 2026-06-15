@@ -1,9 +1,0 @@
----
-description: 
-alwaysApply: true
-enabled: true
-updatedAt: 2026-06-11T10:19:09.105Z
-provider: 
----
-
-只对已经明确的文件执行明确的修改，当需要修改涉及未提及的文件时，需事先向我确认而不是直接修改。
