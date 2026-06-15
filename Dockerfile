@@ -5,7 +5,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # 3. 设置端口为 80（腾讯云默认）
-ENV PORT=3000
+ENV PORT=80
 
 # 4. 复制依赖描述文件（利用 Docker 缓存）
 COPY Node/package*.json ./
@@ -23,7 +23,7 @@ RUN npx prisma generate
 COPY Node/ .
 
 # 9. 暴露后端监听的端口
-EXPOSE 3000
+EXPOSE 80
 
 # 10. 启动后端的命令
 CMD ["node", "app.js"]
