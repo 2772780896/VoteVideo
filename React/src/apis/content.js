@@ -9,6 +9,15 @@ const SUBTYPE_MAP = {
     main:     '/api/video/main',
     related:  '/api/video/related',
   },
+  essay: {
+    related:  '/api/essay/related',
+  },
+  post: {
+    related:  '/api/post/related',
+  },
+  tag: {
+    related:  '/api/tag/related',
+  },
   picture: {
     carousel: '/api/picture/carousel',
   },

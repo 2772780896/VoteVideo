@@ -46,18 +46,7 @@ const parsePagination = (page = 1, element = 16) => {
   return { skip, take }
 }
 
-/**
- * 格式化数字（播放量、评论数等）
- * 将大数字转换为易读格式（如：1000 → "1k", 1000000 → "1m"）
- */
-const formatCount = (count) => {
-  if (count >= 1000000) {
-    return (count / 1000000).toFixed(1) + 'm'
-  } else if (count >= 1000) {
-    return (count / 1000).toFixed(1) + 'k'
-  }
-  return count.toString()
-}
+
 
 /**
  * 格式化日期
@@ -71,6 +60,21 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`
 }
 
+/**
+ * 安全解析 JSON 字符串
+ * - 如果值是合法 JSON 数组/对象，正常解析
+ * - 如果值是纯字符串（如 URL），包装为单元素数组
+ * - 如果值为空，返回 null
+ */
+const safeJsonParse = (value) => {
+  if (!value) return null
+  try {
+    return JSON.parse(value)
+  } catch {
+    return [value]
+  }
+}
+
 // ==================== 服务工厂函数 ====================
 
 /**
@@ -82,6 +86,7 @@ const formatDate = (date) => {
  * @param {string} config.defaultSortField - 默认排序字段（默认'date'）
  * @param {object} config.includeConfig - 关联查询配置
  * @param {function} config.transformFunction - 数据转换函数
+ * @param {string} config.mediaType - 媒体类型（用于交互状态查询，如 'video', 'essay'）
  * @returns {object} 包含通用服务方法的对象
  */
 const createService = (modelName, config = {}) => {
@@ -98,7 +103,9 @@ const createService = (modelName, config = {}) => {
     searchField = 'title',
     defaultSortField = 'date',
     includeConfig = {},
-    transformFunction = null
+    transformFunction = null,
+    mediaType = modelName,  // 默认用模型名作为媒体类型
+    tagRelationField = null  // tag 关联字段名（如 'videoTags'），有值则启用 tag 匹配推荐
   } = config
   
   // 返回包含通用服务方法的对象
@@ -142,6 +149,22 @@ const createService = (modelName, config = {}) => {
       if (options.uid) {
         where.uploader_uid = parseInt(options.uid)
       }
+
+      // 支持关注用户动态筛选（Dynamic Feed）
+      // 当 following=true 且 uid 有值时，只返回该用户关注的人发布的内容
+      if (options.following && options.uid) {
+        const followings = await prisma.userFollowing.findMany({
+          where: { uid: parseInt(options.uid) },
+          select: { following_uid: true }
+        })
+        const followingUids = followings.map(f => f.following_uid)
+        if (followingUids.length === 0) {
+          // 没有关注任何人，返回空列表
+          return { data: [], total: 0 }
+        }
+        // 覆盖 uid 筛选为关注列表
+        where.uploader_uid = { in: followingUids }
+      }
       
       // 确定关联查询配置
       const include = overrideInclude || includeConfig
@@ -169,6 +192,12 @@ const createService = (modelName, config = {}) => {
             return transformFunction(item)
           }
         })
+      }
+
+      // 自动合并交互状态（如果已登录）
+      if (currentUid && transformedItems.length > 0) {
+        const { mergeInteractions } = require('./interactionService')
+        await mergeInteractions(mediaType, transformedItems, idField, currentUid)
       }
       
       return {
@@ -264,6 +293,129 @@ const createService = (modelName, config = {}) => {
       return await model.delete({
         where: { [idField]: parseInt(id) }
       })
+    },
+
+    /**
+     * 获取相关推荐数据
+     * - 有 tagRelationField 的模型（如 video）：按共同 tag 数量匹配推荐
+     * - 其他模型：排除自己，取最新的内容
+     * @param {object} options - 查询选项
+     * @param {number} options.currentId - 当前资源ID（排除自己 + 查tag）
+     * @param {number} options.page - 页码
+     * @param {number} options.element - 每页数量
+     * @param {string} options.sort - 排序参数
+     * @param {number} options.currentUid - 当前用户ID
+     * @param {function} options.transformFunction - 覆盖默认转换函数
+     * @returns {Promise<object>} 包含推荐列表和总数
+     */
+    async getRelatedData(options = {}) {
+      const {
+        currentId,
+        page = 1,
+        element = 5,
+        sort = `-${defaultSortField}`,
+        currentUid = null,
+        transformFunction: overrideTransform = null
+      } = options
+
+      const { skip, take } = parsePagination(page, element)
+      const orderBy = parseSortParam(sort, defaultSortField)
+      const transform = overrideTransform || transformFunction
+      const currentIdParsed = parseInt(currentId)
+
+      let items, total
+
+      // === Tag 匹配推荐（仅配置了 tagRelationField 的模型） ===
+      if (tagRelationField && !Number.isNaN(currentIdParsed)) {
+        // 1. 查当前资源的 tag
+        const currentItem = await model.findUnique({
+          where: { [idField]: currentIdParsed },
+          select: { [tagRelationField]: { select: { tid: true } } }
+        })
+
+        const tagIds = currentItem
+          ? currentItem[tagRelationField].map(vt => vt.tid)
+          : []
+
+        if (tagIds.length > 0) {
+          // 2. 查有共同 tag 的其他资源（排除自己）
+          // Prisma 模型名是单数小驼峰：'videoTags' → 'videoTag'
+          const tagModelName = tagRelationField.endsWith('s')
+            ? tagRelationField.slice(0, -1)
+            : tagRelationField
+          const tagModel = prisma[tagModelName.charAt(0).toLowerCase() + tagModelName.slice(1)]
+
+          const tagMatches = await tagModel.findMany({
+            where: {
+              tid: { in: tagIds },
+              [idField]: { not: currentIdParsed }
+            },
+            select: { [idField]: true }
+          })
+
+          // 3. 按共同 tag 数量排序
+          const countMap = {}
+          tagMatches.forEach(m => {
+            const id = m[idField]
+            countMap[id] = (countMap[id] || 0) + 1
+          })
+          const rankedIds = Object.entries(countMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, parseInt(element))
+            .map(([id]) => parseInt(id))
+
+          // 4. 按排名顺序取完整数据
+          if (rankedIds.length > 0) {
+            items = await model.findMany({
+              where: { [idField]: { in: rankedIds } },
+              include: includeConfig || undefined
+            })
+            // 按 rank 顺序排列（findMany 不保证顺序）
+            const itemMap = new Map(items.map(item => [item[idField], item]))
+            items = rankedIds.map(id => itemMap.get(id)).filter(Boolean)
+            total = Object.keys(countMap).length
+          } else {
+            items = []
+            total = 0
+          }
+        } else {
+          // 当前资源没有 tag，回退到默认排序
+          const where = { [idField]: { not: currentIdParsed } }
+          ;[items, total] = await Promise.all([
+            model.findMany({ where, orderBy, skip, take, include: includeConfig || undefined }),
+            model.count({ where })
+          ])
+        }
+      } else {
+        // === 无 tag 的模型：排除自己，取最新 ===
+        const where = !Number.isNaN(currentIdParsed)
+          ? { [idField]: { not: currentIdParsed } }
+          : {}
+        ;[items, total] = await Promise.all([
+          model.findMany({ where, orderBy, skip, take, include: includeConfig || undefined }),
+          model.count({ where })
+        ])
+      }
+
+      // 数据转换
+      let transformedItems = items
+      if (transform) {
+        transformedItems = items.map(item => {
+          if (transform.length >= 2) {
+            return transform(item, { currentUid })
+          } else {
+            return transform(item)
+          }
+        })
+      }
+
+      // 合并交互状态
+      if (currentUid && transformedItems.length > 0) {
+        const { mergeInteractions } = require('./interactionService')
+        await mergeInteractions(mediaType, transformedItems, idField, currentUid)
+      }
+
+      return { data: transformedItems, total }
     }
   }
 }
@@ -280,6 +432,7 @@ const MODULE_CONFIG = {
     idField: 'vid',
     searchField: 'title',
     defaultSortField: 'date',
+    tagRelationField: 'videoTags',  // Video 有 tag 关系，可用于推荐匹配
     includeConfig: {
       uploader: {
         select: {
@@ -375,6 +528,6 @@ module.exports = {
   MODULE_CONFIG,
   parseSortParam,
   parsePagination,
-  formatCount,
-  formatDate
+  formatDate,
+  safeJsonParse
 }

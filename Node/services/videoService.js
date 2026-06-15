@@ -1,140 +1,17 @@
-// services/videoService.js - 视频服务层（函数式实现）
-// 职责：封装数据库操作、业务逻辑、数据格式转换
-// 通用逻辑已移到baseService.js
+// services/videoService.js - 视频服务层
+// 职责：视频业务逻辑编排（查数据库 → 调 transformer → 调 interactionService）
 
-const { createService, MODULE_CONFIG, formatCount, formatDate } = require('./baseService')
+const { createService, MODULE_CONFIG } = require('./baseService')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-
-// ==================== 数据格式转换函数 ====================
-
-/**
- * 查询用户对视频列表的交互状态
- * @param {Array} videoIds - 视频ID数组
- * @param {number} currentUid - 当前用户ID
- * @returns {Promise<object>} 交互状态映射 { vid: { isLiked: boolean, isFavourited: boolean } }
- */
-const checkVideoInteractions = async (videoIds, currentUid) => {
-  if (!currentUid || !videoIds || videoIds.length === 0) {
-    return {}
-  }
-  
-  // 查询用户的点赞记录
-  const likes = await prisma.userLike.findMany({
-    where: {
-      uid: currentUid,
-      type: 'video',
-      item_id: { in: videoIds }
-    },
-    select: { item_id: true }
-  })
-  
-  // 查询用户的收藏记录
-  const favourites = await prisma.userFavourite.findMany({
-    where: {
-      uid: currentUid,
-      type: 'video',
-      item_id: { in: videoIds }
-    },
-    select: { item_id: true }
-  })
-  
-  // 构建交互状态映射
-  const likeSet = new Set(likes.map(like => like.item_id))
-  const favouritesSet = new Set(favourites.map(fav => fav.item_id))
-  
-  const interactionMap = {}
-  videoIds.forEach(vid => {
-    interactionMap[vid] = {
-      isLiked: likeSet.has(vid),
-      isFavourited: favouritesSet.has(vid)
-    }
-  })
-  
-  return interactionMap
-}
-
-/**
- * 转换视频数据为前端格式
- * @param {object} video - 数据库视频对象
- * @param {object} options - 转换选项
- * @param {boolean} options.includeVideoUrl - 是否包含视频URL
- * @param {boolean} options.includeTags - 是否包含标签列表
- * @param {number} options.currentUid - 当前用户ID（用于检查是否已点赞/收藏）
- * @returns {object} 前端需要的视频对象格式
- */
-const transformVideoData = (video, options = {}) => {
-  const {
-    includeVideoUrl = false,
-    includeTags = true,
-    currentUid = null
-  } = options
-  
-  // 基础视频信息
-  const videoData = {
-    vid: video.vid,
-    coverUrl: video.coverUrl,
-    title: video.title,
-    viewCount: formatCount(video.viewCount),
-    commentCount: formatCount(video.commentCount),
-    likeCount: video.likeCount !== undefined ? video.likeCount : 0,
-    favouriteCount: video.favouriteCount !== undefined ? video.favouriteCount : 0,
-    reshareCount: video.reshareCount !== undefined ? video.reshareCount : 0,
-    duration: video.duration,
-    date: formatDate(video.date),
-    // 互动状态默认为 false，由 checkVideoInteractions 单独查询后覆盖
-    isLiked: false,
-    isFavourited: false,
-    isReshared: false
-  }
-
-  // 详情页需要视频URL
-  if (includeVideoUrl) {
-    videoData.videoUrl = video.videoUrl
-  }
-
-  // 上传者信息
-  if (video.uploader) {
-    videoData.uploader = {
-      uid: video.uploader.uid,
-      userName: video.uploader.username,
-      profilePictureUrl: video.uploader.profilePictureUrl,
-      // isFollowing 默认为 false，由外部查询覆盖
-      isFollowing: false
-    }
-  }
-  
-  // 标签列表
-  if (includeTags && video.videoTags) {
-    videoData.tagList = video.videoTags.map(vt => ({
-      tid: vt.tag.tid,
-      tagName: vt.tag.tagName,
-      likeCount: vt.tag.likeCount,
-      favouriteCount: vt.tag.favouriteCount,
-      commentCount: vt.tag.commentCount
-    }))
-  }
-  
-  return videoData
-}
-
-/**
- * 转换视频数据为轮播图格式
- * @param {Array} videos - 视频数组
- * @returns {Array} 轮播图数组
- */
-const transformToCarouselItems = (videos) => {
-  return videos.map(video => ({
-    id: video.vid,
-    src: video.coverUrl || 'https://via.placeholder.com/1920x1080'
-  }))
-}
+const { checkInteractions, mergeInteractions } = require('./interactionService')
+const { transformVideoData, transformToCarouselItems } = require('./transformers/videoTransformer')
 
 // ==================== 创建基础服务 ====================
 
-// 调用工厂函数创建基础服务
 const baseService = createService('video', {
   ...MODULE_CONFIG.video,
+  mediaType: 'video',
   transformFunction: (video) => transformVideoData(video, { includeTags: true })
 })
 
@@ -149,124 +26,51 @@ const getCarouselData = async (number = 5) => {
   const carouselVideos = await prisma.video.findMany({
     take: number,
     orderBy: { viewCount: 'desc' },
-    select: {
-      vid: true,
-      coverUrl: true,
-      title: true
-    }
+    select: { vid: true, coverUrl: true, title: true }
   })
-  
   return transformToCarouselItems(carouselVideos)
 }
 
 /**
- * 获取视频详情数据（增加播放量逻辑）
+ * 获取视频详情数据（增加播放量 + 交互状态）
  * @param {number} vid - 视频ID
- * @param {number} currentUid - 当前用户ID（用于检查是否已点赞/收藏）
+ * @param {number} currentUid - 当前用户ID
  * @returns {Promise<object>} 视频详情数据
  */
 const getVideoDetailData = async (vid, currentUid = null) => {
-  // 增加播放量（使用 increment 原子操作，避免读取格式化后的 viewCount）
+  // 1. 增加播放量（原子操作）
   await prisma.video.update({
     where: { vid: parseInt(vid) },
     data: { viewCount: { increment: 1 } }
   })
-  
-  // 重新读取更新后的视频数据
-  const video = await baseService.getItemData(vid, { 
-    throwIfNotFound: true
-  })
-  
-  // 转换数据（详情页需要videoUrl）
-  const videoItem = transformVideoData(video, { 
-    includeVideoUrl: true, 
+
+  // 2. 查数据库拿视频数据
+  const video = await baseService.getItemData(vid, { throwIfNotFound: true })
+
+  // 3. 转换格式（详情页需要 videoUrl 和标签）
+  const videoItem = transformVideoData(video, {
+    includeVideoUrl: true,
     includeTags: true
   })
-  
-  // 如果已登录，查询交互状态并添加到返回数据
+
+  // 4. 查交互状态
   if (currentUid) {
-    const interactionMap = await checkVideoInteractions([parseInt(vid)], currentUid)
-    if (interactionMap[vid]) {
-      videoItem.isLiked = interactionMap[vid].isLiked
-      videoItem.isFavourited = interactionMap[vid].isFavourited
-    }
+    await mergeInteractions('video', [videoItem], 'vid', currentUid)
   }
-  
+
   return videoItem
 }
 
 /**
- * 获取相关视频推荐数据
- * @param {object} options - 查询选项
- * @param {number} options.vid - 当前视频ID
- * @param {string} options.sort - 排序参数
- * @param {number} options.page - 页码
- * @param {number} options.element - 每页数量
- * @param {number} options.currentUid - 当前用户ID（用于检查是否已点赞/收藏）
- * @returns {Promise<object>} 包含相关视频列表和总数的对象
+ * 获取相关视频推荐数据（委托给 baseService.getRelatedData，支持 tag 匹配）
  */
-const getRelatedVideosData = async (options = {}) => {
-  const {
-    vid,
-    sort = '-date',
-    page = 1,
-    element = 5,
-    currentUid = null
-  } = options
-  
-  const { skip, take } = parsePagination(page, element)
-  const orderBy = parseSortParam(sort)
-  
-  // 查询相关视频（排除当前视频）
-  const where = {
-    vid: { not: parseInt(vid) }
-  }
-  
-  // 并行执行查询
-  const [videos, total] = await Promise.all([
-    prisma.video.findMany({
-      where,
-      orderBy,
-      skip,
-      take,
-      include: {
-        uploader: {
-          select: {
-            uid: true,
-            username: true,
-            profilePictureUrl: true
-          }
-        }
-      }
-    }),
-    prisma.video.count({ where })
-  ])
-  
-  // 转换视频数据
-  const videoItems = videos.map(video => 
-    transformVideoData(video, { includeTags: false })
-  )
-  
-  // 如果已登录，通过 checkVideoInteractions 查询交互状态
-  if (currentUid && videoItems.length > 0) {
-    const videoIds = videoItems.map(v => v.vid)
-    const interactionMap = await checkVideoInteractions(videoIds, currentUid)
-    videoItems.forEach(v => {
-      if (interactionMap[v.vid]) {
-        v.isLiked = interactionMap[v.vid].isLiked
-        v.isFavourited = interactionMap[v.vid].isFavourited
-      }
-    })
-  }
-  
-  return {
-    data: videoItems,
-    total: total
-  }
+const getRelatedVideosData = (options = {}) => {
+  return baseService.getRelatedData({
+    ...options,
+    currentId: options.vid,
+    transformFunction: (video) => transformVideoData(video, { includeTags: false })
+  })
 }
-
-// 导入工具函数（用于上面的函数）
-const { parsePagination, parseSortParam } = require('./baseService')
 
 // ==================== 导出 ====================
 
@@ -276,11 +80,12 @@ module.exports = {
   getVideoListData: baseService.getListData,
   getVideoDetailData,
   getRelatedVideosData,
-  
-  // 数据格式转换函数
+
+  // 数据格式转换函数（外部可能直接使用）
   transformVideoData,
   transformToCarouselItems,
-  
-  // 交互状态查询函数
-  checkVideoInteractions
+
+  // 交互状态查询（外部可能直接使用）
+  checkInteractions: (ids, uid) => checkInteractions('video', ids, uid),
+  mergeInteractions: (items, uid) => mergeInteractions('video', items, 'vid', uid)
 }

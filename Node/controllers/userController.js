@@ -219,7 +219,7 @@ const getProfileSubdata = async (req, res) => {
 
     // 前端传 dataType 为复数形式（videos/posts/essays），
     // 但数据库中 type 字段存储的是单数形式（video/post/essay）
-    const typeMap = { videos: 'video', posts: 'post', essays: 'essay' }
+    const typeMap = { videos: 'video', posts: 'post', essays: 'essay', comments: 'comment' }
     const dbType = typeMap[dataType] || dataType
 
     // 根据 profileType 和 dataType 查询数据
@@ -278,6 +278,7 @@ const getProfileSubdata = async (req, res) => {
         total = await prisma.post.count({ where: { uploader_uid: currentUid } })
         data = result.map(post => ({
           pid: post.pid,
+          title: post.title || null,
           text: post.text,
           pictureList: post.pictureList ? JSON.parse(post.pictureList) : null,
           videoList: post.videoList ? JSON.parse(post.videoList) : null,
@@ -323,6 +324,20 @@ const getProfileSubdata = async (req, res) => {
           },
           date: formatDate(essay.date)
         }))
+      } else if (dataType === 'comments') {
+        const commentWhere = { uploader_uid: currentUid }
+        const result = await prisma.comment.findMany({
+          where: commentWhere,
+          orderBy: { date: 'desc' },
+          skip: (parseInt(page) - 1) * parseInt(element),
+          take: parseInt(element),
+          include: {
+            uploader: { select: { uid: true, username: true, profilePictureUrl: true } },
+            parentComment: { include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } } }
+          }
+        })
+        total = await prisma.comment.count({ where: commentWhere })
+        data = result.map(c => transformCommentForProfile(c))
       }
     } else if (profileType === 'favourites') {
       // 用户收藏 - 关联查询实际内容数据
@@ -355,7 +370,7 @@ const getProfileSubdata = async (req, res) => {
             include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } }
           })
           data = items.map(p => ({
-            pid: p.pid, text: p.text,
+            pid: p.pid, title: p.title || null, text: p.text,
             pictureList: p.pictureList ? JSON.parse(p.pictureList) : null,
             videoList: p.videoList ? JSON.parse(p.videoList) : null,
             viewCount: p.viewCount, commentCount: p.commentCount, likeCount: p.likeCount,
@@ -375,6 +390,15 @@ const getProfileSubdata = async (req, res) => {
             date: formatDate(e.date),
             uploader: { uid: e.uploader.uid, userName: e.uploader.username, profilePictureUrl: e.uploader.profilePictureUrl }
           }))
+        } else if (dataType === 'comments') {
+          const items = await prisma.comment.findMany({
+            where: { cid: { in: itemIds } },
+            include: {
+              uploader: { select: { uid: true, username: true, profilePictureUrl: true } },
+              parentComment: { include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } } }
+            }
+          })
+          data = items.map(c => transformCommentForProfile(c))
         }
       }
     } else if (profileType === 'history') {
@@ -408,7 +432,7 @@ const getProfileSubdata = async (req, res) => {
             include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } }
           })
           data = items.map(p => ({
-            pid: p.pid, text: p.text,
+            pid: p.pid, title: p.title || null, text: p.text,
             pictureList: p.pictureList ? JSON.parse(p.pictureList) : null,
             videoList: p.videoList ? JSON.parse(p.videoList) : null,
             viewCount: p.viewCount, commentCount: p.commentCount, likeCount: p.likeCount,
@@ -428,6 +452,15 @@ const getProfileSubdata = async (req, res) => {
             date: formatDate(e.date),
             uploader: { uid: e.uploader.uid, userName: e.uploader.username, profilePictureUrl: e.uploader.profilePictureUrl }
           }))
+        } else if (dataType === 'comments') {
+          const items = await prisma.comment.findMany({
+            where: { cid: { in: itemIds } },
+            include: {
+              uploader: { select: { uid: true, username: true, profilePictureUrl: true } },
+              parentComment: { include: { uploader: { select: { uid: true, username: true, profilePictureUrl: true } } } }
+            }
+          })
+          data = items.map(c => transformCommentForProfile(c))
         }
       }
     } else if (profileType === 'follow') {
@@ -497,6 +530,41 @@ const formatDate = (date) => {
   const month = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
+}
+
+// 转换评论数据为 Profile 子数据格式
+const transformCommentForProfile = (c) => {
+  let parentType = null
+  let parentId = null
+  if (c.vid) { parentType = 'video'; parentId = c.vid }
+  else if (c.eid) { parentType = 'essay'; parentId = c.eid }
+  else if (c.pid) { parentType = 'post'; parentId = c.pid }
+  else if (c.tid) { parentType = 'tag'; parentId = c.tid }
+  return {
+    cid: c.cid,
+    text: c.text,
+    type: c.type,
+    pictureList: c.pictureList ? JSON.parse(c.pictureList) : null,
+    date: formatDate(c.date),
+    parentType,
+    parentId,
+    uploader: {
+      uid: c.uploader.uid,
+      userName: c.uploader.username,
+      profilePictureUrl: c.uploader.profilePictureUrl
+    },
+    replyTo: c.parentComment?.uploader ? {
+      uid: c.parentComment.uploader.uid,
+      userName: c.parentComment.uploader.username
+    } : null,
+    subCommentCount: c.subCommentCount || 0,
+    likeCount: c.likeCount || 0,
+    isLiked: false,
+    isDisliked: false,
+    isFavourited: false,
+    isReshared: false,
+    reshareCount: 0
+  }
 }
 
 // 导出控制器函数

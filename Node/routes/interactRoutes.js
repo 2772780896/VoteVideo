@@ -44,4 +44,13 @@ router.delete('/:type/:id/reshare', needToken, interactController.reshare)
 router.post('/:type/:id/dislike', needToken, interactController.dislike)
 router.delete('/:type/:id/dislike', needToken, interactController.dislike)
 
+// 历史记录（仅 POST，用户浏览时自动记录）
+// POST /api/:type/:id/history
+router.post('/:type/:id/history', needToken, interactController.history)
+
+// 回复（仅 POST，在资源下创建评论）
+// POST /api/:type/:id/reply
+// 请求体：{ text: "回复内容" }
+router.post('/:type/:id/reply', needToken, interactController.reply)
+
 module.exports = router

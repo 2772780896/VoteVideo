@@ -1,41 +1,8 @@
-// controllers/tagController.js - 标签相关控制器（优化版）
+// controllers/tagController.js - 标签相关控制器
 // 职责：处理HTTP请求、调用服务层、返回响应
-// 数据库操作和业务逻辑已移到 services/tagService.js
 
 const tagService = require('../services/tagService')
-
-// ==================== 统一错误处理 ====================
-
-/**
- * 统一错误处理函数
- * @param {object} res - Express响应对象
- * @param {Error} error - 错误对象
- * @param {string} customMessage - 自定义错误消息
- * @param {number} statusCode - HTTP状态码（默认500）
- */
-const handleControllerError = (res, error, customMessage = '服务器内部错误', statusCode = 500) => {
-  console.error(`${customMessage}:`, error)
-  return res.status(statusCode).json({
-    code: statusCode,
-    message: customMessage,
-    data: null
-  })
-}
-
-/**
- * 统一成功响应函数
- * @param {object} res - Express响应对象
- * @param {any} data - 响应数据
- * @param {string} message - 成功消息（默认'获取成功'）
- * @param {number} statusCode - HTTP状态码（默认200）
- */
-const sendSuccessResponse = (res, data, message = '获取成功', statusCode = 200) => {
-  return res.status(statusCode).json({
-    code: statusCode,
-    message,
-    data
-  })
-}
+const { sendSuccess, sendList, sendError } = require('../utils/response')
 
 // ==================== 控制器函数 ====================
 
@@ -59,17 +26,10 @@ const getTagList = async (req, res) => {
       q: ''  // Tag的搜索字段是tagName，但这里不需要搜索
     })
     
-    // 修改：返回前端期望的数据格式
-    return res.status(200).json({
-      code: 200,
-      data: {
-        items: result.data,
-        total: result.total
-      }
-    })
+    return sendList(res, result)
     
   } catch (error) {
-    return handleControllerError(res, error, '获取标签列表错误')
+    return sendError(res, error, '获取标签列表错误')
   }
 }
 
@@ -80,23 +40,17 @@ const getTagList = async (req, res) => {
 const getTagDetail = async (req, res) => {
   try {
     const tid = parseInt(req.params.tid)
-    
+
+    // 获取当前用户ID（如果已登录）
+    const currentUid = req.user?.uid || null
+
     // 调用服务层方法
-    const tagItem = await tagService.getTagDetailData(tid)
-    
-    return sendSuccessResponse(res, tagItem)
-    
+    const tagItem = await tagService.getTagDetailData(tid, currentUid)
+
+    return sendSuccess(res, tagItem)
+
   } catch (error) {
-    // 处理服务层抛出的业务错误（如标签不存在）
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({
-        code: error.statusCode,
-        message: error.message,
-        data: null
-      })
-    }
-    
-    return handleControllerError(res, error, '获取标签详情错误')
+    return sendError(res, error, '获取标签详情错误')
   }
 }
 
@@ -111,10 +65,29 @@ const getHotTags = async (req, res) => {
     // 调用服务层方法
     const hotTags = await tagService.getHotTags(limit)
     
-    return sendSuccessResponse(res, hotTags)
+    return sendSuccess(res, hotTags)
     
   } catch (error) {
-    return handleControllerError(res, error, '获取热门标签错误')
+    return sendError(res, error, '获取热门标签错误')
+  }
+}
+
+/**
+ * 获取相关标签推荐
+ * GET /api/tag/related?tid=xxx&sort=-likeCount&page=1&element=5
+ */
+const getRelatedTags = async (req, res) => {
+  try {
+    const { tid, sort = '-likeCount', page = 1, element = 5 } = req.query
+    const currentUid = req.user?.uid || null
+
+    const result = await tagService.getRelatedTagsData({
+      tid, sort, page, element, currentUid
+    })
+
+    return sendList(res, result)
+  } catch (error) {
+    return sendError(res, error, '获取相关标签推荐错误')
   }
 }
 
@@ -122,5 +95,6 @@ const getHotTags = async (req, res) => {
 module.exports = {
   getTagList,
   getTagDetail,
-  getHotTags
+  getHotTags,
+  getRelatedTags
 }

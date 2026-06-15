@@ -1,41 +1,8 @@
-// controllers/commentController.js - 评论相关控制器（优化版）
+// controllers/commentController.js - 评论相关控制器
 // 职责：处理HTTP请求、调用服务层、返回响应
-// 数据库操作和业务逻辑已移到 services/commentService.js
 
 const commentService = require('../services/commentService')
-
-// ==================== 统一错误处理 ====================
-
-/**
- * 统一错误处理函数
- * @param {object} res - Express响应对象
- * @param {Error} error - 错误对象
- * @param {string} customMessage - 自定义错误消息
- * @param {number} statusCode - HTTP状态码（默认500）
- */
-const handleControllerError = (res, error, customMessage = '服务器内部错误', statusCode = 500) => {
-  console.error(`${customMessage}:`, error)
-  return res.status(statusCode).json({
-    code: statusCode,
-    message: customMessage,
-    data: null
-  })
-}
-
-/**
- * 统一成功响应函数
- * @param {object} res - Express响应对象
- * @param {any} data - 响应数据
- * @param {string} message - 成功消息（默认'获取成功'）
- * @param {number} statusCode - HTTP状态码（默认200）
- */
-const sendSuccessResponse = (res, data, message = '获取成功', statusCode = 200) => {
-  return res.status(statusCode).json({
-    code: statusCode,
-    message,
-    data
-  })
-}
+const { sendSuccess, sendList, sendError } = require('../utils/response')
 
 // ==================== 控制器函数 ====================
 
@@ -49,9 +16,17 @@ const getCommentList = async (req, res) => {
       page = 1,
       element = 16,
       sort = '1',  // 默认按热度排序
-      vid = null
+      vid = null,
+      eid = null,
+      pid = null,
+      tid = null,
+      following,
+      uid
     } = req.query
-    
+
+    // 获取当前用户ID（如果已登录）
+    const currentUid = req.user?.uid || null
+
     // 转换排序参数（兼容前端格式）
     let sortParam = '-date'  // 默认按日期降序
     if (sort === '1') {
@@ -63,26 +38,25 @@ const getCommentList = async (req, res) => {
     } else if (sort === '-date') {
       sortParam = '-date'
     }
-    
+
     // 调用服务层方法
     const result = await commentService.getCommentListData({
       page,
       element,
       sort: sortParam,
-      vid
+      vid,
+      eid,
+      pid,
+      tid,
+      following: following === 'true',
+      uid,
+      currentUid
     })
-    
-    // 修改：返回前端期望的数据格式
-    return res.status(200).json({
-      code: 200,
-      data: {
-        items: result.data,
-        total: result.total
-      }
-    })
-    
+
+    return sendList(res, result)
+
   } catch (error) {
-    return handleControllerError(res, error, '获取评论列表错误')
+    return sendError(res, error, '获取评论列表错误')
   }
 }
 
@@ -93,23 +67,17 @@ const getCommentList = async (req, res) => {
 const getCommentDetail = async (req, res) => {
   try {
     const cid = parseInt(req.params.cid)
-    
+
+    // 获取当前用户ID（如果已登录）
+    const currentUid = req.user?.uid || null
+
     // 调用服务层方法
-    const commentItem = await commentService.getCommentDetailData(cid)
-    
-    return sendSuccessResponse(res, commentItem)
-    
+    const commentItem = await commentService.getCommentDetailData(cid, currentUid)
+
+    return sendSuccess(res, commentItem)
+
   } catch (error) {
-    // 处理服务层抛出的业务错误（如评论不存在）
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({
-        code: error.statusCode,
-        message: error.message,
-        data: null
-      })
-    }
-    
-    return handleControllerError(res, error, '获取评论详情错误')
+    return sendError(res, error, '获取评论详情错误')
   }
 }
 
@@ -132,10 +100,10 @@ const createComment = async (req, res) => {
       uploader_uid: req.user.uid  // 从JWT中获取
     })
     
-    return sendSuccessResponse(res, comment, '创建成功', 201)
+    return sendSuccess(res, comment, '创建成功', 201)
     
   } catch (error) {
-    return handleControllerError(res, error, '创建评论错误')
+    return sendError(res, error, '创建评论错误')
   }
 }
 

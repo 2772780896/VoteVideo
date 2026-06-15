@@ -13,9 +13,13 @@ router.use(optionalAuth)
 // GET /api/essay?sort=-date&page=1&element=16
 router.get('/', essayController.getEssayList)
 
+// --- 相关文章推荐 ---
+// GET /api/essay/related?eid=xxx&sort=-date&page=1&element=5
+// 注意：这个路由必须放在 /:eid 之前，否则 /related 会被匹配为 /:eid
+router.get('/related', essayController.getRelatedEssays)
+
 // --- 文章详情 ---
 // GET /api/essay/:eid
-// 注意：这个路由必须放在 / 之后，否则 / 会被匹配为 /:eid
 router.get('/:eid', essayController.getEssayDetail)
 
 // 导出路由

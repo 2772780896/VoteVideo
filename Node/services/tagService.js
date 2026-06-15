@@ -1,36 +1,17 @@
-// services/tagService.js - 标签服务层（函数式实现）
-// 职责：封装数据库操作、业务逻辑、数据格式转换
-// 特殊点：Tag没有上传者信息，数据结构较简单
+// services/tagService.js - 标签服务层
+// 职责：标签业务逻辑编排
 
-const { createService, MODULE_CONFIG, formatCount } = require('./baseService')
+const { createService, MODULE_CONFIG } = require('./baseService')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-
-// ==================== 数据格式转换函数 ====================
-
-/**
- * 转换标签数据为前端格式
- * @param {object} tag - 数据库标签对象
- * @returns {object} 前端需要的标签对象格式
- */
-const transformTagData = (tag) => {
-  const tagData = {
-    tid: tag.tid,
-    tagName: tag.tagName,
-    viewCount: tag.viewCount !== undefined ? tag.viewCount : 0,
-    likeCount: formatCount(tag.likeCount),
-    favouriteCount: formatCount(tag.favouriteCount),
-    commentCount: formatCount(tag.commentCount)
-  }
-  
-  return tagData
-}
+const { mergeInteractions } = require('./interactionService')
+const { transformTagData } = require('./transformers/tagTransformer')
 
 // ==================== 创建基础服务 ====================
 
-// 调用工厂函数创建基础服务
 const baseService = createService('tag', {
   ...MODULE_CONFIG.tag,
+  mediaType: 'tag',
   transformFunction: transformTagData
 })
 
@@ -39,12 +20,22 @@ const baseService = createService('tag', {
 /**
  * 获取标签详情数据
  * @param {number} tid - 标签ID
+ * @param {number} currentUid - 当前用户ID
  * @returns {Promise<object>} 标签详情数据
  */
-const getTagDetailData = async (tid) => {
+const getTagDetailData = async (tid, currentUid = null) => {
+  // 1. 查数据库
   const tag = await baseService.getItemData(tid, { throwIfNotFound: true })
-  
-  return transformTagData(tag)
+
+  // 2. 转换格式
+  const tagItem = transformTagData(tag)
+
+  // 3. 查交互状态
+  if (currentUid) {
+    await mergeInteractions('tag', [tagItem], 'tid', currentUid)
+  }
+
+  return tagItem
 }
 
 /**
@@ -53,15 +44,8 @@ const getTagDetailData = async (tid) => {
  * @returns {Promise<object|null>} 标签对象或null
  */
 const getTagByName = async (tagName) => {
-  const tag = await prisma.tag.findFirst({
-    where: { tagName }
-  })
-  
-  if (tag) {
-    return transformTagData(tag)
-  }
-  
-  return null
+  const tag = await prisma.tag.findFirst({ where: { tagName } })
+  return tag ? transformTagData(tag) : null
 }
 
 /**
@@ -74,19 +58,27 @@ const getHotTags = async (limit = 10) => {
     orderBy: { likeCount: 'desc' },
     take: limit
   })
-  
   return tags.map(tag => transformTagData(tag))
+}
+
+/**
+ * 获取相关标签推荐数据（委托给 baseService.getRelatedData）
+ */
+const getRelatedTagsData = (options = {}) => {
+  return baseService.getRelatedData({
+    sort: '-likeCount',  // 标签默认按热度排序
+    ...options,
+    currentId: options.tid
+  })
 }
 
 // ==================== 导出 ====================
 
 module.exports = {
-  // 业务服务函数
   getTagListData: baseService.getListData,
   getTagDetailData,
   getTagByName,
   getHotTags,
-  
-  // 数据格式转换函数
+  getRelatedTagsData,
   transformTagData
 }

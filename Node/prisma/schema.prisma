@@ -84,6 +84,7 @@ model Essay {
 // --- 动态表 ---
 model Post {
   pid          Int      @id @default(autoincrement())
+  title        String?
   text         String?
   pictureList  String? // JSON 字符串
   videoList    String? // JSON 字符串
@@ -111,6 +112,7 @@ model Tag {
 
   // 关联关系
   videoTags VideoTag[]
+  comments  Comment[] // 标签下的评论
 }
 
 // --- 视频-标签中间表 ---
@@ -137,6 +139,8 @@ model Comment {
   date            DateTime @default(now())
 
   // 关联关系
+  tid           Int? // 标签ID（标签评论时使用）
+  tag           Tag?      @relation(fields: [tid], references: [tid])
   vid           Int?
   video         Video?    @relation(fields: [vid], references: [vid])
   eid           Int? // 新增：文章ID
@@ -197,7 +201,7 @@ model UserReshare {
 // --- 用户踩中间表 ---
 model UserDislike {
   uid     Int
-  type    String // 'comment'
+  type    String // 'comment', 'tag'
   item_id Int
   addDate DateTime @default(now())
   user    User     @relation(fields: [uid], references: [uid])

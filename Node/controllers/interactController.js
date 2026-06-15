@@ -271,11 +271,67 @@ const dislike = async (req, res) => {
   }
 }
 
+// --- 历史记录 ---
+// POST /api/:type/:id/history
+// Header: Authorization: Bearer <token> (由 needToken 中间件验证)
+// 用途：用户浏览视频/文章/图文时自动记录浏览历史（静默失败）
+const history = async (req, res) => {
+  try {
+    const { type, id } = req.params
+    const { uid } = req.user
+    const result = await interactService.recordHistory(uid, type, id)
+    return res.status(200).json({
+      code: 200,
+      message: result.message,
+      data: null
+    })
+  } catch (error) {
+    if (error.message.includes('不存在')) {
+      return res.status(404).json({ code: 404, message: error.message, data: null })
+    }
+    console.error('历史记录操作错误:', error)
+    return res.status(500).json({ code: 500, message: '服务器内部错误', data: null })
+  }
+}
+
+// --- 回复 ---
+// POST /api/:type/:id/reply
+// Header: Authorization: Bearer <token> (由 needToken 中间件验证)
+// 请求体：{ text: "回复内容" }
+// 用途：在视频/文章/图文/标签/评论下创建一条评论
+const reply = async (req, res) => {
+  try {
+    const { type, id } = req.params
+    const { uid } = req.user
+    const { text } = req.body
+    const result = await interactService.createReply(uid, type, id, text)
+    return res.status(201).json({
+      code: 201,
+      message: result.message,
+      data: { cid: result.cid }
+    })
+  } catch (error) {
+    if (error.message === '回复内容不能为空') {
+      return res.status(400).json({ code: 400, message: error.message, data: null })
+    }
+    if (error.message.includes('不存在')) {
+      return res.status(404).json({ code: 404, message: error.message, data: null })
+    }
+    if (error.message.includes('不支持')) {
+      return res.status(400).json({ code: 400, message: error.message, data: null })
+    }
+    console.error('回复操作错误:', error)
+    return res.status(500).json({ code: 500, message: '服务器内部错误', data: null })
+  }
+}
+
 // 导出控制器函数
 module.exports = {
   like,
   favourite,
   follow,
   reshare,
-  dislike
+  dislike,
+  history,
+  reply
 }

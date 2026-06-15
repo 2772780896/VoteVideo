@@ -13,9 +13,13 @@ router.use(optionalAuth)
 // GET /api/post?sort=-date&page=1&element=16
 router.get('/', postController.getPostList)
 
+// --- 相关动态推荐 ---
+// GET /api/post/related?pid=xxx&sort=-date&page=1&element=5
+// 注意：这个路由必须放在 /:pid 之前，否则 /related 会被匹配为 /:pid
+router.get('/related', postController.getRelatedPosts)
+
 // --- 动态详情 ---
 // GET /api/post/:pid
-// 注意：这个路由必须放在 / 之后，否则 / 会被匹配为 /:pid
 router.get('/:pid', postController.getPostDetail)
 
 // 导出路由
