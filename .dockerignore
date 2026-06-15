@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+*.md
+React/
+Node/笔记/
+Node/记录/
+Node/实践/
+.env
+*.log
+.coverage/
