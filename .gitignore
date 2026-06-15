@@ -11,7 +11,6 @@ pnpm-debug.log*
 
 # Build outputs
 build/
-dist/
 out/
 
 # IDE
@@ -38,4 +37,4 @@ tmp/
 temp/
 
 # CodeBuddy
-.codebuddy/automations/
+.codebuddy/
