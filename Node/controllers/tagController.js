@@ -55,24 +55,6 @@ const getTagDetail = async (req, res) => {
 }
 
 /**
- * 获取热门标签
- * GET /api/tag/hot?limit=10
- */
-const getHotTags = async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 10
-    
-    // 调用服务层方法
-    const hotTags = await tagService.getHotTags(limit)
-    
-    return sendSuccess(res, hotTags)
-    
-  } catch (error) {
-    return sendError(res, error, '获取热门标签错误')
-  }
-}
-
-/**
  * 获取相关标签推荐
  * GET /api/tag/related?tid=xxx&sort=-likeCount&page=1&element=5
  */
@@ -95,6 +77,5 @@ const getRelatedTags = async (req, res) => {
 module.exports = {
   getTagList,
   getTagDetail,
-  getHotTags,
   getRelatedTags
 }

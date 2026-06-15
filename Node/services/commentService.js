@@ -94,38 +94,10 @@ const getCommentDetailData = async (cid, currentUid = null) => {
   return commentItem
 }
 
-/**
- * 创建评论（处理JSON字段和回复逻辑）
- * @param {object} data - 创建数据
- * @returns {Promise<object>} 创建后的评论对象
- */
-const createComment = async (data) => {
-  const commentData = { ...data }
-
-  // 处理图片列表
-  if (commentData.pictureList && Array.isArray(commentData.pictureList)) {
-    commentData.pictureList = JSON.stringify(commentData.pictureList)
-  }
-
-  // 回复评论时，增加父评论的 subCommentCount
-  if (commentData.replyTo_cid) {
-    await prisma.comment.update({
-      where: { cid: parseInt(commentData.replyTo_cid) },
-      data: { subCommentCount: { increment: 1 } }
-    })
-  }
-
-  return await prisma.comment.create({
-    data: commentData,
-    include: MODULE_CONFIG.comment.includeConfig
-  })
-}
-
 // ==================== 导出 ====================
 
 module.exports = {
   getCommentListData,
   getCommentDetailData,
-  createComment,
   transformCommentData
 }

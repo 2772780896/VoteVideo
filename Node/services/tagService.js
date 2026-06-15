@@ -49,19 +49,6 @@ const getTagByName = async (tagName) => {
 }
 
 /**
- * 获取热门标签
- * @param {number} limit - 数量限制
- * @returns {Promise<Array>} 热门标签数组
- */
-const getHotTags = async (limit = 10) => {
-  const tags = await prisma.tag.findMany({
-    orderBy: { likeCount: 'desc' },
-    take: limit
-  })
-  return tags.map(tag => transformTagData(tag))
-}
-
-/**
  * 获取相关标签推荐数据（委托给 baseService.getRelatedData）
  */
 const getRelatedTagsData = (options = {}) => {
@@ -78,7 +65,6 @@ module.exports = {
   getTagListData: baseService.getListData,
   getTagDetailData,
   getTagByName,
-  getHotTags,
   getRelatedTagsData,
   transformTagData
 }

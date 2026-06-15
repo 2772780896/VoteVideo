@@ -81,35 +81,8 @@ const getCommentDetail = async (req, res) => {
   }
 }
 
-/**
- * 创建评论
- * POST /api/comment
- * 需要 needToken: true
- */
-const createComment = async (req, res) => {
-  try {
-    const { vid, text, type, pictureList, replyTo_cid } = req.body
-    
-    // 调用服务层方法
-    const comment = await commentService.createComment({
-      vid: vid ? parseInt(vid) : null,
-      text,
-      type: type || 'text',
-      pictureList: pictureList || null,
-      replyTo_cid: replyTo_cid ? parseInt(replyTo_cid) : null,
-      uploader_uid: req.user.uid  // 从JWT中获取
-    })
-    
-    return sendSuccess(res, comment, '创建成功', 201)
-    
-  } catch (error) {
-    return sendError(res, error, '创建评论错误')
-  }
-}
-
 // 导出控制器函数
 module.exports = {
   getCommentList,
-  getCommentDetail,
-  createComment
+  getCommentDetail
 }

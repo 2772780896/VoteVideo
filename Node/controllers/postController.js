@@ -82,35 +82,9 @@ const getRelatedPosts = async (req, res) => {
   }
 }
 
-/**
- * 创建动态
- * POST /api/post
- * 需要 needToken: true
- */
-const createPost = async (req, res) => {
-  try {
-    const { text, pictureList, videoList, title } = req.body
-    
-    // 调用服务层方法
-    const post = await postService.createPost({
-      title: title || null,
-      text,
-      pictureList: pictureList || null,
-      videoList: videoList || null,
-      uploader_uid: req.user.uid  // 从JWT中获取
-    })
-    
-    return sendSuccess(res, post, '创建成功', 201)
-    
-  } catch (error) {
-    return sendError(res, error, '创建动态错误')
-  }
-}
-
 // 导出控制器函数
 module.exports = {
   getPostList,
   getPostDetail,
-  getRelatedPosts,
-  createPost
+  getRelatedPosts
 }

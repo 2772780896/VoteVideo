@@ -48,35 +48,12 @@ const getRelatedPostsData = (options = {}) => {
   })
 }
 
-/**
- * 创建动态（处理JSON字段）
- * @param {object} data - 创建数据
- * @returns {Promise<object>} 创建后的动态对象
- */
-const createPost = async (data) => {
-  const postData = { ...data }
-
-  if (postData.pictureList && Array.isArray(postData.pictureList)) {
-    postData.pictureList = JSON.stringify(postData.pictureList)
-  }
-
-  if (postData.videoList && Array.isArray(postData.videoList)) {
-    postData.videoList = JSON.stringify(postData.videoList)
-  }
-
-  return await prisma.post.create({
-    data: postData,
-    include: MODULE_CONFIG.post.includeConfig
-  })
-}
-
 // ==================== 导出 ====================
 
 module.exports = {
   getPostListData: baseService.getListData,
   getPostDetailData,
   getRelatedPostsData,
-  createPost,
   transformPostData,
   checkInteractions: (ids, uid) => checkInteractions('post', ids, uid)
 }
