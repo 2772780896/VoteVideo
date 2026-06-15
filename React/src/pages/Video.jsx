@@ -76,7 +76,7 @@ const VideoPage = () => {
             {/* 标签行 */}
             <div className="mb-4">
               <div className="flex flex-wrap gap-2">
-                {video?.tagList?.map(tag => (
+                {video?.tagList ? video?.tagList?.map(tag => (
                   <Link
                     key={tag.tid}
                     to={`/tag/${tag.tid}`}
@@ -84,7 +84,7 @@ const VideoPage = () => {
                   >
                     {tag.tagName}
                   </Link>
-                ))}
+                )) : "暂无标签"}
               </div>
             </div>
 

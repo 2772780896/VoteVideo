@@ -1,0 +1,17 @@
+{
+  "envId": "personal-d0g15hsz3be9d2607",
+  "region": "ap-shanghai",
+  "framework": {
+    "name": "votevideo-react",
+    "plugins": {
+      "client": {
+        "use": "@cloudbase/framework-plugin-website",
+        "inputs": {
+          "outputPath": "dist",
+          "cloudPath": "/",
+          "buildCommand": "npm run build"
+        }
+      }
+    }
+  }
+}
