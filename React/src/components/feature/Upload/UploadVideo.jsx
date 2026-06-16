@@ -7,11 +7,15 @@ const App = () => {
   const [description, setDescription] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  // 存放上传的视频文件（供预览用）
-  const [fileList, setFileList] = useState([{
-    url: "https://cdn.pixabay.com/video/2025/04/29/275633_large.mp4",
-    thumbUrl: 'https://bpic.588ku.com/element_origin_min_pic/23/07/11/d32dabe266d10da8b21bd640a2e9b611.jpg'
-  }])
+  // ========== 改造：state 改为保存原始 File 对象 ==========
+  // videoFile: 用户选择的视频 File 对象（提交时放入 FormData）
+  // coverFile: 封面 File/Blob 对象（canvas 截图或本地上传，提交时放入 FormData）
+  // videoPreview: URL.createObjectURL 生成的临时 URL（仅用于 <video> 标签预览，不上传）
+  // coverPreview: 封面预览 URL（用于 <img> 标签展示，不上传）
+  const [videoFile, setVideoFile] = useState(null)
+  const [coverFile, setCoverFile] = useState(null)
+  const [videoPreview, setVideoPreview] = useState('')
+  const [coverPreview, setCoverPreview] = useState('')
 
   // 文件选择 — <input type="file"> 被点击 → 浏览器自动弹出系统文件夹
   //   onChange 在"用户选完文件点确定"时触发，e.target.files 是 FileList（类数组）
@@ -19,15 +23,21 @@ const App = () => {
   const handleFile = (e) => {
     const file = e.target.files[0]
     if (!file) return
+    // 保存原始 File 对象（提交时通过 FormData 发送二进制文件到服务端）
+    setVideoFile(file)
     // URL.createObjectURL(file)：浏览器原生 API → 把本地 File 对象转成临时 blob URL
     //   返回 "blob:http://localhost:5173/abc-123..." → 可直接放 <video src>
     //   纯本地预览，不经过服务器。页面关闭后浏览器自动释放
-    const url = URL.createObjectURL(file)
-    setFileList([{ url, thumbUrl: url }])
+    setVideoPreview(URL.createObjectURL(file))
   }
 
-  // 删除文件
-  const handleRemove = () => setFileList([])
+  // 删除文件（同时清除视频和封面）
+  const handleRemove = () => {
+    setVideoFile(null)
+    setCoverFile(null)
+    setVideoPreview('')
+    setCoverPreview('')
+  }
 
   // 预览弹窗
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -45,38 +55,57 @@ const App = () => {
     // getContext('2d') → 拿到 2D 画笔
     // drawImage(video, 0, 0, w, h) → 把 video 当前帧画到 canvas 的 (0,0) 位置
     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
-    // toDataURL('image/jpeg') → 把 canvas 像素导出为 base64 JPEG 字符串
-    //   返回 "data:image/jpeg;base64,/9j/4AAQ..." → 可直接放 <img src>
-    const cover = canvas.toDataURL('image/jpeg')
-    // 展开旧属性 (...i)，覆盖 cover 和 thumbUrl
-    setFileList(prev => prev.map(i => ({ ...i, cover, thumbUrl: cover })))
+
+    // ========== 改造：toBlob 替代 toDataURL ==========
+    // toBlob(callback, type, quality) → 异步把 canvas 像素转成 Blob 对象
+    //   对比 toDataURL：toDataURL 同步返回 base64 字符串（大 canvas 会阻塞主线程）
+    //   toBlob 异步回调，返回 Blob 对象（可直接放入 FormData 上传）
+    canvas.toBlob((blob) => {
+      if (!blob) return
+      // 把 Blob 包装成 File 对象（带上文件名），FormData append 时更规范
+      const file = new File([blob], 'cover.jpg', { type: 'image/jpeg' })
+      setCoverFile(file)
+      // 生成预览 URL（blob URL 仅用于 <img> 展示，不上传）
+      setCoverPreview(URL.createObjectURL(file))
+    }, 'image/jpeg', 0.9)
   }
 
-  // 本地封面上传 — 把本地图片文件读成 base64 字符串
-  //   FileReader：浏览器内建 API，异步读本地文件内容
-  //   为什么必须 onload 回调？readAsDataURL 是异步的 → 发起读取立刻返回
-  //   → 此时 reader.result 是 null → 必须等 onload 触发才能拿到数据
-  //   对比 createObjectURL：视频用 blob URL（大文件不转码），图片用 base64（小文件方便直接存 state）
+  // 本地封面上传 — 直接保存 File 对象（不再用 FileReader 转 base64）
+  //   改造前：FileReader.readAsDataURL(file) → 得到 base64 字符串存 state
+  //   改造后：直接保存 File 对象 → 提交时放入 FormData，服务端收到二进制文件
   const handleCoverFile = (e) => {
     const file = e.target.files[0]
     if (!file) return
-    const reader = new FileReader()          // 创建读取器
-    reader.onload = () => {                  // 读完后的回调——此时 reader.result 才有值
-      setFileList(prev => prev.map(i => ({ ...i, cover: reader.result, thumbUrl: reader.result })))
-    }
-    reader.readAsDataURL(file)               // 开始读，转成 base64 → 完成后触发 onload
+    setCoverFile(file)
+    setCoverPreview(URL.createObjectURL(file))
   }
 
-  // 提交 — 收集表单数据，调上传 API
+  // ========== 改造：提交时构建 FormData ==========
+  // FormData 是浏览器原生 API，用于构建 multipart/form-data 请求体
+  //   append(name, value) → 添加表单字段（name 必须与后端 multer 配置的 field name 对应）
+  //   后端 videoUpload 中间件配置了 fields: [{name:'video'}, {name:'cover'}]
+  //   所以这里 append 的字段名必须严格匹配：'video'、'cover'、'title'、'description'
   const handleSubmit = async () => {
-    if (!title.trim() || fileList.length === 0) return
+    if (!title.trim() || !videoFile) return
     setSubmitting(true)
     try {
-      const { cover, url } = fileList[0]
-      await uploadContent('video', { title, description, cover, videoUrl: url })
+      const formData = new FormData()
+      formData.append('video', videoFile)       // 视频文件（必选）
+      if (coverFile) {
+        formData.append('cover', coverFile)     // 封面文件（可选）
+      }
+      formData.append('title', title)           // 标题（文本字段）
+      formData.append('description', description) // 描述（文本字段）
+
+      // uploadContent 会把 FormData 作为请求体发送
+      // axios 检测到 FormData 时会自动设置 Content-Type: multipart/form-data（不需要手动设置）
+      await uploadContent('video', formData)
       setTitle('')
       setDescription('')
-      setFileList([])
+      setVideoFile(null)
+      setCoverFile(null)
+      setVideoPreview('')
+      setCoverPreview('')
       alert('上传成功')
     } catch {
       alert('上传失败')
@@ -84,8 +113,6 @@ const App = () => {
       setSubmitting(false)
     }
   }
-
-  const current = fileList[0]
 
   return (
     <div className="space-y-6 max-w-xl">
@@ -107,18 +134,18 @@ const App = () => {
       <div>
         <div className="text-sm font-semibold text-gray-700 mb-2">上传视频</div>
 
-        {current ? (
-          // 已上传 → 显示预览卡 + 删除按钮
+        {videoFile ? (
+          // 已选择视频 → 显示预览卡 + 删除按钮
           <div className="flex items-center gap-4 p-3 border border-gray-200 rounded-lg bg-gray-50">
-            <img src={current.thumbUrl} alt="封面" className="w-24 h-16 object-cover rounded bg-black" />
+            <img src={coverPreview || videoPreview} alt="封面" className="w-24 h-16 object-cover rounded bg-black" />
             <div className="flex-1">
-              <div className="text-sm text-gray-700 truncate max-w-[200px]">{current.url}</div>
+              <div className="text-sm text-gray-700 truncate max-w-[200px]">{videoFile.name}</div>
               <button onClick={handlePreview} className="text-xs text-blue-500 hover:underline mt-1 cursor-pointer">预览视频</button>
             </div>
             <button onClick={handleRemove} className="text-red-400 hover:text-red-600 text-sm cursor-pointer">✕ 移除</button>
           </div>
         ) : (
-          // 未上传 → 拖拽/点击选区
+          // 未选择 → 拖拽/点击选区
           <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors">
             <span className="text-3xl text-gray-400 mb-1">+</span>
             <span className="text-sm text-gray-500">点击或拖拽上传视频</span>
@@ -138,11 +165,11 @@ const App = () => {
             <video
               ref={videoRef}
               controls
-              poster={current?.cover}
+              poster={coverPreview}
               crossOrigin="anonymous"
               className="w-full rounded-lg"
             >
-              <source src={current?.url} />
+              <source src={videoPreview} />
             </video>
             <canvas ref={canvasRef} className="hidden" />
             <div className="flex justify-end gap-2 mt-3">
@@ -163,8 +190,8 @@ const App = () => {
             <input type="file" accept="image/*" className="hidden" onChange={handleCoverFile} />
           </label>
         </div>
-        {current?.cover && (
-          <img src={current.cover} alt="封面预览" className="mt-2 w-24 h-16 object-cover rounded bg-gray-200" />
+        {coverPreview && (
+          <img src={coverPreview} alt="封面预览" className="mt-2 w-24 h-16 object-cover rounded bg-gray-200" />
         )}
       </div>
 

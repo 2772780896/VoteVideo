@@ -38,3 +38,7 @@ temp/
 
 # CodeBuddy
 .codebuddy/
+
+# 用户上传文件目录（multer 存盘目录，不应提交到仓库）
+uploads/
+!uploads/.gitkeep

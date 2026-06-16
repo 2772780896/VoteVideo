@@ -15,12 +15,13 @@
 
 const multer = require('multer')
 const path = require('path')
+const fs = require('fs')  // 新增：用于启动时创建上传目录
 
 // --- 公共存储引擎 ---
 //
 // diskStorage 是 multer 的磁盘存储模式（对比 memoryStorage 存内存）
 // 每次上传文件，multer 依次执行：
-//   1. destination → 决定文件写到哪个目录（自动创建目录）
+//   1. destination → 决定文件写到哪个目录（目录在模块加载时由底部 fs.mkdirSync 预创建）
 //   2. filename   → 决定文件在磁盘上的名字（防重名）
 const storage = multer.diskStorage({
 
@@ -101,5 +102,14 @@ const postUpload = multer({
   },
   limits: { fileSize: 5 * 1024 * 1024 }
 }).array('images', 9)
+
+// --- 启动时自动创建上传目录 ---
+// 防止首次上传时因目录不存在而报错
+// recursive: true 表示父目录不存在也会一并创建，已存在则静默跳过
+const uploadDirs = ['uploads/video', 'uploads/cover', 'uploads/post']
+uploadDirs.forEach(dir => {
+  fs.mkdirSync(dir, { recursive: true })
+})
+console.log('✅ 上传目录已就绪:', uploadDirs.join(', '))
 
 module.exports = { videoUpload, postUpload }

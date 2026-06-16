@@ -5,10 +5,10 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 // --- 上传视频 ---
-// 参数：uid (用户ID), data ({ title, description, cover, videoUrl })
+// 参数：uid (用户ID), data ({ title, description, coverUrl, videoUrl })
 // 返回：{ vid } (视频ID)
-// 用途：创建视频记录到数据库
-async function uploadVideo(uid, { title, description, cover, videoUrl }) {
+// 用途：创建视频记录到数据库（coverUrl/videoUrl 由 controller 从 multer 落盘文件中转换而来）
+async function uploadVideo(uid, { title, description, coverUrl, videoUrl }) {
   // 参数校验（带 statusCode 供 sendError 识别为业务错误）
   if (!title || !videoUrl) {
     const err = new Error('标题和视频URL不能为空')
@@ -23,7 +23,7 @@ async function uploadVideo(uid, { title, description, cover, videoUrl }) {
   const newVideo = await prisma.video.create({
     data: {
       title: title,
-      coverUrl: cover || null,  // 如果没有封面，设置为 null
+      coverUrl: coverUrl || null,  // 封面 URL（由 controller 从 multer 文件路径转换而来），可选
       videoUrl: videoUrl,
       duration: null,  // 需要后续处理视频获取时长
       viewCount: 0,
@@ -73,22 +73,21 @@ async function uploadEssay(uid, { title, description }) {
 }
 
 // --- 上传动态 ---
-// 参数：uid (用户ID), data ({ text, images })
+// 参数：uid (用户ID), data ({ text, imageUrls })
 // 返回：{ pid } (动态ID)
-// 用途：创建动态记录到数据库
-async function uploadPost(uid, { text, images }) {
-  // 参数校验（text 和 images 至少有一个）
-  if (!text && !images) {
+// 用途：创建动态记录到数据库（imageUrls 由 controller 从 multer 落盘文件中转换而来）
+async function uploadPost(uid, { text, imageUrls }) {
+  // 参数校验（text 和 imageUrls 至少有一个）
+  if (!text && (!imageUrls || imageUrls.length === 0)) {
     const err = new Error('内容和图片至少有一个')
     err.statusCode = 400
     throw err
   }
 
-  // 处理图片（base64 数组转换为 JSON 字符串）
-  // JSON.stringify() 用法：
-  //   - 将 JavaScript 对象转换为 JSON 字符串
-  //   - 用于存储到数据库（SQLite 不支持数组类型）
-  const pictureList = images ? JSON.stringify(images) : null
+  // 处理图片 URL 数组 → 序列化为 JSON 字符串存入 SQLite
+  // SQLite 不支持原生数组类型，所以用 JSON.stringify 转成字符串存储
+  // imageUrls 例：['/uploads/post/xxx.jpg', '/uploads/post/yyy.png']
+  const pictureList = imageUrls && imageUrls.length > 0 ? JSON.stringify(imageUrls) : null
 
   // Prisma Client 用法：
   //   prisma.post.create({ data: {...} })

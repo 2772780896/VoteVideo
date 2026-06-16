@@ -35,9 +35,12 @@ const fetchItemList = (resourceType, params = {}) => {
   return request.get(baseUrl, { params: rest })
 }
 
-// 上传内容（视频 / 文章）
+// 上传内容（视频 / 文章 / 动态）
+// timeout: 120000（2分钟）—— 视频文件可能很大，默认的 5000ms 超时太短会导致上传失败
+// data 参数可以是普通对象（JSON）或 FormData（multipart/form-data）
+//   当 data 是 FormData 时，axios 会自动设置 Content-Type: multipart/form-data（不需要手动设置）
 const uploadContent = (type, data) =>
-  request.post(`/api/upload/${type}`, data, { needToken: true })
+  request.post(`/api/upload/${type}`, data, { needToken: true, timeout: 120000 })
 
 
 

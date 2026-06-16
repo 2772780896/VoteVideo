@@ -3,9 +3,11 @@ import { uploadContent } from '@/apis/content'
 
 const App = () => {
   const [text, setText] = useState('')
-  // images 是一个纯字符串数组，每个元素是一张图片的 base64：
-  //   ["data:image/png;base64,iVBORw0...", "data:image/jpeg;base64,/9j/4A..."]
-  // 可以直接放 <img src={url}>，不需要服务器路径
+
+  // ========== 改造：images 从 base64 字符串数组改为 File 对象数组 ==========
+  // 每个元素：{ file: File, preview: string }
+  //   file    — 原始 File 对象（提交时放入 FormData，服务端收到二进制文件）
+  //   preview — URL.createObjectURL 生成的临时 URL（仅用于 <img> 缩略图展示）
   const [images, setImages] = useState([])
   const [submitting, setSubmitting] = useState(false)
 
@@ -17,27 +19,39 @@ const App = () => {
     // Array.from() → 把 FileList 转成真正的数组
     // .slice(0, 9 - images.length) → 只取还能放的张数（已选 3 张 → 最多再取 6 张）
     const files = Array.from(e.target.files).slice(0, 9 - images.length)
-    files.forEach(file => {
-      const reader = new FileReader()
-      // onload：异步——readAsDataURL 发起后立刻返回，读完才触发 onload
-      // reader.result：读完后变成 "data:image/png;base64,..." 字符串
-      reader.onload = () => setImages(prev => [...prev, reader.result])
-      reader.readAsDataURL(file)
-    })
+
+    // ========== 改造：直接保存 File 对象 + 生成预览 URL ==========
+    // 改造前：FileReader.readAsDataURL(file) → 得到 base64 字符串存 state → 提交时 JSON 发 base64
+    // 改造后：保存 File 对象 → 提交时放入 FormData → 服务端收到二进制文件（体积更小、速度更快）
+    const newImages = files.map(file => ({
+      file: file,                                // File 对象（FormData 上传用）
+      preview: URL.createObjectURL(file)         // blob URL（仅用于 <img> 预览）
+    }))
+    setImages(prev => [...prev, ...newImages])
   }
 
   // 移除图片 — 通过索引匹配
-  //   images 存的是纯字符串，没有 id → 用数组索引标识"第几张图"
   //   filter((_, i) => i !== idx)：保留索引不等于 idx 的 → 丢弃目标图片
   //   _ 是元素本身（不用），i 是索引（用来比较）
   const handleImageRemove = (idx) => setImages(prev => prev.filter((_, i) => i !== idx))
 
-  // 发布
+  // ========== 改造：发布时构建 FormData ==========
+  // 文字和图片至少有一个才允许发布（与后端 uploadService 校验逻辑一致）
   const handlePublish = async () => {
-    if (!text.trim()) return
+    if (!text.trim() && images.length === 0) return
     setSubmitting(true)
     try {
-      await uploadContent('post', { text, images })
+      // FormData：浏览器原生 API，构建 multipart/form-data 请求体
+      //   后端 postUpload 中间件配置了 multer.array('images', 9)
+      //   所以这里 append 的字段名必须是 'images'（严格匹配）
+      const formData = new FormData()
+      formData.append('text', text)              // 文本字段
+      images.forEach(img => {
+        formData.append('images', img.file)      // 逐个 append 图片文件（同名字段多值 = 数组）
+      })
+
+      // axios 检测到 FormData 时自动设置 Content-Type: multipart/form-data
+      await uploadContent('post', formData)
       setText('')
       setImages([])
       alert('发布成功')
@@ -64,12 +78,12 @@ const App = () => {
         />
       </div>
 
-      {/* 图片预览 — .map 遍历 images（base64 字符串数组）→ 每张图一个缩略图 + ✕ 按钮 */}
+      {/* 图片预览 — .map 遍历 images 对象数组 → 每张图取 .preview 做缩略图 + ✕ 按钮 */}
       {images.length > 0 && (
         <div className="flex gap-2 flex-wrap">
-          {images.map((url, idx) => (
+          {images.map((img, idx) => (
             <div key={idx} className="relative">
-              <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg" />
+              <img src={img.preview} alt="" className="w-20 h-20 object-cover rounded-lg" />
               <button
                 onClick={() => handleImageRemove(idx)}
                 className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center
@@ -98,9 +112,9 @@ const App = () => {
 
         <button
           onClick={handlePublish}
-          disabled={submitting || !text.trim()}
+          disabled={submitting || (!text.trim() && images.length === 0)}
           className={`px-5 py-1.5 text-sm font-medium text-white rounded-lg transition-colors cursor-pointer ${
-            submitting || !text.trim()
+            submitting || (!text.trim() && images.length === 0)
               ? 'bg-gray-300 cursor-not-allowed'
               : 'bg-blue-500 hover:bg-blue-600'
           }`}

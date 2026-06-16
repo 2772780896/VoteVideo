@@ -5,6 +5,7 @@ require('dotenv').config()
 
 const express = require('express')
 const cors = require('cors')
+const path = require('path')  // 新增：用于拼接 uploads 目录的绝对路径
 const routes = require('./routes')  // 引入路由索引（批量注册）
 
 // 创建 Express 应用实例
@@ -23,6 +24,11 @@ app.use(express.json())
 
 // URL-encoded 解析中间件：解析表单数据（可选）
 app.use(express.urlencoded({ extended: true }))
+
+// 新增：静态文件服务 —— 让 uploads/ 目录下的文件可通过 HTTP 直接访问
+// multer 把上传的文件写入 uploads/video/、uploads/cover/、uploads/post/
+// 这条中间件使得 http://localhost:3000/uploads/video/xxx.mp4 等 URL 可以直接访问到磁盘文件
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 // --- 路由注册（批量注册） ---
 
