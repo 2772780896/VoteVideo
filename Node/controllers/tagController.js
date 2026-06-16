@@ -14,15 +14,13 @@ const getTagList = async (req, res) => {
   try {
     const {
       page = 1,
-      element = 16,
-      sort = '-likeCount'
+      element = 16
     } = req.query
     
-    // 调用服务层方法
+    // 调用服务层方法（defaultSortField 已配置为 viewCount）
     const result = await tagService.getTagListData({
       page,
       element,
-      sort,
       q: ''  // Tag的搜索字段是tagName，但这里不需要搜索
     })
     

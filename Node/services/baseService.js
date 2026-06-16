@@ -83,10 +83,11 @@ const safeJsonParse = (value) => {
  * @param {object} config - 配置对象
  * @param {string} config.idField - 主键字段名（如 'vid', 'eid'）
  * @param {string} config.searchField - 搜索字段名（如 'title'）
- * @param {string} config.defaultSortField - 默认排序字段（默认'date'）
+ * @param {string} config.defaultSortField - 默认排序字段（默认'viewCount'）
  * @param {object} config.includeConfig - 关联查询配置
  * @param {function} config.transformFunction - 数据转换函数
  * @param {string} config.mediaType - 媒体类型（用于交互状态查询，如 'video', 'essay'）
+ * @param {boolean} config.trackView - 是否在详情接口自动增加播放量（默认false）
  * @returns {object} 包含通用服务方法的对象
  */
 const createService = (modelName, config = {}) => {
@@ -101,11 +102,12 @@ const createService = (modelName, config = {}) => {
   const {
     idField = 'id',
     searchField = 'title',
-    defaultSortField = 'date',
+    defaultSortField = 'viewCount',
     includeConfig = {},
     transformFunction = null,
     mediaType = modelName,  // 默认用模型名作为媒体类型
-    tagRelationField = null  // tag 关联字段名（如 'videoTags'），有值则启用 tag 匹配推荐
+    tagRelationField = null,  // tag 关联字段名（如 'videoTags'），有值则启用 tag 匹配推荐
+    trackView = false  // 是否在详情接口自动增加 viewCount
   } = config
   
   // 返回包含通用服务方法的对象
@@ -224,6 +226,14 @@ const createService = (modelName, config = {}) => {
       
       // 确定关联查询配置
       const include = overrideInclude || includeConfig
+      
+      // 播放量 +1（原子操作）
+      if (trackView) {
+        await model.update({
+          where: { [idField]: parseInt(id) },
+          data: { viewCount: { increment: 1 } }
+        })
+      }
       
       const item = await model.findUnique({
         where: { [idField]: parseInt(id) },
@@ -431,7 +441,8 @@ const MODULE_CONFIG = {
     modelName: 'video',
     idField: 'vid',
     searchField: 'title',
-    defaultSortField: 'date',
+    defaultSortField: 'viewCount',
+    trackView: true,
     tagRelationField: 'videoTags',  // Video 有 tag 关系，可用于推荐匹配
     includeConfig: {
       uploader: {
@@ -455,7 +466,8 @@ const MODULE_CONFIG = {
     modelName: 'essay',
     idField: 'eid',
     searchField: 'title',
-    defaultSortField: 'date',
+    defaultSortField: 'viewCount',
+    trackView: true,
     includeConfig: {
       uploader: {
         select: {
@@ -473,7 +485,8 @@ const MODULE_CONFIG = {
     modelName: 'post',
     idField: 'pid',
     searchField: 'text',  // Post的搜索字段是text
-    defaultSortField: 'date',
+    defaultSortField: 'viewCount',
+    trackView: true,
     includeConfig: {
       uploader: {
         select: {
@@ -491,7 +504,8 @@ const MODULE_CONFIG = {
     modelName: 'comment',
     idField: 'cid',
     searchField: 'text',
-    defaultSortField: 'date',
+    defaultSortField: 'viewCount',
+    trackView: true,
     includeConfig: {
       uploader: {
         select: {
@@ -514,7 +528,8 @@ const MODULE_CONFIG = {
     modelName: 'tag',
     idField: 'tid',
     searchField: 'tagName',
-    defaultSortField: 'tid',
+    defaultSortField: 'viewCount',
+    trackView: true,
     includeConfig: {},  // Tag没有关联查询
     // 数据转换函数（在tagService中定义）
     transformFunction: null

@@ -27,14 +27,14 @@ const getCarousel = async (req, res) => {
 
 /**
  * 获取视频列表（首页推荐）
- * GET /api/video/main?page=1&element=16&sort=-date&q=搜索词
+ * GET /api/video/main?page=1&element=16&sort=-viewCount&q=搜索词
  */
 const getVideoList = async (req, res) => {
   try {
     const {
       page = 1,
       element = 16,
-      sort = '-date',
+      sort,
       q = '',
       uid,
       following
@@ -84,13 +84,13 @@ const getVideoDetail = async (req, res) => {
 
 /**
  * 获取相关视频推荐
- * GET /api/video/related?vid=123&sort=-date&page=1&element=5
+ * GET /api/video/related?vid=123&page=1&element=5
  * 兼容前端发送 videoId 参数名（RelatedSidebar 通用组件使用）
  */
 const getRelatedVideos = async (req, res) => {
   try {
     const {
-      sort = '-date',
+      sort,
       page = 1,
       element = 5
     } = req.query

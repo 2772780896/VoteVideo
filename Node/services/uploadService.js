@@ -9,9 +9,11 @@ const prisma = new PrismaClient()
 // 返回：{ vid } (视频ID)
 // 用途：创建视频记录到数据库
 async function uploadVideo(uid, { title, description, cover, videoUrl }) {
-  // 参数校验
+  // 参数校验（带 statusCode 供 sendError 识别为业务错误）
   if (!title || !videoUrl) {
-    throw new Error('标题和视频URL不能为空')
+    const err = new Error('标题和视频URL不能为空')
+    err.statusCode = 400
+    throw err
   }
 
   // Prisma Client 用法：
@@ -45,7 +47,9 @@ async function uploadVideo(uid, { title, description, cover, videoUrl }) {
 async function uploadEssay(uid, { title, description }) {
   // 参数校验
   if (!title || !description) {
-    throw new Error('标题和内容不能为空')
+    const err = new Error('标题和内容不能为空')
+    err.statusCode = 400
+    throw err
   }
 
   // Prisma Client 用法：
@@ -75,7 +79,9 @@ async function uploadEssay(uid, { title, description }) {
 async function uploadPost(uid, { text, images }) {
   // 参数校验（text 和 images 至少有一个）
   if (!text && !images) {
-    throw new Error('内容和图片至少有一个')
+    const err = new Error('内容和图片至少有一个')
+    err.statusCode = 400
+    throw err
   }
 
   // 处理图片（base64 数组转换为 JSON 字符串）

@@ -2,8 +2,6 @@
 // 职责：评论业务逻辑编排（含递归子评论）
 
 const { createService, MODULE_CONFIG } = require('./baseService')
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
 const { mergeInteractions } = require('./interactionService')
 const { transformCommentData } = require('./transformers/commentTransformer')
 
@@ -67,23 +65,8 @@ const getCommentListData = async (options = {}) => {
  * @returns {Promise<object>} 评论详情数据
  */
 const getCommentDetailData = async (cid, currentUid = null) => {
-  const comment = await prisma.comment.findUnique({
-    where: { cid: parseInt(cid) },
-    include: {
-      uploader: {
-        select: { uid: true, username: true, profilePictureUrl: true }
-      },
-      parentComment: {
-        include: { uploader: true }
-      }
-    }
-  })
-
-  if (!comment) {
-    const error = new Error('评论不存在')
-    error.statusCode = 404
-    throw error
-  }
+  // trackView 已开启，baseService.getItemData 会自动 +1 播放量
+  const comment = await baseService.getItemData(cid, { throwIfNotFound: true })
 
   const commentItem = transformCommentData(comment)
 

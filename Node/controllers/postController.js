@@ -8,14 +8,14 @@ const { sendSuccess, sendList, sendError } = require('../utils/response')
 
 /**
  * 获取动态列表
- * GET /api/post?sort=-date&page=1&element=16
+ * GET /api/post?page=1&element=16&sort=-viewCount
  */
 const getPostList = async (req, res) => {
   try {
     const {
       page = 1,
       element = 16,
-      sort = '-date',
+      sort,
       q = '',
       uid,
       following
@@ -65,11 +65,11 @@ const getPostDetail = async (req, res) => {
 
 /**
  * 获取相关动态推荐
- * GET /api/post/related?pid=xxx&sort=-date&page=1&element=5
+ * GET /api/post/related?pid=xxx&page=1&element=5
  */
 const getRelatedPosts = async (req, res) => {
   try {
-    const { pid, sort = '-date', page = 1, element = 5 } = req.query
+    const { pid, sort, page = 1, element = 5 } = req.query
     const currentUid = req.user?.uid || null
 
     const result = await postService.getRelatedPostsData({

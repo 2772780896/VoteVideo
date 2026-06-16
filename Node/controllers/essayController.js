@@ -8,14 +8,14 @@ const { sendSuccess, sendList, sendError } = require('../utils/response')
 
 /**
  * 获取文章列表
- * GET /api/essay?sort=-date&page=1&element=16
+ * GET /api/essay?page=1&element=16&sort=-viewCount
  */
 const getEssayList = async (req, res) => {
   try {
     const {
       page = 1,
       element = 16,
-      sort = '-date',
+      sort,
       q = '',
       uid,
       following
@@ -65,11 +65,11 @@ const getEssayDetail = async (req, res) => {
 
 /**
  * 获取相关文章推荐
- * GET /api/essay/related?eid=xxx&sort=-date&page=1&element=5
+ * GET /api/essay/related?eid=xxx&page=1&element=5
  */
 const getRelatedEssays = async (req, res) => {
   try {
-    const { eid, sort = '-date', page = 1, element = 5 } = req.query
+    const { eid, sort, page = 1, element = 5 } = req.query
     const currentUid = req.user?.uid || null
 
     const result = await essayService.getRelatedEssaysData({

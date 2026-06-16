@@ -32,19 +32,13 @@ const getCarouselData = async (number = 5) => {
 }
 
 /**
- * 获取视频详情数据（增加播放量 + 交互状态）
+ * 获取视频详情数据（播放量由 baseService trackView 自动处理）
  * @param {number} vid - 视频ID
  * @param {number} currentUid - 当前用户ID
  * @returns {Promise<object>} 视频详情数据
  */
 const getVideoDetailData = async (vid, currentUid = null) => {
-  // 1. 增加播放量（原子操作）
-  await prisma.video.update({
-    where: { vid: parseInt(vid) },
-    data: { viewCount: { increment: 1 } }
-  })
-
-  // 2. 查数据库拿视频数据
+  // 1. 查数据库拿视频数据（trackView 配置已开启，会自动 +1 播放量）
   const video = await baseService.getItemData(vid, { throwIfNotFound: true })
 
   // 3. 转换格式（详情页需要 videoUrl 和标签）
