@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react"
  * @param  {...any} params - 传给请求函数的参数
  * @returns {{ data, loading, error, refresh }}
  *
- * 【面试必考】竞态条件（Race Condition）
+ * 竞态条件（Race Condition）
  *   快速切换 tab → 连续发两个请求 A、B
  *   B 先返回 → 渲染正确数据
  *   A 后返回 → setData(A的数据) → 卡片类型不匹配 → 崩溃

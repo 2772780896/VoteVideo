@@ -15,7 +15,7 @@ const app = express()
 
 // CORS 中间件：允许前端跨域请求
 // 开发阶段允许所有来源，生产环境应配置具体域名
-app.use(cors())
+// app.use(cors())
 
 // JSON 解析中间件：自动解析请求体中的 JSON 数据
 // 等价于 body-parser.json()，但 Express 4.16+ 已内置
